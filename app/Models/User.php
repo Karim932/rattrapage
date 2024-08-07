@@ -28,6 +28,7 @@ class User extends Authenticatable
         'phone_number',
         'role',
         'profile_picture',
+        'banned'
     ];
 
     /**
@@ -50,11 +51,12 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'banned' => 'boolean',
         ];
     }
 
     public function isAdmin()
     {
-        return $this->role === 'benevole';
+        return $this->role === 'admin';
     }
 }

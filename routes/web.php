@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LocalizationController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\SetLocalization;
+use App\Http\Middleware\CheckIfBanned;
 use Illuminate\Support\Facades\App;
 use Illuminate\Http\Request;
 
@@ -16,6 +17,15 @@ Route::get('/localization/{locale}', LocalizationController::class)->name('local
 Route::middleware(SetLocalization::class)->group(function(){
 
     Route::view('/test', 'test');
+
+    Route::middleware(['banned'])->get('/test-banned', function () {
+        return 'You are not banned.';
+    });
+
+    Route::middleware([CheckIfBanned::class])->get('/test-banned', function () {
+        return 'You are not banned.';
+    });
+
 
     Route::get('/accueil', function () {
         return view('accueil');
@@ -36,7 +46,15 @@ Route::middleware(SetLocalization::class)->group(function(){
     require __DIR__.'/auth.php';
 
     // Routes pour les utilisateurs authentifiés
-    Route::middleware(['auth', 'verified'])->group(function () {
+    Route::middleware(['auth', 'verified', CheckIfBanned::class])->group(function () {
+
+        Route::resource('users', UserController::class);
+        Route::get('/filter-users', [UserController::class, 'filterUsers'])->name('users.filter');
+        Route::post('/users/ban/{id}', [UserController::class, 'banUser'])->name('users.ban');
+        Route::post('/users/unban/{id}', [UserController::class, 'unbanUser'])->name('users.unban');
+
+
+
         Route::get('services', function () {
             return view('page_navbar/services');
         })->name('services');
@@ -64,6 +82,8 @@ Route::middleware(SetLocalization::class)->group(function(){
         Route::get('/contact', function () {
             return view('contact');
         })->name('contact');
+
+
     });
 
     Route::get('/admin/dashboard', function () {
@@ -72,7 +92,7 @@ Route::middleware(SetLocalization::class)->group(function(){
 });
 
 
-Route::resource('users', UserController::class);
+
 
 
 

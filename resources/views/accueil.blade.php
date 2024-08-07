@@ -14,6 +14,7 @@
 </header>
 
 <main class="container mx-auto px-6 py-12">
+
     <section class="my-12">
         <h2 class="text-3xl font-bold text-gray-800 text-center">Notre Mission</h2>
         <p class="mt-4 text-gray-600 text-center">L’idée de base de l’association est de récolter tous les jours les invendus commerciaux, ou les produits atteignant la date limite de consommation chez les particuliers...</p>

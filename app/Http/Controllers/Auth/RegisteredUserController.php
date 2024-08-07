@@ -52,7 +52,7 @@ class RegisteredUserController extends Controller
             'city' => $request->city,
             'country' => $request->country,
             'phone_number' => $request->phone_number,
-            'role' => 'user',
+            'role' => 'admin',
         ]);
 
         // event(new Registered($user));

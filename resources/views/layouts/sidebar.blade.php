@@ -10,11 +10,11 @@
         </a>
         <a href="{{ route('users.index') }}" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
             <span class="material-icons">people</span>
-            <span class="ml-4">Gestion des Bénévoles</span>
+            <span class="ml-4">Gestion des Utilisateurs</span>
         </a>
         <a href="#" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
             <span class="material-icons">person_add</span>
-            <span class="ml-4">Adhésion Commerçants</span>
+            <span class="ml-4">Adhésion des utilisateurs</span>
         </a>
         <a href="#" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
             <span class="material-icons">local_shipping</span>

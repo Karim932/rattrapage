@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -13,7 +14,9 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::all();
+        // $users = User::all();
+        // Récupérer les utilisateurs avec pagination
+        $users = User::paginate(10);
         return view('admin.users.index', compact('users'));
     }
 
@@ -22,7 +25,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('users.create');
+        return view('admin.users.create');
     }
 
     /**
@@ -33,7 +36,7 @@ class UserController extends Controller
         $request->validate([
             'firstname' => 'required|string|max:255',
             'lastname' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'date_of_birth' => 'nullable|date',
             'address' => 'nullable|string',
@@ -44,11 +47,27 @@ class UserController extends Controller
             'profile_picture' => 'nullable|image'
         ]);
 
-        $user = new User($request->all());
-        $user->password = Hash::make($request->password);
-        $user->save();
+        $user = User::create([
+            'firstname' => $request->firstname,
+            'lastname' => $request->lastname,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'date_of_birth' => $request->date_of_birth,
+            'address' => $request->address,
+            'city' => $request->city,
+            'country' => $request->country,
+            'phone_number' => $request->phone_number,
+            'role' => $request->role,
+            'banned' => false
+        ]);
 
-        return redirect()->route('users.index')->with('success', 'User created successfully.');
+        if ($request->hasFile('profile_picture')) {
+            $path = $request->file('profile_picture')->store('profile_pictures', 'public');
+            $user->profile_picture = $path;
+            $user->save();
+        }
+
+        return redirect()->route('users.index')->with('success', 'User created successfully');
     }
 
     /**
@@ -57,7 +76,7 @@ class UserController extends Controller
     public function show(string $id)
     {
         $user = User::findOrFail($id);
-        return view('users.show', compact('user'));
+        return view('admin.users.show', compact('user'));
     }
 
     /**
@@ -66,7 +85,7 @@ class UserController extends Controller
     public function edit(string $id)
     {
         $user = User::findOrFail($id);
-        return view('users.edit', compact('user'));
+        return view('admin.users.edit', compact('user'));
     }
 
     /**
@@ -89,11 +108,17 @@ class UserController extends Controller
             'profile_picture' => 'nullable|image'
         ]);
 
-        $user->fill($request->except(['password']));
+        $user->fill($request->except(['password', 'profile_picture']));
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }
         $user->save();
+
+        if ($request->hasFile('profile_picture')) {
+            $path = $request->file('profile_picture')->store('profile_pictures', 'public');
+            $user->profile_picture = $path;
+            $user->save();
+        }
 
         return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
@@ -105,6 +130,39 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
         $user->delete();
-        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+        return response()->json(['success' => true, 'message' => 'Utilisateur supprimé avec succès']);
     }
+
+
+    public function banUser($id)
+    {
+        $user = User::findOrFail($id);
+        $user->banned = true;
+        $user->role = 'banned';
+        $user->save();
+
+        return response()->json(['success' => true, 'message' => 'User banned successfully']);
+    }
+
+    public function unbanUser($id)
+    {
+        $user = User::findOrFail($id);
+        $user->banned = false;
+        $user->role = 'user';
+        $user->save();
+
+        return response()->json(['success' => true, 'message' => 'User unbanned successfully']);
+    }
+
+    public function filterUsers(Request $request)
+    {
+        $role = $request->input('role');
+        $users = User::when($role, function ($query, $role) {
+                return $query->where('role', $role);
+            })->paginate(10);
+
+        // Renvoyer la vue partielle avec les utilisateurs mis à jour
+        return view('admin.users.partialsTable.user-and-role', compact('users'));
+    }
+
 }

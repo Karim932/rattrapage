@@ -22,7 +22,7 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Http\Middleware\SetLocalization::class,
-
+        \App\Http\Middleware\CheckIfBanned::class
     ];
 
 
@@ -43,6 +43,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\SetLocalization::class,
+            \App\Http\Middleware\CheckIfBanned::class,
         ],
 
         'api' => [
@@ -69,6 +70,11 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'SetLocalization' => \App\Http\Middleware\SetLocalization::class,
-
+        'banned' => \App\Http\Middleware\CheckIfBanned::class
     ];
+
+    public function __construct()
+    {
+        dd('Kernel loaded');
+    }
 }
