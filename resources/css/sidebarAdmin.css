@@ -23,3 +23,23 @@ background-color: #EF4444;
 color: white;
 }
 
+.sort-direction {
+    margin-left: 8px;
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+}
+
+.icon-asc:after {
+    content: '↑'; /* Ou utiliser une icône plus appropriée */
+}
+
+.icon-desc:after {
+    content: '↓'; /* Ou utiliser une icône plus appropriée */
+}
+
+.icon-none:after {
+    content: ''; /* Aucune indication de tri */
+}
+
+

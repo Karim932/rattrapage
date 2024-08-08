@@ -12,7 +12,7 @@
             <span class="material-icons">people</span>
             <span class="ml-4">Gestion des Utilisateurs</span>
         </a>
-        <a href="#" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
+        <a href="{{ route('adhesions') }}" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
             <span class="material-icons">person_add</span>
             <span class="ml-4">Adhésion des utilisateurs</span>
         </a>

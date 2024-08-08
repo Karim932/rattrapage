@@ -26,26 +26,26 @@ class UserController extends Controller
     }
 
     // fonction recherche
-    public function search(Request $request)
-    {
-        $query = User::query();
+    // public function search(Request $request)
+    // {
+    //     $query = User::query();
 
-        if ($search = $request->input('search')) {
-            $query->where('firstname', 'like', "%{$search}%")
-                ->orWhere('lastname', 'like', "%{$search}%");
-        }
+    //     if ($search = $request->input('search')) {
+    //         $query->where('firstname', 'like', "%{$search}%")
+    //             ->orWhere('lastname', 'like', "%{$search}%");
+    //     }
 
-        if ($role = $request->input('role')) {
-            $query->where('role', $role);
-        }
+    //     if ($role = $request->input('role')) {
+    //         $query->where('role', $role);
+    //     }
 
-        return $query->get();
-    }
+    //     return $query->get();
+    // }
 
-    public function getAllUsers()
-    {
-        $users = User::all();
-        return response()->json($users);
-    }
+    // public function getAllUsers()
+    // {
+    //     $users = User::all();
+    //     return response()->json($users);
+    // }
 
 }

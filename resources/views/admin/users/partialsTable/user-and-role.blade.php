@@ -5,17 +5,17 @@
             <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 ID
             </th>
-            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Prénom
+            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sort-link" data-sort="firstname" data-order="asc">
+                Prénom <span class="sort-icon">▲</span>
             </th>
-            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Nom
+            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sort-link" data-sort="lastname" data-order="asc">
+                Nom <span class="sort-icon">▲</span>
             </th>
-            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Email
+            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sort-link" data-sort="email" data-order="asc">
+                Email <span class="sort-icon">▲</span>
             </th>
-            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Rôle
+            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sort-link" data-sort="role" data-order="asc">
+                Rôle <span class="sort-icon">▲</span>
             </th>
             <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
@@ -49,6 +49,26 @@
         @endforeach
     </tbody>
 </table>
-{{-- Pagination links --}}
-{{ $users->links() }}
+<div id="pagination-container">
+    {{-- Pagination links --}}
+    {{ $users->links() }}
+</div>
+
+<style>
+
+.sort-header {
+    cursor: pointer;
+    position: relative;
+}
+
+.sort-indicator {
+    font-size: 0.8em;
+    margin-left: 5px;
+}
+
+.sort-link {
+    cursor: pointer;
+}
+
+</style>
 

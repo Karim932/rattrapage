@@ -71,20 +71,22 @@ $(document).ready(function() {
         }
 
         $(document).ready(function() {
-            let currentAction = null;
-            let currentUrl = null;
             let currentRole = null;
-            let num = null;
 
+            function loadUserTable(role = null, sortField = 'id', sortOrder = 'asc', url = '/filter-users') {
+                const data = {
+                    role: role,
+                    sort: sortField,
+                    order: sortOrder
+                };
 
-            // Fonction pour charger la table des utilisateurs
-            function loadUserTable(role = null, url = '/filter-users') {
                 $.ajax({
-                    url,
+                    url: url,
                     method: 'GET',
-                    data: { role: role },
+                    data: data,
                     success: function(response) {
-                        $('#users-table').html(response);
+                        $('#users-table').html(response.html);
+                        $('#pagination-container').html(response.pagination);
 
                         const firstTdContent = $('#users-table table tbody tr td:first').text().trim();
                         console.log('Content after load:', firstTdContent);
@@ -93,33 +95,17 @@ $(document).ready(function() {
                             console.log('Table is empty or shows "Aucun utilisateur trouvé". No need to reload.');
                         } else {
                             currentRole = role;
+                            attachSortListeners();
+                            // Update sort indicators on headers
+                            updateSortIcons(sortField, sortOrder);
                         }
                     },
                     error: function(xhr, status, error) {
                         console.error('An error occurred:', status, error);
-                        alert('Failed to load user table.');
+                        console.log('Failed to load user table.');
                     }
                 });
             }
-
-            // Initialiser la table des utilisateurs au chargement de la page
-            loadUserTable();
-
-            // Écouteur d'événement pour les filtres de rôle
-            $('button[data-role]').on('click', function() {
-                const role = $(this).data('role');
-                const firstTdContent = $('#users-table table tbody tr td:first').text().trim();
-                console.log('First TD Content:', firstTdContent);
-
-                if (firstTdContent === "" || firstTdContent === "Aucun utilisateur trouvé") {
-                    console.log('Table is empty or shows "Aucun utilisateur trouvé". No need to reload.');
-                    return;
-                }
-
-                if (currentRole !== role) {
-                    loadUserTable(role);
-                }
-            });
 
             $('#cancel-role').on('click', function() {
                 const firstTdContent = $('#users-table table tbody tr td:first').text().trim();
@@ -133,6 +119,31 @@ $(document).ready(function() {
                 if (currentRole !== null) {
                     loadUserTable();
                 }
+            });
+
+            function attachSortListeners() {
+                $('.sort-link').on('click', function() {
+                    const sortField = $(this).data('sort');
+                    let sortOrder = $(this).data('order');
+
+                    // Toggle sort order
+                    sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+                    $(this).data('order', sortOrder); // Update the data attribute
+
+                    // Load or reload data with new sort order
+                    loadUserTable(currentRole, sortField, sortOrder);
+                });
+            }
+
+            function updateSortIcons(sortField, sortOrder) {
+                $('.sort-link').find('.sort-icon').text(''); // Clear all icons
+                $(`.sort-link[data-sort="${sortField}"]`).find('.sort-icon').text(sortOrder === 'asc' ? '▲' : '▼');
+            }
+
+            // Initial call to attach listeners on page load
+            $(document).ready(function() {
+                attachSortListeners();
+                attachPaginationListeners();
             });
 
             $(document).ready(function() {
@@ -183,7 +194,8 @@ $(document).ready(function() {
                                 $(this).addClass('hidden');
                             });
                             // Recharger la table ou faire des mises à jour d'interface ici
-                            loadUserTable(currentRole);
+                            //loadUserTable(currentRole);
+                            location.reload();
 
                         },
                         error: function(xhr) {

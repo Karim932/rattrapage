@@ -130,7 +130,7 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
         $user->delete();
-        return response()->json(['success' => true, 'message' => 'Utilisateur supprimé avec succès']);
+        return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 
 
@@ -154,15 +154,55 @@ class UserController extends Controller
         return response()->json(['success' => true, 'message' => 'User unbanned successfully']);
     }
 
+    // public function filterUsers(Request $request)
+    // {
+
+    //     $query = User::query();
+
+    //     $role = $request->input('role');
+    //     $users = User::when($role, function ($query, $role) {
+    //                 return $query->where('role', $role);
+    //             })->paginate(10);
+
+    //     // if ($request->ajax()) {
+    //     //     return view('admin.users.partialsTable.user-and-role', compact('users'))->render();
+    //     // } else {
+    //     //     return view('some.main.view', compact('users'));
+    //     // }
+
+    //     if ($sort = $request->input('sort')) {
+    //         $order = $request->input('order', 'asc');
+    //         $query->orderBy($sort, $order);
+    //     }
+
+    //     return response()->json([
+    //         'html' => view('admin.users.partialsTable.user-and-role', compact('users'))->render(),
+    //         'pagination' => $users->links()->toHtml(),
+    //     ]);
+    // }
+
     public function filterUsers(Request $request)
     {
         $role = $request->input('role');
-        $users = User::when($role, function ($query, $role) {
-                return $query->where('role', $role);
-            })->paginate(10);
+        $sortField = $request->input('sort', 'id'); // Default sorting field
+        $sortOrder = $request->input('order', 'asc'); // Default sorting order
 
-        // Renvoyer la vue partielle avec les utilisateurs mis à jour
-        return view('admin.users.partialsTable.user-and-role', compact('users'));
+        $users = User::when($role, function ($query, $role) {
+            return $query->where('role', $role);
+        })
+        ->orderBy($sortField, $sortOrder)
+        ->paginate(10);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('admin.users.partialsTable.user-and-role', compact('users'))->render(),
+                'pagination' => $users->links()->toHtml(),
+            ]);
+        }
+
+        return view('admin.users.index', compact('users'));
     }
+
+
 
 }

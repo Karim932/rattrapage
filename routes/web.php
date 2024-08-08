@@ -53,14 +53,12 @@ Route::middleware(SetLocalization::class)->group(function(){
         Route::post('/users/ban/{id}', [UserController::class, 'banUser'])->name('users.ban');
         Route::post('/users/unban/{id}', [UserController::class, 'unbanUser'])->name('users.unban');
 
-
-
         Route::get('services', function () {
             return view('page_navbar/services');
         })->name('services');
 
         Route::get('adhesions', function () {
-            return view('page_navbar/adhesions');
+            return view('admin.adhesions.candidature');
         })->name('adhesions');
 
         Route::get('/collectes', function () {
