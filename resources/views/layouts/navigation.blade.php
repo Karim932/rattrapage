@@ -18,10 +18,19 @@
                     <x-nav-link :href="route('services')" :active="request()->routeIs('services')">
                         {{ __('Services') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('adhesions')" :active="request()->routeIs('adhesions')">
-                        {{ __('message.Adhésions') }}
+                    <x-nav-link :href="route('commercant')" :active="request()->routeIs('commercant')">
+                        {{ __('Commerçant') }}
                     </x-nav-link>
-                    @auth
+                    <x-nav-link :href="route('benevole')" :active="request()->routeIs('benevole')">
+                        {{ __('message.Bénévoles') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('benevole')" :active="request()->routeIs('donation')">
+                        {{ __('Donation') }}
+                    </x-nav-link>
+
+                    {{-- ici que ceux qui sont benevole / faire middleware --}}
+                    {{-- faire un onglet missions avec dans la page avec sidebar en bas --}}
+                    {{-- @can
                     <x-nav-link :href="route('collectes')" :active="request()->routeIs('collectes')">
                         {{ __('message.Collectes') }}
                     </x-nav-link>
@@ -31,10 +40,8 @@
                     <x-nav-link :href="route('tournees')" :active="request()->routeIs('tournees')">
                         {{ __('message.Tournées') }}
                     </x-nav-link>
-                    @endauth
-                    <x-nav-link :href="route('benevoles')" :active="request()->routeIs('benevoles')">
-                        {{ __('message.Bénévoles') }}
-                    </x-nav-link>
+                    @endcan --}}
+
                     <x-nav-link :href="route('contact')" :active="request()->routeIs('contact')">
                         {{ __('Contact') }}
                     </x-nav-link>
@@ -158,7 +165,7 @@
             <x-responsive-nav-link :href="route('services')" :active="request()->routeIs('services')">
                 {{ __('Services') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('adhesions')" :active="request()->routeIs('adhesions')">
+            <x-responsive-nav-link :href="route('adhesion.index')" :active="request()->routeIs('adhesions')">
                 {{ __('Adhésions') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('collectes')" :active="request()->routeIs('collectes')">

@@ -14,14 +14,17 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
 
         {{-- jquery --}}
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        {{-- <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"> --}}
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/css/sidebarAdmin.css', 'resources/js/app.js', 'resources/js/admin.js', 'resources/js/filterUsers.js'])
+        @vite(['resources/js/app.js', 'resources/css/app.css', 'resources/css/sidebarAdmin.css', 'resources/js/admin.js', 'resources/js/filterUsers.js'])
 
         <!-- Import Material Icons -->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -36,9 +39,9 @@
 
 
         <!-- Modal Background -->
-        <div id="confirmation-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden">
+        <div id="confirmation-modal" class="fixed hidden flex inset-0 bg-gray-900 bg-opacity-50 items-center justify-center">
             <!-- Modal Content -->
-            <div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
+            <div class="bg-white rounded-lg  overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div class="sm:flex sm:items-start">
                         <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
@@ -74,7 +77,6 @@
         <div id="success-message" class="hidden fixed top-10 left-1/2 transform -translate-x-1/2 bg-green-700 text-white p-4 rounded-lg max-w-lg text-center z-50">
             <span id="success-text"></span>
         </div>
-
 
     </body>
     {{-- <footer class="bg-gray-800 text-white py-6">

@@ -70,7 +70,8 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'SetLocalization' => \App\Http\Middleware\SetLocalization::class,
-        'banned' => \App\Http\Middleware\CheckIfBanned::class
+        'banned' => \App\Http\Middleware\CheckIfBanned::class,
+        'admin' => \App\Http\Middleware\AdminMiddleware::class,
     ];
 
     public function __construct()

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 
 class UserController extends Controller
 {
@@ -154,52 +154,33 @@ class UserController extends Controller
         return response()->json(['success' => true, 'message' => 'User unbanned successfully']);
     }
 
-    // public function filterUsers(Request $request)
-    // {
-
-    //     $query = User::query();
-
-    //     $role = $request->input('role');
-    //     $users = User::when($role, function ($query, $role) {
-    //                 return $query->where('role', $role);
-    //             })->paginate(10);
-
-    //     // if ($request->ajax()) {
-    //     //     return view('admin.users.partialsTable.user-and-role', compact('users'))->render();
-    //     // } else {
-    //     //     return view('some.main.view', compact('users'));
-    //     // }
-
-    //     if ($sort = $request->input('sort')) {
-    //         $order = $request->input('order', 'asc');
-    //         $query->orderBy($sort, $order);
-    //     }
-
-    //     return response()->json([
-    //         'html' => view('admin.users.partialsTable.user-and-role', compact('users'))->render(),
-    //         'pagination' => $users->links()->toHtml(),
-    //     ]);
-    // }
-
     public function filterUsers(Request $request)
     {
+
+        // Initialisation des paramètres de tri et de filtre.
         $role = $request->input('role');
-        $sortField = $request->input('sort', 'id'); // Default sorting field
-        $sortOrder = $request->input('order', 'asc'); // Default sorting order
+        $sortField = $request->input('sort');
+        $sortOrder = $request->input('order');
 
-        $users = User::when($role, function ($query, $role) {
-            return $query->where('role', $role);
-        })
-        ->orderBy($sortField, $sortOrder)
-        ->paginate(10);
+        // Construit la requête avec les filtres et le tri.
+        $query = User::query();
 
+        if ($role) {
+            $query->where('role', $role);
+        }
+
+        $users = $query->orderBy($sortField, $sortOrder)->paginate(10);
+
+        // Rendu conditionnel basé sur le type de la requête.
         if ($request->ajax()) {
+            // Retourne les résultats sous forme de JSON pour les requêtes AJAX.
             return response()->json([
                 'html' => view('admin.users.partialsTable.user-and-role', compact('users'))->render(),
                 'pagination' => $users->links()->toHtml(),
             ]);
         }
 
+        // Pour les requêtes non-AJAX, charge la vue complète.
         return view('admin.users.index', compact('users'));
     }
 

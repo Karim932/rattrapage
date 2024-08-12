@@ -28,14 +28,14 @@ class UserFactory extends Factory
             'lastname' => $this->faker->lastName,
             'email' => $this->faker->unique()->safeEmail,
             'email_verified_at' => now(),
-            'password' => bcrypt('password'), // Default password for all users
+            'password' => bcrypt('password'), // par défaut "password"
             'date_of_birth' => $this->faker->date(),
             'address' => $this->faker->address,
             'city' => $this->faker->city,
             'country' => $this->faker->country,
             'phone_number' => $this->faker->phoneNumber,
             'role' => 'benevole', // Example role
-            'profile_picture' => $this->faker->imageUrl(640, 480, 'people'), // Example profile picture
+            'profile_picture' => $this->faker->imageUrl(640, 480, 'people'),
             'remember_token' => Str::random(10),
         ];
     }

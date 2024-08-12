@@ -2,8 +2,8 @@
 <table class="min-w-full divide-y divide-gray-200">
     <thead>
         <tr>
-            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                ID
+            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sort-link" data-sort="id" data-order="asc">
+                ID <span class="sort-icon">▲</span>
             </th>
             <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sort-link" data-sort="firstname" data-order="asc">
                 Prénom <span class="sort-icon">▲</span>

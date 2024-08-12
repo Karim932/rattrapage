@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -11,52 +10,33 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
-        'firstname',
-        'lastname',
-        'email',
-        'password',
-        'date_of_birth',
-        'address',
-        'city',
-        'country',
-        'phone_number',
-        'role',
-        'profile_picture',
-        'banned'
+        'firstname', 'lastname', 'email', 'password', 'date_of_birth',
+        'address', 'city', 'country', 'phone_number', 'role', 'profile_picture', 'banned'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    protected $hidden = ['password', 'remember_token'];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'banned' => 'boolean',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'banned' => 'boolean',
+    ];
 
     public function isAdmin()
     {
         return $this->role === 'admin';
+    }
+
+    // Relation avec AdhesionCommercant
+    public function adhesionCommercants()
+    {
+        return $this->hasMany(AdhesionCommercant::class);
+    }
+
+    // Relation avec AdhesionBenevole
+    public function adhesionBenevoles()
+    {
+        return $this->hasMany(AdhesionBenevole::class);
     }
 }
