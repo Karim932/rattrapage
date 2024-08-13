@@ -13,4 +13,10 @@ class Adhesion extends Model
     {
         return $this->morphTo(__FUNCTION__, 'candidature_type', 'candidature_id');
     }
+
+    public function answers()
+    {
+        return $this->hasMany(Answer::class, 'candidature_id');
+    }
+
 }

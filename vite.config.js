@@ -9,7 +9,8 @@ export default defineConfig({
                 'resources/css/sidebarAdmin.css',
                 'resources/js/app.js',
                 'resources/js/admin.js',
-                'resources/js/filterUsers.js'
+                'resources/js/filterUsers.js',
+                'resources/js/adminTabs.js'
             ],
             refresh: true,
         }),

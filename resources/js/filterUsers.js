@@ -205,6 +205,13 @@ $(document).ready(function() {
             showModal('refuser', url);
         });
 
+        // Écouteur pour les formulaires de revoque d'adhesion.
+        $('body').on('submit', 'form.revoque-user-form', function(e) {
+            e.preventDefault();
+            const url = $(this).attr('action');
+            showModal('revoquer', url);
+        });
+
         // Écouteur pour les formulaires d'adhesion accepté.
         $('body').on('submit', 'form.accept-user-form', function(e) {
             e.preventDefault();
@@ -221,33 +228,56 @@ $(document).ready(function() {
         };
 
         // Gère la confirmation de l'action via la modal.
+
         $('#confirm-btn').on('click', function() {
-            if (!currentUrl || !currentAction) return; // Si aucune URL ou action n'est définie, annule l'exécution.
+            // Vérification de la présence de l'URL et de l'action
+            if (!currentUrl || !currentAction) {
+                console.warn('URL or action not defined.');
+                return; // Annule l'exécution si aucune URL ou action n'est définie.
+            }
+
+            // Configuration de la requête Ajax
             $.ajax({
                 url: currentUrl,
                 method: 'POST',
                 data: {
                     _token: $('meta[name="csrf-token"]').attr('content'), // Inclut le jeton CSRF pour la validation.
-                    _method: currentAction === 'supprimer' ? 'DELETE' : 'POST' // Définit la méthode HTTP en fonction de l'action.
+                    _method: currentAction === 'supprimer' ? 'DELETE' : 'POST' // Utilise 'DELETE' pour les suppressions, sinon 'POST'.
                 },
-                success: function(response) {
-                    $('#success-text').text(response.message || 'Action réalisée avec succès.'); // Affiche un message de succès.
-                    $('#success-message').removeClass('hidden').fadeIn('fast').delay(2000).fadeOut('slow', function() {
-                        $(this).addClass('hidden'); // Masque le message de succès après un délai.
-                    });
-                    $('#confirmation-modal').fadeOut('fast', function() {
-                        $(this).addClass('hidden'); // Masque la modal.
-                    });
-                    // Recharge la table ou effectue des mises à jour de l'interface ici.
-                    // loadUserTable(currentRole);
-                    location.reload(); // Recharge la page pour refléter les changements.
-                },
-                error: function(xhr) {
-                    alert('Une erreur est survenue : ' + xhr.statusText); // Affiche une alerte en cas d'erreur.
-                    console.error('An error occurred:', xhr.statusText); // Log l'erreur dans la console.
-                }
+                success: handleSuccess,
+                error: handleError
             });
         });
+
+        // Gère les réponses de succès de l'Ajax
+        function handleSuccess(response) {
+            showSuccessMessage(response.message);
+            $('#confirmation-modal').fadeOut('fast', function() {
+                $(this).addClass('hidden'); // Masque la modal de confirmation.
+            });
+            setTimeout(function() {
+                location.reload(); // Recharge la page pour afficher les changements après 10 secondes.
+            }, 1000);
+        }
+
+        // Affiche les erreurs
+        function handleError(xhr) {
+            alert('Une erreur est survenue : ' + xhr.statusText);
+            console.error('An error occurred:', xhr.statusText);
+        }
+
+        function showSuccessMessage(message) {
+            let successText = $('#success-text');
+            let successMessage = $('#success-message');
+
+            successText.text(message || 'La candidature a été mise à jour.');
+
+            // Assurez-vous de régler l'opacité à 1 pour rendre l'élément visible
+            successMessage.css('opacity', '1').fadeIn('fast').delay(800).fadeOut('slow', function() {
+                $(this).css('opacity', '0'); // Remet l'opacité à 0 une fois le fadeOut terminé
+            });
+        }
+
 
         // Gère l'annulation de la modal.
         $('#cancel-btn').on('click', function() {

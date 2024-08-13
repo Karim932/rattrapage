@@ -15,6 +15,7 @@ use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AdhesionsController;
 use App\Http\Controllers\Admin\Answer;
+use App\Http\Controllers\Admin\AnswerController;
 use App\Http\Controllers\Admin\CandidatureController;
 use App\Http\Controllers\LocalizationController;
 
@@ -56,13 +57,17 @@ Route::middleware(SetLocalization::class)->group(function() {
         Route::name('admin.adhesion.')->controller(CandidatureController::class)->group(function() {
             Route::get('/candidatures/{id}/{type}', 'show')->name('show');
             Route::post('/adhesion/{id}/accept', 'accept')->name('accept');
+            Route::post('/adhesion/{id}/revoque', 'revoque')->name('revoque');
             Route::post('/adhesion/{id}', 'refuse')->name('refuse');
+            // Route::post('/adhesion/{id}', 'destroy')->name()
             // Route::post('/adhesion/trie?={sort}&={direction}')->name('trie');
             // Route::get('/adhesions/filter', 'filtre')->name('filtre');
 
         });
 
-        Route::post('/answer/{id}', [Answer::class, 'store'])->name('answer.store');
+        Route::post('/answer/{id}', [AnswerController::class, 'store'])->name('answer.store');
+        Route::get('/answer/{id}', [AnswerController::class, 'store'])->name('answer.store');
+
 
 
         // Routes supplémentaires pour le filtrage des utilisateurs, le bannissement et le débannissement.

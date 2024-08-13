@@ -11,20 +11,17 @@
         </div>
     @endif
 
+    @if(session('success'))
+        <div id="success-message" class="bg-green-500 text-white p-4 rounded-lg shadow-md">
+            {{ session('success') }}
+        </div>
+    @endif
+
     <!-- Bouton Ajouter un Utilisateur -->
     <div class="mb-6 flex justify-end">
         <a href="{{ route('adhesion.create') }}" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-blue-800 transition duration-300">
             <i class="fas fa-clipboard-list"></i>&nbsp; Faire une demande
         </a>
-    </div>
-
-    {{-- <!-- Conteneur pour les messages de succès -->
-    <div id="success-message" class="hidden bg-green-700 text-white p-4 mb-4 rounded-lg shadow-md">
-        <span id="success-text">{{ session('success') }}</span>
-    </div> --}}
-    <!-- Conteneur pour les messages de succès -->
-    <div id="success-message" class="hidden bg-green-700 text-white p-4 mb-4 rounded-lg shadow-md">
-        <span id="success-text"></span>
     </div>
 
     <!-- Barre de Recherche -->

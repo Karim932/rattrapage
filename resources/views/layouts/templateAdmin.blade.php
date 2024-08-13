@@ -21,7 +21,7 @@
 
         <!-- Scripts -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-        @vite(['resources/js/app.js', 'resources/css/app.css', 'resources/css/sidebarAdmin.css', 'resources/js/admin.js', 'resources/js/filterUsers.js'])
+        @vite(['resources/js/app.js', 'resources/css/app.css', 'resources/css/sidebarAdmin.css', 'resources/js/admin.js', 'resources/js/filterUsers.js', 'resources/js/adminTabs.js'])
     </head>
 
     <body class="flex min-h-screen bg-gray-100">
@@ -31,7 +31,6 @@
         <div class="container">
             @yield('content')
         </div>
-
 
         <!-- Modal Background -->
         <div id="confirmation-modal" class="fixed hidden flex inset-0 bg-gray-900 bg-opacity-50 items-center justify-center">
@@ -68,9 +67,9 @@
             </div>
         </div>
 
-        <!-- Conteneur pour les messages de succès -->
-        <div id="success-message" class="hidden fixed top-10 left-1/2 transform -translate-x-1/2 bg-green-700 text-white p-4 rounded-lg max-w-lg text-center z-50">
-            <span id="success-text"></span>
+        <!-- Success message container with improved styling and accessibility -->
+        <div id="success-message" class="hidden fixed top-10 left-1/2 transform -translate-x-1/2 bg-green-600 text-white p-4 rounded-lg shadow-md max-w-lg text-center z-50 transition-opacity duration-300 opacity-0">
+            <span id="success-text">Votre action a été réussie!</span>
         </div>
 
     </body>

@@ -71,23 +71,53 @@ class CandidatureController extends Controller
         return redirect()->route('adhesion.index');
     }
 
+    // public function show($id)
+    // {
+    //     $adhesion = Adhesion::with(['fusion'])->find($id);
+    //     $fusion = $adhesion->fusion->id;
+
+    //     $answers = Answer::with(['candidature'])->find($id);
+
+    //     dd($fusion, $adhesion, $adhesion->fusion, $answers, $answers->candidature);
+
+    //     if (!$adhesion) {
+    //         return redirect()->route('adhesion.index')->with('error', 'La candidature a été supprimée.');
+    //     }
+
+    //     return view('admin.adhesions.show', [
+    //         'adhesion' => $adhesion,
+    //         'candidature' => $adhesion->fusion,
+    //         'answers' => $answers
+    //     ]);
+    // }
     public function show($id)
     {
-        $adhesion = Adhesion::find($id);
+        $adhesion = Adhesion::with(['fusion'])->find($id);
 
         if (!$adhesion) {
             return redirect()->route('adhesion.index')->with('error', 'Adhésion non trouvée.');
         }
-        $candidature = $adhesion->fusion;
 
-        if (!$candidature) {
+        // Vérifier si la relation fusion est bien chargée
+        if (!$adhesion->fusion) {
             return redirect()->route('adhesion.index')->with('error', 'Candidature spécifique non trouvée.');
         }
-        // Récupération du type de candidature pour un usage dans la vue, basé sur la classe du modèle de la candidature
-        $type = class_basename($candidature);
 
-        return view('admin.adhesions.show', compact('candidature', 'adhesion', 'type'));
+        $fusionId = $adhesion->fusion->id;
+
+        // Récupérer toutes les réponses où 'candidature_id' est égal à $fusionId
+        $answers = Answer::where('candidature_id', $fusionId)->get();
+
+        // dd($fusionId, $adhesion, $adhesion->fusion, $answers);
+
+
+        return view('admin.adhesions.show', [
+            'adhesion' => $adhesion,
+            'candidature' => $adhesion->fusion,
+            'answers' => $answers
+        ]);
     }
+
 
 
     public function edit(string $id)
@@ -141,6 +171,29 @@ class CandidatureController extends Controller
 
     public function accept($id)
     {
+        $adhesion = Adhesion::with('fusion')->findOrFail($id);
+
+        $class = get_class($adhesion->fusion);
+
+        $role = 'benevole';
+
+        $user = $adhesion->fusion->user;
+
+        if ($class === AdhesionCommercant::class) {
+            $user->role = $role;
+            $user->save();
+            // dd($adhesionCommercant, $adhesionCommercant->status);
+
+        } elseif ($class === AdhesionBenevole::class) {
+            $user->role = $role;
+            $user->save();
+            // dd($adhesionBenevole, $adhesionBenevole->status);
+
+
+        } else {
+            return redirect()->back()->with('error', 'Type de role non reconnu.');
+        }
+
         return $this->updateStatus($id, 'accepté', 'Candidature acceptée avec succès.');
     }
 
@@ -149,13 +202,26 @@ class CandidatureController extends Controller
         return $this->updateStatus($id, 'refusé', 'Candidature refusée avec succès.');
     }
 
+    public function revoque($id)
+    {
+        $adhesion = Adhesion::with('fusion')->findOrFail($id);
+
+        $newRole = 'user';
+
+        $user = $adhesion->fusion->user;
+        $user->role = $newRole;
+        $user->save();
+
+        return $this->updateStatus($id, 'revoqué', 'Candidature révoquée avec succès.');
+    }
+
     private function updateStatus($id, $status, $message)
     {
         // dd($id);
         try {
             // Récupérer l'adhesion
             // dd($id);
-            $adhesion = Adhesion::with('fusion')->findOrFail($id);;;
+            $adhesion = Adhesion::with('fusion')->findOrFail($id);
             // dd($adhesion);
 
             $class = get_class($adhesion->fusion);

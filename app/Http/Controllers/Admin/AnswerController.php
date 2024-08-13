@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
+
+use App\Models\Answer;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\AdhesionBenevole;
-use App\Models\AdhesionCommercant;
 use App\Models\Adhesion;
 use Illuminate\Support\Facades\Auth;
 
-class Answer extends Controller
+
+class AnswerController extends Controller
 {
 
     public function store(Request $request, $id)
@@ -22,7 +23,10 @@ class Answer extends Controller
         // Trouver l'adhésion et la candidature associée via la relation polymorphique
         $adhesion = Adhesion::find($id);
 
+        // je lui envoie direct la bonne id
+        // $adhesion = $request->id;
         // dd($adhesion);
+
 
         if (!$adhesion) {
             return back()->withErrors('Adhésion introuvable.');
@@ -30,6 +34,7 @@ class Answer extends Controller
 
         $candidature = $adhesion->fusion;
 
+        // dd($candidature);
 
         if (!$candidature) {
             return back()->withErrors('Candidature introuvable.');
