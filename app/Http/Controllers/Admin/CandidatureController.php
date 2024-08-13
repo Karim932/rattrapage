@@ -7,6 +7,9 @@ use App\Models\AdhesionCommercant;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Adhesion;
+use Illuminate\Pagination\LengthAwarePaginator;
+use App\Models\Answer;
+
 
 
 
@@ -42,12 +45,15 @@ class CandidatureController extends Controller
 
 
         // Mélanger les résultats si nécessaire
-        $allCandidatures = $allCandidatures->shuffle();
+        // $allCandidatures = $allCandidatures->shuffle();
+        // inRandomOrder()-> // pour mélanger la table comme shuffle
+        $allCandidatures = Adhesion::paginate(20);
+
+        // dd($allCandidatures);
+
 
         return view('admin.adhesions.index', compact('allCandidatures'));
     }
-
-
 
     public function create()
     {
@@ -105,51 +111,80 @@ class CandidatureController extends Controller
 
     public function destroy($id)
     {
-        $adhesion = Adhesion::find($id);
+        try {
+            // Récupérer l'adhesion
+            $adhesion = Adhesion::findOrFail($id);
 
-        if (!$adhesion) {
-            return redirect()->route('adhesion.index')->with('error', 'Candidature introuvable.');
+            // Supprimer les réponses associées dans la table answers
+            $adhesion->fusion->answers()->delete();
+
+            // Vérifier le type de la candidature et supprimer l'enregistrement dans la table appropriée
+            if ($adhesion->fusion instanceof AdhesionCommercant) {
+                // Supprimer l'enregistrement dans adhesion_commercants
+                $adhesion->fusion->delete();
+            } elseif ($adhesion->fusion instanceof AdhesionBenevole) {
+                // Supprimer l'enregistrement dans adhesion_benevoles
+                $adhesion->fusion->delete();
+            }
+
+            // Supprimer l'enregistrement dans la table adhesions
+            $adhesion->delete();
+
+            // Rediriger avec un message de succès
+            return redirect()->route('adhesion.index')->with('success', 'Candidature supprimée avec succès.');
+
+        } catch (\Exception $e) {
+            // Rediriger avec un message d'erreur en cas de problème
+            return redirect()->route('adhesion.index')->with('error', 'Une erreur s\'est produite lors de la suppression : ' . $e->getMessage());
         }
-
-        // Récupérer le modèle associé via la relation polymorphique
-        $candidature = $adhesion->fusion;
-
-        if ($candidature) {
-            // Supprimer la candidature spécifique
-            $candidature->delete();
-        }
-
-        // Supprimer l'entrée dans la table Adhesion
-        $adhesion->delete();
-
-        return redirect()->route('adhesion.index')->with('success', 'Candidature supprimée avec succès.');
     }
-
 
     public function accept($id)
     {
-        $adhesion = Adhesion::find($id);
-        if (!$adhesion || !$adhesion->fusion) {
-            return redirect()->back()->with('error', 'Candidature non trouvée.');
-        }
-
-        $adhesion->fusion->status = 'accepté';
-        $adhesion->fusion->save();
-
-        return redirect()->route('adhesion.index')->with('success', 'Candidature acceptée avec succès.');
+        return $this->updateStatus($id, 'accepté', 'Candidature acceptée avec succès.');
     }
 
     public function refuse($id)
     {
-        $adhesion = Adhesion::find($id);
-        if (!$adhesion || !$adhesion->fusion) {
-            return redirect()->back()->with('error', 'Candidature non trouvée.');
-        }
-
-        $adhesion->fusion->status = 'refusé';
-        $adhesion->fusion->save();
-
-        return redirect()->route('adhesion.index')->with('success', 'Candidature refusée avec succès.');
+        return $this->updateStatus($id, 'refusé', 'Candidature refusée avec succès.');
     }
+
+    private function updateStatus($id, $status, $message)
+    {
+        // dd($id);
+        try {
+            // Récupérer l'adhesion
+            // dd($id);
+            $adhesion = Adhesion::with('fusion')->findOrFail($id);;;
+            // dd($adhesion);
+
+            $class = get_class($adhesion->fusion);
+
+            if ($class === AdhesionCommercant::class) {
+                $adhesionCommercant = $adhesion->fusion;
+                $adhesionCommercant->status = $status;
+                $adhesionCommercant->save();
+                // dd($adhesionCommercant, $adhesionCommercant->status);
+
+            } elseif ($class === AdhesionBenevole::class) {
+                $adhesionBenevole = $adhesion->fusion;
+                $adhesionBenevole->status = $status;
+                $adhesionBenevole->save();
+                // dd($adhesionBenevole, $adhesionBenevole->status);
+
+
+            } else {
+                return redirect()->back()->with('error', 'Type de candidature non reconnu.');
+            }
+
+            // Rediriger avec un message de succès
+            return redirect()->route('adhesion.index')->with('success', $message);
+
+        } catch (\Exception $e) {
+            // Rediriger avec un message d'erreur en cas de problème
+            return redirect()->route('adhesion.index')->with('error', 'Une erreur s\'est produite lors de la mise à jour du statut : ' . $e->getMessage());
+        }
+    }
+
 
 }

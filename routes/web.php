@@ -57,6 +57,9 @@ Route::middleware(SetLocalization::class)->group(function() {
             Route::get('/candidatures/{id}/{type}', 'show')->name('show');
             Route::post('/adhesion/{id}/accept', 'accept')->name('accept');
             Route::post('/adhesion/{id}', 'refuse')->name('refuse');
+            // Route::post('/adhesion/trie?={sort}&={direction}')->name('trie');
+            // Route::get('/adhesions/filter', 'filtre')->name('filtre');
+
         });
 
         Route::post('/answer/{id}', [Answer::class, 'store'])->name('answer.store');

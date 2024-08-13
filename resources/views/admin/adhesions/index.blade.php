@@ -18,9 +18,13 @@
         </a>
     </div>
 
-    <!-- Conteneur pour les messages de succès -->
+    {{-- <!-- Conteneur pour les messages de succès -->
     <div id="success-message" class="hidden bg-green-700 text-white p-4 mb-4 rounded-lg shadow-md">
         <span id="success-text">{{ session('success') }}</span>
+    </div> --}}
+    <!-- Conteneur pour les messages de succès -->
+    <div id="success-message" class="hidden bg-green-700 text-white p-4 mb-4 rounded-lg shadow-md">
+        <span id="success-text"></span>
     </div>
 
     <!-- Barre de Recherche -->
@@ -39,8 +43,6 @@
                     <option value="en cours">En cours</option>
                     <option value="accepté">Accepté</option>
                     <option value="refusé">Rejeté</option>
-                    <option value="expired">Expiré</option>
-                    <option value="revoqued">Révoqué</option>
                 </select>
             </div>
 
@@ -95,7 +97,7 @@
                             @foreach ($allCandidatures as $candidature)
                             <tr>
                                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                    {{ $candidature->candidature_id }}
+                                    {{ $candidature->id }}
                                 </td>
                                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                     @if ($candidature->fusion instanceof App\Models\AdhesionCommercant)
@@ -149,6 +151,9 @@
                             @endforeach
                         </tbody>
                     </table>
+                    <div id="pagination-container" class="mt-4">
+                        {{ $allCandidatures->links() }}
+                    </div>
                 </div>
             </div>
         </div>

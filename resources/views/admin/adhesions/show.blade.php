@@ -8,17 +8,22 @@
             <h2 class="text-2xl font-bold mb-6 text-gray-800">
                 Détails de la Candidature
             </h2>
-
+            <!-- Conteneur pour les messages de succès -->
+            <div id="success-message" class="hidden bg-green-700 text-white p-4 mb-4 rounded-lg shadow-md">
+                <span id="success-text">{{ session('success') }}</span>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div class="bg-gray-50 p-4 rounded-lg shadow">
                     <h3 class="text-lg font-semibold text-gray-700">Informations Générales:</h3>
                     <p><strong>Nom/Entreprise:</strong>
+
                         @if ($candidature instanceof App\Models\AdhesionCommercant)
                             {{ $candidature->company_name }}
                         @elseif ($candidature instanceof App\Models\AdhesionBenevole)
                             {{ $candidature->user->firstname . ' ' . $candidature->user->lastname }}
                         @endif
                     </p>
+                    <p><strong>ID:</strong> {{ $adhesion->id }}</p>
                     <p><strong>Email:</strong> {{ $candidature->user->email }}</p>
                     <p><strong>Statut:</strong> {{ $candidature->status }}</p>
                     <p><strong>Active:</strong> {{ $candidature->is_active ? 'Oui' : 'Non' }}</p>
@@ -66,7 +71,7 @@
                     </button>
                     <div id="dropdownMenu" class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none">
                         <div class="py-1">
-                            <a href="{{ route('adhesion.edit', $candidature->id) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Modifier</a>
+                            {{-- <a href="{{ route('adhesion.edit', $candidature->id) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Modifier</a> --}}
                             <form method="POST" action="{{ route('adhesion.destroy', $candidature->id) }}" class="delete-user-form block text-left">
                                 @csrf
                                 @method('DELETE')
@@ -74,13 +79,13 @@
                                     Supprimer
                                 </button>
                             </form>
-                            <form method="POST" action="{{ route('admin.adhesion.accept', $candidature->id) }}" class="accept-user-form block text-left">
+                            <form method="POST" action="{{ route('admin.adhesion.accept', $adhesion->id) }}" class="accept-user-form block text-left">
                                 @csrf
                                 <button type="submit" class="w-full text-left px-4 py-2 text-sm text-green-700 hover:bg-gray-100">
                                     Accepter
                                 </button>
                             </form>
-                            <form method="POST" action="{{ route('admin.adhesion.refuse', $candidature->id) }}" class="refuse-user-form block text-left">
+                            <form method="POST" action="{{ route('admin.adhesion.refuse', $adhesion->id) }}" class="refuse-user-form block text-left">
                                 @csrf
                                 <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-gray-100">
                                     Refuser
