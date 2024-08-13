@@ -28,13 +28,11 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
-    // Relation avec AdhesionCommercant
     public function adhesionCommercants()
     {
         return $this->hasMany(AdhesionCommercant::class);
     }
 
-    // Relation avec AdhesionBenevole
     public function adhesionBenevoles()
     {
         return $this->hasMany(AdhesionBenevole::class);

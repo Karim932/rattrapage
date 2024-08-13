@@ -49,45 +49,21 @@ document.getElementById('toggle-button').addEventListener('click', function () {
     }
 });
 
-// // Ajout d'un écouteur d'événement sur le bouton de bascule
-// document.getElementById('dropdownButton').addEventListener('click', function () {
-
-
-//     console.log('test');
-//     const dropdownMenu = document.getElementById('dropdownMenu');
-//     dropdownMenu.classList.toggle('hidden');
-
-//     // Fermer le menu lors du clic à l'extérieur
-//     window.addEventListener('click', function (event) {
-//         if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
-//             dropdownMenu.classList.add('hidden');
-//         }
-//     });
-// });
-
 document.addEventListener('DOMContentLoaded', function() {
     const dropdownButton = document.getElementById('dropdownButton');
     const dropdownMenu = document.getElementById('dropdownMenu');
 
-
-    console.log(dropdownButton);
-    console.log(dropdownMenu);
-
-    // Toggle the dropdown menu visibility
     dropdownButton.addEventListener('click', function(e) {
         dropdownMenu.classList.toggle('hidden');
-        e.stopPropagation(); // Empêche l'événement de remonter, important pour la gestion du clic à l'extérieur.
-        // console.log('test');
+        e.stopPropagation(); // Empêche l'événement de remonter,
     });
 
-    // Close the dropdown menu if clicking outside of it
     document.addEventListener('click', function(e) {
         if (!dropdownMenu.contains(e.target)) {
             dropdownMenu.classList.add('hidden');
         }
     });
 
-    // Prevent menu from closing when clicking inside
     dropdownMenu.addEventListener('click', function(event) {
         event.stopPropagation();
     });

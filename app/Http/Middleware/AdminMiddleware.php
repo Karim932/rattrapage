@@ -20,7 +20,6 @@ class AdminMiddleware
         if (Auth::check()) {
             $user = Auth::user();
 
-            // dd($user); // Pour déboguer et voir si l'utilisateur est correctement récupéré.
             if ($user->role === 'admin') {
                 return $next($request);
             }

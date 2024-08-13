@@ -20,13 +20,8 @@ class AnswerController extends Controller
             'titre' => 'required|string|max:50'
         ]);
 
-        // Trouver l'adhésion et la candidature associée via la relation polymorphique
+        // l'adhésion et la candidature associée via la relation polymorphique
         $adhesion = Adhesion::find($id);
-
-        // je lui envoie direct la bonne id
-        // $adhesion = $request->id;
-        // dd($adhesion);
-
 
         if (!$adhesion) {
             return back()->withErrors('Adhésion introuvable.');
@@ -34,13 +29,11 @@ class AnswerController extends Controller
 
         $candidature = $adhesion->fusion;
 
-        // dd($candidature);
-
         if (!$candidature) {
             return back()->withErrors('Candidature introuvable.');
         }
 
-        // Créer une nouvelle réponse
+        // Créer nouvelle réponse
         $response = new \App\Models\Answer();
         $response->id_admin = Auth::id();
         $response->message = $request->message;
@@ -48,8 +41,6 @@ class AnswerController extends Controller
 
         // Enregistrer la réponse via la relation polymorphe
         $candidature->answers()->save($response);
-
-        // Mettre à jour le statut de la candidature à 'en cours'
         $candidature->status = 'en cours';
         $candidature->save();
 

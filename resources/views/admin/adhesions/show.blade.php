@@ -6,14 +6,11 @@
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white shadow-xl sm:rounded-lg p-5">
             <div id="tabs" class="px-3">
-                <!-- Boutons pour les onglets -->
                 <button id="detailsTab" class="nav-history active" data-tab="details">Détails de la Candidature</button>
                 <button id="messagesTab" class="nav-history" data-id ="messages">Historique de la demande</button>
             </div>
 
-            <!-- Contenus des Onglets -->
             <div id="detailsContent" style="display: Block;">
-                <!-- Le contenu existant des détails ici -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 p-3 px-3">
                     <div class="bg-gray-50 p-4 rounded-lg shadow">
                         <h3 class="text-lg font-semibold text-gray-700">Informations Générales:</h3>
@@ -102,17 +99,14 @@
                                         </button>
                                     </form>
                                 @endif
-                                <!-- Button trigger modal -->
                                 <button type="button" class="w-full text-left px-4 py-2 text-sm text-blue-700 hover:bg-blue-100 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 ease-in-out" onclick="openModal()">
                                     Répondre
                                 </button>
 
-                                <!-- Modal -->
                                 <div id="responseModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
                                     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                                         <div class="fixed inset-0 bg-gray-900 bg-opacity-25 transition-opacity"></div>
 
-                                        <!-- Modal panel -->
                                         <div class="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                                             <form action="{{ route('answer.store', $adhesion->id) }}" method="POST">
                                                 @csrf
@@ -145,7 +139,6 @@
                 </div>
             </div>
             <div id="messagesContent" style="display: None;">
-                <!-- Ici contenu des messages -->
                 <div id="messagesContent">
                     @if ($adhesion->answers->isEmpty())
                         <p class="text-md text-red-700 mt-2"> Aucune réponse n'a été trouvée pour cette candidature.</p>

@@ -123,7 +123,7 @@ $(document).ready(function() {
             const $this = $(this);
             let sortOrder = $this.data('order');
 
-            console.log("avant changement :", $this.data('sort'), sortOrder); // Affichage de l'ordre de tri actuel
+            // console.log("avant changement :", $this.data('sort'), sortOrder); // Affichage de l'ordre de tri actuel
 
             // Bascule de l'ordre de tri entre ascendant et descendant
             sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
@@ -132,7 +132,7 @@ $(document).ready(function() {
             $this.data('order', sortOrder);
             $this.attr('data-order', sortOrder);
 
-            console.log("après changement :", $this.data('sort'), sortOrder); // Affichage du nouvel ordre de tri
+            // console.log("après changement :", $this.data('sort'), sortOrder); // Affichage du nouvel ordre de tri
 
             // Mise à jour des icônes de tri et rechargement du tableau avec les nouveaux paramètres de tri
             updateSortIcons($this.data('sort'), sortOrder);
@@ -158,7 +158,7 @@ $(document).ready(function() {
         console.log('First TD Content:', firstTdContent);
 
         if (firstTdContent === "" || firstTdContent === "Aucun utilisateur trouvé") {
-            console.log('Table is empty or shows "Aucun utilisateur trouvé". No need to reload.');
+            // console.log('Table is empty or shows "Aucun utilisateur trouvé". No need to reload.');
             return;
         }
 

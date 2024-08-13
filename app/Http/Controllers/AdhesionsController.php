@@ -21,7 +21,7 @@ class AdhesionsController extends Controller
     {
         // Vérifier si l'utilisateur est connecté et récupérer son ID
         if (Auth::check()) {
-            $userId = Auth::id(); // Obtient l'ID de l'utilisateur connecté
+            $userId = Auth::id();
             $request->validate([
                 'company_name' => 'required|string|max:255',
                 'siret' => 'required|string|size:14|unique:adhesion_commercants,siret',
@@ -84,14 +84,9 @@ class AdhesionsController extends Controller
             'additional_notes' => 'nullable|string|max:1000'
         ]);
 
-        // Convertir la valeur de 'permis' en booléen
-        //$validated['permis'] = $request->has('permis');
-        //$validated['old_benevole'] = $request->has('old_benevole');
-
-
         // Vérifier si l'utilisateur est connecté et récupérer son ID
         if (Auth::check()) {
-            $userId = Auth::id(); // Obtient l'ID de l'utilisateur connecté
+            $userId = Auth::id();
 
             $adhesion = new AdhesionBenevole([
                 'motivation' => $request->motivation,

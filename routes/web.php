@@ -72,17 +72,13 @@ Route::middleware(SetLocalization::class)->group(function() {
 
         // Routes supplémentaires pour le filtrage des utilisateurs, le bannissement et le débannissement.
         Route::get('/filter-users', [UserController::class, 'filterUsers'])->name('users.filter'); // Filtre les utilisateurs.
-        Route::post('/users/ban/{id}', [UserController::class, 'banUser'])->name('users.ban'); // Bannit un utilisateur.
-        Route::post('/users/unban/{id}', [UserController::class, 'unbanUser'])->name('users.unban'); // Débannit un utilisateur.
+        Route::post('/users/ban/{id}', [UserController::class, 'banUser'])->name('users.ban');
+        Route::post('/users/unban/{id}', [UserController::class, 'unbanUser'])->name('users.unban');
 
         // Routes pour diverses fonctionnalités de l'application, chacune retournant une vue spécifique.
         Route::get('services', function () {
             return view('page_navbar/services');
         })->name('services');
-
-        // Route::get('adhesions', function () {
-        //     return view('admin.adhesions.candidature');
-        // })->name('adhesions');
 
         Route::get('/collectes', function () {
             return view('collectes');
@@ -111,19 +107,6 @@ Route::middleware(SetLocalization::class)->group(function() {
         Route::get('/adhesions/benevole', [AdhesionsController::class, 'createBenevole'])->name('benevole');
         Route::post('/adhesions/benevole',[AdhesionsController::class, 'storeBenevole'])->name('store.benevole');
     });
-
-    // // Route pour afficher et soumettre le formulaire des commerçants
-    // Route::get('/adhesion-commercants', function() {
-    //     return view('page_navbar.commerçants.adhesion');
-    // })->name('commercant');
-
-    // // Route pour afficher et soumettre le formulaire des commerçants
-    // Route::get('/adhesion-benevoles', function() {
-    //     return view('page_navbar.benevoles.adhesion');
-    // })->name('benevole');
-
-
-
 
     // Route pour accéder au tableau de bord de l'administrateur, accessible uniquement aux utilisateurs ayant le rôle d'administrateur.
     Route::get('/admin/dashboard', function () {

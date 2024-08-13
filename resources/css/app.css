@@ -20,9 +20,9 @@ input:focus {
 
 #pagination-container {
     display: flex;
-    justify-content: center; /* Centrer la pagination horizontalement */
-    margin-top: 20px; /* Ajouter un espace au-dessus */
-    padding: 10px; /* Ajouter un padding pour assurer de la place à l'intérieur du conteneur */
+    justify-content: center;
+    margin-top: 20px;
+    padding: 10px;
 }
 
 #pagination-container .pagination {
