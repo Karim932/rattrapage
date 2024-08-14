@@ -9,6 +9,10 @@ class Adhesion extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'candidature_id', 'candidature_type'
+    ];
+
     public function fusion()
     {
         return $this->morphTo(__FUNCTION__, 'candidature_type', 'candidature_id');

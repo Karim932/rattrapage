@@ -33,8 +33,13 @@ class User extends Authenticatable
         return $this->hasMany(AdhesionCommercant::class);
     }
 
-    public function adhesionBenevoles()
+    public function adhesionsBenevoles()
     {
-        return $this->hasMany(AdhesionBenevole::class);
+        return $this->hasMany(AdhesionBenevole::class, 'user_id');
+    }
+
+    public function adhesions()
+    {
+        return $this->hasMany(Adhesion::class, 'candidature_id');
     }
 }

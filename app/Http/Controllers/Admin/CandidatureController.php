@@ -156,6 +156,8 @@ class CandidatureController extends Controller
             return redirect()->back()->with('error', 'Type de role non reconnu.');
         }
 
+        // ici
+
         return $this->updateStatus($id, 'accepté', 'Candidature acceptée avec succès.');
     }
 
