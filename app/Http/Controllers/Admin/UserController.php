@@ -184,6 +184,21 @@ class UserController extends Controller
         return view('admin.users.index', compact('users'));
     }
 
+    
+    public function getUsersWithoutCandidature(Request $request)
+    {
+        $type = $request->query('type');
 
+        if ($type === 'benevole') {
+            $users = User::doesntHave('adhesionsBenevoles')->get();
+        } elseif ($type === 'commercant') {
+            $users = User::doesntHave('adhesionsCommercant')->get();
+        } else {
+            $users = User::doesntHave('adhesionsBenevoles')->doesntHave('adhesionsCommercant')->get();
+        }
+
+        return response()->json($users);
+    }
+    
 
 }

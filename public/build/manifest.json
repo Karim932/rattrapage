@@ -1,13 +1,41 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-cNy9yCjt.css",
+    "file": "assets/app-CaAZD3ba.css",
     "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/css/formulaire.css": {
+    "file": "assets/formulaire-Dh_hhCFC.css",
+    "src": "resources/css/formulaire.css",
+    "isEntry": true
+  },
+  "resources/css/sidebarAdmin.css": {
+    "file": "assets/sidebarAdmin-9wrHN6Pu.css",
+    "src": "resources/css/sidebarAdmin.css",
+    "isEntry": true
+  },
+  "resources/js/admin.js": {
+    "file": "assets/admin-Cb0JxBwt.js",
+    "name": "admin",
+    "src": "resources/js/admin.js",
+    "isEntry": true
+  },
+  "resources/js/adminTabs.js": {
+    "file": "assets/adminTabs-BRmxsK7R.js",
+    "name": "adminTabs",
+    "src": "resources/js/adminTabs.js",
     "isEntry": true
   },
   "resources/js/app.js": {
     "file": "assets/app-CH09qwMe.js",
     "name": "app",
     "src": "resources/js/app.js",
+    "isEntry": true
+  },
+  "resources/js/filterUsers.js": {
+    "file": "assets/filterUsers-DNm0hOWS.js",
+    "name": "filterUsers",
+    "src": "resources/js/filterUsers.js",
     "isEntry": true
   }
 }

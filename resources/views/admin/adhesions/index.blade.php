@@ -64,31 +64,123 @@
             <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                 <div id="users-table" class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
                     <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    ID
+                        <thead class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                            <tr class="border-b border-gray-200">
+                                <th scope="col" class="py-3 px-4 text-left font-medium">
+                                    <a href="{{ route('adhesion.index', ['sort' => 'id', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">
+                                        ID
+                                        @if(request('sort') == 'id')
+                                            @if(request('direction') == 'asc')
+                                                <i class="fas fa-arrow-up"></i>
+                                            @else
+                                                <i class="fas fa-arrow-down"></i>
+                                            @endif
+                                        @endif
+                                    </a>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Nom / Entreprise
+                                <th scope="col" class="py-3 px-4 text-left font-medium">
+                                    <a href="{{ route('adhesion.index', ['sort' => 'name', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">
+                                        Nom / Entreprise
+                                        @if(request('sort') == 'name')
+                                            @if(request('direction') == 'asc')
+                                                <i class="fas fa-arrow-up"></i>
+                                            @else
+                                                <i class="fas fa-arrow-down"></i>
+                                            @endif
+                                        @endif
+                                    </a>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Email
+                                <th scope="col" class="py-3 px-4 text-left font-medium">
+                                    <a href="{{ route('adhesion.index', ['sort' => 'email', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">
+                                        Email
+                                        @if(request('sort') == 'email')
+                                            @if(request('direction') == 'asc')
+                                                <i class="fas fa-arrow-up"></i>
+                                            @else
+                                                <i class="fas fa-arrow-down"></i>
+                                            @endif
+                                        @endif
+                                    </a>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Type de Demande
+                                <th scope="col" class="py-3 px-4 text-left font-medium">
+                                    <a href="{{ route('adhesion.index', ['sort' => 'type', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">
+                                        Type de Demande
+                                        @if(request('sort') == 'type')
+                                            @if(request('direction') == 'asc')
+                                                <i class="fas fa-arrow-up"></i>
+                                            @else
+                                                <i class="fas fa-arrow-down"></i>
+                                            @endif
+                                        @endif
+                                    </a>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Statut
+                                <th scope="col" class="py-3 px-4 text-left font-medium">
+                                    <a href="{{ route('adhesion.index', ['sort' => 'status', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">
+                                        Statut
+                                        @if(request('sort') == 'status')
+                                            @if(request('direction') == 'asc')
+                                                <i class="fas fa-arrow-up"></i>
+                                            @else
+                                                <i class="fas fa-arrow-down"></i>
+                                            @endif
+                                        @endif
+                                    </a>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Date de Demande
+                                <th scope="col" class="py-3 px-4 text-left font-medium">
+                                    <a href="{{ route('adhesion.index', ['sort' => 'created_at', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">
+                                        Date de Demande
+                                        @if(request('sort') == 'created_at')
+                                            @if(request('direction') == 'asc')
+                                                <i class="fas fa-arrow-up"></i>
+                                            @else
+                                                <i class="fas fa-arrow-down"></i>
+                                            @endif
+                                        @endif
+                                    </a>
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Actions
                                 </th>
                             </tr>
                         </thead>
+
+                        <style>
+                            th {
+                                background-color: #f9fafb;
+                            }
+
+                            th a {
+                                display: inline-flex;
+                                align-items: center;
+                                color: #4a5568;
+                                text-decoration: none;
+                                font-weight: 100;
+                                transition: color 0.3s ease;
+                            }
+
+                            th a:hover {
+                                color: #283e64;
+                            }
+
+                            /* th i {
+                                margin-left: 5px;
+                                font-size: 12px;
+                            } */
+
+                            th i.fas {
+                                color: #a0aec0;
+                            }
+
+                            th i.fas.fa-arrow-up,
+                            th i.fas.fa-arrow-down {
+                                margin-left: 8px;
+                            }
+
+                            tr.border-b {
+                                border-bottom-width: 1px;
+                            }
+                        </style>
+
 
                         <tbody class="bg-white divide-y divide-gray-200">
                             @foreach ($allCandidatures as $candidature)

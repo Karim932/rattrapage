@@ -9,15 +9,21 @@ class AdhesionBenevole extends Model
 {
     use HasFactory;
 
-    protected $table = 'adhesion_benevoles'; // Spécifier le nom de la table si nécessaire
+    protected $table = 'adhesion_benevoles';
 
     protected $fillable = [
         'user_id', 'status', 'old_benevole', 'motivation', 'experience',
-        'hour_month', 'permis', 'is_active', 'additional_notes', 'type',
-        'availability_begin', 'availability_end'
+        'permis', 'is_active', 'additional_notes', 'type',
+        'availability_begin', 'availability_end', 'availability', 'skill_id'
     ];
 
     protected $dates = ['availability_begin', 'availability_end'];
+
+     // est traitée comme un tableau
+    protected $casts = [
+        'availability' => 'array',
+        'skill_id' => 'array'
+    ];
 
     // Relation avec le modèle User
     public function user()

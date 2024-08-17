@@ -28,7 +28,7 @@
             <span class="material-icons">local_shipping</span>
             <span class="ml-4">Gestion des Tournées</span>
         </a>
-        <a href="#" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
+        <a href="{{ route('services.index') }}" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
             <span class="material-icons">build</span>
             <span class="ml-4">Gestion des Services</span>
         </a>

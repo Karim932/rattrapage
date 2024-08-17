@@ -7,17 +7,19 @@ use App\Models\AdhesionCommercant;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Adhesion;
-use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\Answer;
-
-
-
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use App\Models\Skill;
+use App\Models\User;
 
 class CandidatureController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+    //     // $allCandidatures = $allCandidatures->shuffle();
+    //     // inRandomOrder()-> // pour mélanger la table comme shuffle
 
     public function index(Request $request)
     {
@@ -40,30 +42,148 @@ class CandidatureController extends Controller
             }
         }
 
-        // Charger les données avec la relation polymorphique candidature
-        $allCandidatures = $query->with('fusion.user')->get();
+        // Joindre la table users via la relation polymorphique
+        $query->leftJoin('adhesion_benevoles', function($join) {
+            $join->on('adhesion_benevoles.id', '=', 'adhesions.candidature_id')
+                ->where('adhesions.candidature_type', '=', AdhesionBenevole::class);
+        })
+        ->leftJoin('adhesion_commercants', function($join) {
+            $join->on('adhesion_commercants.id', '=', 'adhesions.candidature_id')
+                ->where('adhesions.candidature_type', '=', AdhesionCommercant::class);
+        })
+        ->leftJoin('users', function($join) {
+            $join->on('users.id', '=', DB::raw('COALESCE(adhesion_benevoles.user_id, adhesion_commercants.user_id)'));
+        })
+        ->select('adhesions.*', 'users.email');
 
-        // $allCandidatures = $allCandidatures->shuffle();
-        // inRandomOrder()-> // pour mélanger la table comme shuffle
-        $allCandidatures = Adhesion::paginate(20);
 
+        if ($request->has('sort') && $request->has('direction')) {
+            $sort = $request->input('sort');
+            $direction = $request->input('direction');
+
+            switch ($sort) {
+                case 'id':
+                    $query->orderBy('adhesions.id', $direction);
+                    break;
+                case 'name':
+                    $query->orderByRaw("
+                        COALESCE(
+                            users.firstname,
+                            adhesion_commercants.company_name
+                        ) $direction
+                    ");
+                    break;
+                case 'email':
+                    $query->orderBy('users.email', $direction);
+                    break;
+                case 'type':
+                    $query->orderBy('adhesions.candidature_type', $direction);
+                    break;
+                case 'status':
+                    $query->orderByRaw("
+                        COALESCE(
+                            adhesion_benevoles.status,
+                            adhesion_commercants.status
+                        ) $direction
+                    ");
+                    break;
+                case 'created_at':
+                    $query->orderBy('adhesions.created_at', $direction);
+                    break;
+                default:
+                    $query->orderBy('adhesions.id', 'asc');
+            }
+        }
+
+        // Charger les données avec la relation polymorphique fusion et paginer
+        $allCandidatures = $query->with('fusion.user')->paginate(20);
+
+        // Retourner la vue avec les données paginées et triées
         return view('admin.adhesions.index', compact('allCandidatures'));
+
     }
 
     public function create()
     {
-        return view('adhesions.create');
+        // Récupérer tous les utilisateurs qui n'ont pas de candidature
+        $usersWithoutCandidature = User::doesntHave('adhesionsBenevoles')->doesntHave('adhesionCommercants')->get();
+
+
+        // Récupérer toutes les compétences disponibles
+        $skills = Skill::all();
+
+        // Passer les compétences à la vue
+        return view('admin.adhesions.create', compact('skills', 'usersWithoutCandidature'));
     }
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|max:255',
-            // autres règles de validation...
-        ]);
+        // Personnalisation des messages d'erreur
+        $messages = [
+            'motivation.required' => 'Votre motivation est requise pour compléter l’inscription.',
+            'motivation.max' => 'La motivation ne peut excéder 500 caractères.',
+            'experience.required' => 'Décrivez vos expériences précédentes en bénévolat.',
+            'experience.max' => 'L’expérience ne peut excéder 500 caractères.',
+            'availability_begin.required' => 'La date de début est requise.',
+            'availability_begin.date' => 'Entrez une date valide pour la date de début.',
+            'availability_end.required' => 'La date de fin est requise.',
+            'availability_end.date' => 'Entrez une date valide pour la date de fin.',
+            'availability_end.after_or_equal' => 'La date de fin doit être après ou le même jour que la date de début.',
+            'availability_begin.after_or_equal' => 'La date de début doit être après ou le même jour que la date d\'aujourd\'hui',
+            'additional_notes.max' => 'Les notes supplémentaires ne peuvent excéder 1000 caractères.',
+        ];
 
-        //$adhesion = Adhesion::create($validatedData);
-        return redirect()->route('adhesion.index');
+        $request->validate([
+            'skills' => 'required|array',
+            'skills.*' => 'exists:skills,id',
+            'motivation' => 'required|string|max:500',
+            'experience' => 'required|string|max:500',
+            'old_benevole' => 'nullable',
+            'availability' => 'required|array',
+            'availability.*.*' => 'nullable|in:1',
+            'availability_begin' => 'required|date|after_or_equal:now',
+            'availability_end' => 'required|date|after_or_equal:availability_begin',
+            'permis' => 'nullable',
+            'additional_notes' => 'nullable|string|max:500'
+        ],$messages);
+
+        // Vérifier si l'utilisateur est connecté et récupérer son ID
+        if (Auth::check()) {
+            $userId = Auth::id();
+
+            // Traitement des données de disponibilité
+            $availability = $request->input('availability');
+            $formattedAvailability = [];
+            foreach ($availability as $day => $times) {
+                foreach ($times as $time => $value) {
+                    $formattedAvailability[$day][$time] = ($value == '1') ? true : false;
+                }
+            }
+
+            $adhesionBenevole = new AdhesionBenevole([
+                'skill_id' => json_encode($request->skills),
+                'motivation' => $request->motivation,
+                'experience' => $request->experience,
+                'old_benevole' => $request->has('old_benevole'),
+                'availability' => json_encode($formattedAvailability),
+                'availability_begin' => $request->availability_begin,
+                'availability_end' => $request->availability_end,
+                'permis' => $request->has('permis'),
+                'additional_notes' => $request->additional_notes,
+                'user_id' => $userId,
+            ]);
+            $adhesionBenevole->save();
+
+            // Création de l'entrée générale dans Adhesions
+            $adhesion = new Adhesion([
+                'candidature_id' => $adhesionBenevole->id,
+                'candidature_type' => AdhesionBenevole::class
+            ]);
+            $adhesion->save();
+            return redirect()->route('adhesion.index');
+        } else {
+            return redirect('login')->with('error', 'Vous devez être connecté pour effectuer cette action.');
+        }
     }
 
     public function show($id)
@@ -79,39 +199,138 @@ class CandidatureController extends Controller
             return redirect()->route('adhesion.index')->with('error', 'Candidature spécifique non trouvée.');
         }
 
+        $candidature = $adhesion->fusion;
         $fusionId = $adhesion->fusion->id;
 
+        if ($candidature instanceof \App\Models\AdhesionBenevole && !is_null($candidature->skill_id)) {
+            $skillIds = json_decode($candidature->skill_id, true);
+            $skills = \App\Models\Skill::whereIn('id', $skillIds)->pluck('name')->toArray();
+        } else {
+            $skills = []; // Ou vous pouvez laisser $skills non défini si vous ne prévoyez pas de l'utiliser pour les commerçants
+        }
+        
         // Récupérer toutes les réponses où 'candidature_id' est égal à $fusionId
         $answers = Answer::where('candidature_id', $fusionId)->get();
 
         // dd($fusionId, $adhesion, $adhesion->fusion, $answers);
 
-
         return view('admin.adhesions.show', [
             'adhesion' => $adhesion,
             'candidature' => $adhesion->fusion,
-            'answers' => $answers
+            'answers' => $answers,
+            'skills' => $skills,
+            'availability' => $candidature->availability
         ]);
     }
 
     public function edit(string $id)
     {
-        $adhesion = AdhesionBenevole::find($id);
-        $adhesion = AdhesionCommercant::find($id);
 
-        return view('adhesions.edit', compact('adhesion'));
+        $adhesion = Adhesion::with('fusion')->findOrFail($id);
+        $candidature = $adhesion->fusion;
+
+        // Vérifier si 'availability' est déjà un tableau ou le décoder si c'est une chaîne JSON
+        $availability = is_array($candidature->availability) ? $candidature->availability : json_decode($candidature->availability, true);
+
+        if ($candidature instanceof AdhesionCommercant) {
+            return view('admin.adhesions.edit', compact('candidature', 'adhesion'));
+        } elseif ($candidature instanceof AdhesionBenevole) {
+
+            // Récupérer toutes les compétences disponibles
+            $skills = Skill::all();
+
+            // Décoder la chaîne JSON en tableau
+            $selectedSkills = json_decode($candidature->skill_id, true);
+
+            // Vérifier que $selectedSkills est bien un tableau
+            if (!is_array($selectedSkills)) {
+                $selectedSkills = [];
+            };
+
+            return view('admin.adhesions.edit', compact('candidature', 'adhesion', 'availability', 'skills', 'selectedSkills'));
+        }
+
+        return back()->with('error', 'Type de candidature non supporté.');
+
     }
 
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|max:255',
-            // autres règles de validation...
-        ]);
+        $adhesion = Adhesion::with('fusion')->findOrFail($id);
+        $candidature = $adhesion->fusion;
 
-        $request->update($validatedData);
-        return redirect()->route('adhesion.index');
+        if ($candidature instanceof AdhesionCommercant) {
+            $validatedData = $request->validate([
+                'company_name' => 'required|string|max:255',
+                'siret' => 'required|numeric|digits:14',
+                'address' => 'required|string|max:500',
+                'city' => 'required|string|max:255',
+                'postal_code' => 'required|string|max:10',
+                'country' => 'required|string|max:255',
+                'product_type' => 'required|string|max:255',
+            ], [
+                'company_name.required' => 'Le nom de l’entreprise est obligatoire.',
+                'siret.required' => 'Le numéro SIRET est obligatoire.',
+                'siret.digits' => 'Le numéro SIRET doit comporter 14 chiffres.',
+                'address.required' => 'L’adresse est obligatoire.',
+                'city.required' => 'La ville est obligatoire.',
+                'postal_code.required' => 'Le code postal est obligatoire.',
+                'country.required' => 'Le pays est obligatoire.',
+                'product_type.required' => 'Le type de produit est obligatoire.',
+            ]);
+
+            // Mise à jour spécifique pour les commerçants
+            $candidature->update($validatedData);
+
+        } elseif ($candidature instanceof AdhesionBenevole) {
+            $validatedData = $request->validate([
+                'skills' => 'required|array',
+                'skills.*' => 'exists:skills,id',
+                'motivation' => 'required|string|max:500',
+                'experience' => 'required|string|max:500',
+                'old_benevole' => 'nullable',
+                'availability' => 'required|array',
+                'availability.*.*' => 'nullable|in:1',
+                'availability_begin' => 'required|date|after_or_equal:now',
+                'availability_end' => 'required|date|after_or_equal:availability_begin',
+                'permis' => 'nullable',
+                'additional_notes' => 'nullable|string|max:1000',
+            ], [
+                'motivation.required' => 'Votre motivation est requise pour compléter l’inscription.',
+                'motivation.max' => 'La motivation ne peut excéder 500 caractères.',
+                'experience.required' => 'Décrivez vos expériences précédentes en bénévolat.',
+                'experience.max' => 'L’expérience ne peut excéder 500 caractères.',
+                'availability_begin.required' => 'La date de début est requise.',
+                'availability_begin.date' => 'Entrez une date valide pour la date de début.',
+                'availability_begin.after_or_equal' => 'La date de début doit être après ou le même jour que la date d\'aujourd\'hui',
+                'availability_end.required' => 'La date de fin est requise.',
+                'availability_end.date' => 'Entrez une date valide pour la date de fin.',
+                'availability_end.after_or_equal' => 'La date de fin doit être après ou le même jour que la date de début.',
+                'additional_notes.max' => 'Les notes supplémentaires ne peuvent excéder 1000 caractères.',
+            ]);
+
+            $availability = $request->input('availability');
+            $formattedAvailability = [];
+            foreach ($availability as $day => $times) {
+                foreach ($times as $time => $value) {
+                    $formattedAvailability[$day][$time] = ($value == '1') ? true : false;
+                }
+            }
+
+            $candidature->availability = json_encode($formattedAvailability);
+            $candidature->skill_id = json_encode($validatedData['skills']);
+
+            // Mise à jour spécifique pour les bénévoles
+            $candidature->update($validatedData);
+            $candidature->status = 'renvoyé';
+            $candidature->save();
+        } else {
+            return back()->with('error', 'Type de candidature non supporté.');
+        }
+
+        return redirect()->route('adhesion.index')->with('success', 'Candidature mise à jour avec succès.');
     }
+
 
     public function destroy($id)
     {
@@ -155,8 +374,6 @@ class CandidatureController extends Controller
         } else {
             return redirect()->back()->with('error', 'Type de role non reconnu.');
         }
-
-        // ici
 
         return $this->updateStatus($id, 'accepté', 'Candidature acceptée avec succès.');
     }

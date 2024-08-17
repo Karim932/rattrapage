@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\Answer;
 use App\Http\Controllers\Admin\AnswerController;
 use App\Http\Controllers\Admin\CandidatureController;
 use App\Http\Controllers\LocalizationController;
+use App\Http\Controllers\Admin\ServiceController;
 
 // Définit une route pour la localisation qui permet de changer la langue de l'application.
 // Elle utilise un contrôleur invocable `LocalizationController` qui gère la mise à jour de la locale.
@@ -39,8 +40,9 @@ Route::middleware(SetLocalization::class)->group(function() {
         return redirect()->route('accueil');
     });
 
+    // AdminMiddleware::class
     // Groupe de routes pour les utilisateurs authentifiés, incluant un middleware pour vérifier si l'utilisateur est banni.
-    Route::middleware([Authenticate::class, AdminMiddleware::class, CheckIfBanned::class])->group(function () {
+    Route::middleware([Authenticate::class, CheckIfBanned::class])->group(function () {
 
         // Groupe de routes pour la gestion du profil utilisateur avec des actions spécifiques gérées dans `ProfileController`.
         Route::name('profile.')->controller(ProfileController::class)->group(function () {
@@ -52,6 +54,8 @@ Route::middleware(SetLocalization::class)->group(function() {
         // Route de ressource pour les utilisateurs, permettant de gérer les opérations CRUD via `CandidatureController`.
         Route::resource('users', UserController::class);
         Route::resource('adhesion', CandidatureController::class);
+        Route::resource('admin/services', ServiceController::class);
+        
 
 
         Route::name('admin.adhesion.')->controller(CandidatureController::class)->group(function() {
@@ -65,6 +69,8 @@ Route::middleware(SetLocalization::class)->group(function() {
 
         });
 
+        Route::get('/mise-a-jour-user', [UserController::class, 'getUsersWithoutCandidature']);
+
         Route::post('/answer/{id}', [AnswerController::class, 'store'])->name('answer.store');
         Route::get('/answer/{id}', [AnswerController::class, 'store'])->name('answer.store');
 
@@ -75,38 +81,45 @@ Route::middleware(SetLocalization::class)->group(function() {
         Route::post('/users/ban/{id}', [UserController::class, 'banUser'])->name('users.ban');
         Route::post('/users/unban/{id}', [UserController::class, 'unbanUser'])->name('users.unban');
 
-        // Routes pour diverses fonctionnalités de l'application, chacune retournant une vue spécifique.
-        Route::get('services', function () {
-            return view('page_navbar/services');
-        })->name('services');
-
-        Route::get('/collectes', function () {
-            return view('collectes');
-        })->name('collectes');
-
-        Route::get('/stocks', function () {
-            return view('stocks');
-        })->name('stocks');
-
-        Route::get('/tournees', function () {
-            return view('tournees');
-        })->name('tournees');
-
-        Route::get('/benevoles', function () {
-            return view('benevoles');
-        })->name('benevoles');
-
-        Route::get('/contact', function () {
-            return view('contact');
-        })->name('contact');
-
-
-        // Avoir un rôle benevole ou commercant front
-        Route::get('/adhesions/commercant', [AdhesionsController::class, 'createCommercant'])->name('commercant');
-        Route::post('/adhesions/commercant', [AdhesionsController::class, 'storeCommercant'])->name('store.commercant');
-        Route::get('/adhesions/benevole', [AdhesionsController::class, 'createBenevole'])->name('benevole');
-        Route::post('/adhesions/benevole',[AdhesionsController::class, 'storeBenevole'])->name('store.benevole');
     });
+
+    // Routes pour diverses fonctionnalités de l'application, chacune retournant une vue spécifique.
+    Route::get('services', function () {
+        return view('page_navbar/services');
+    })->name('services');
+
+    Route::get('/collectes', function () {
+        return view('collectes');
+    })->name('collectes');
+
+    Route::get('/stocks', function () {
+        return view('stocks');
+    })->name('stocks');
+
+    Route::get('/tournees', function () {
+        return view('tournees');
+    })->name('tournees');
+
+    Route::get('/benevoles', function () {
+        return view('benevoles');
+    })->name('benevoles');
+
+    Route::get('/contact', function () {
+        return view('contact');
+    })->name('contact');
+
+    // Avoir un rôle benevole ou commercant front
+    Route::controller(AdhesionsController::class)->group(function(){
+        Route::get('/adhesions/commercant', 'createCommercant')->name('commercant');
+        Route::post('/adhesions/commercant', 'storeCommercant')->name('store.commercant');
+        Route::get('/adhesions/benevole', 'createBenevole')->name('benevole');
+        Route::get('/adhesions/change/benevole', 'changeBenevole')->name('change.benevole');
+        Route::put('/adhesions/change/benevole/{id}', 'updateBenevole')->name('update.benevole');
+        Route::post('/adhesions/benevole', 'storeBenevole')->name('store.benevole');
+        Route::get('/adhesions/benevole/dashboard', 'dashboard')->name('dashboard.benevole');
+    });
+
+
 
     // Route pour accéder au tableau de bord de l'administrateur, accessible uniquement aux utilisateurs ayant le rôle d'administrateur.
     Route::get('/admin/dashboard', function () {

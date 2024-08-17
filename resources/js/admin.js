@@ -69,5 +69,37 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('type-user').addEventListener('change', function() {
+        var skillsSection = document.getElementById('skills-section');
+        if (this.value === 'benevole') {
+            skillsSection.style.display = 'block';
+        } else {
+            skillsSection.style.display = 'none';
+        }
+    });
 
+    // Masquer la section des compétences par défaut si Commerçant est sélectionné
+    if (document.getElementById('type_user').value !== 'benevole') {
+        document.getElementById('skills-section').style.display = 'none';
+    }
+
+    document.getElementById('type_user').addEventListener('change', function() {
+        let selectedType = this.value;
+
+        fetch(`/mise-a-jour-user?type=${selectedType}`)
+            .then(response => response.json())
+            .then(data => {
+                let userSelect = document.getElementById('user_id');
+                userSelect.innerHTML = '';
+
+                data.forEach(user => {
+                    let option = document.createElement('option');
+                    option.value = user.id;
+                    option.text = `${user.firstname} ${user.lastname} - ${user.email}`;
+                    userSelect.add(option);
+                });
+            });
+    });
+});
 

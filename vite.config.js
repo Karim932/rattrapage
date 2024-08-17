@@ -7,6 +7,7 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/css/sidebarAdmin.css',
+                'resources/css/formulaire.css',
                 'resources/js/app.js',
                 'resources/js/admin.js',
                 'resources/js/filterUsers.js',
@@ -15,4 +16,9 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    build: {
+        rollupOptions: {
+            external: ['tippy.js'],
+        },
+    },
 });
