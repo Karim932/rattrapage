@@ -18,15 +18,15 @@
         </a>
         <a href="#" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
             <span class="material-icons">local_shipping</span>
-            <span class="ml-4">Gestion des Collectes</span>
+            <span class="ml-4">Gestion de Transport</span>
         </a>
         <a href="#" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
             <span class="material-icons">inventory</span>
             <span class="ml-4">Gestion des Stocks</span>
         </a>
         <a href="#" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
-            <span class="material-icons">local_shipping</span>
-            <span class="ml-4">Gestion des Tournées</span>
+            <span class="material-icons">post_add</span>
+            <span class="ml-4">Gestion des Annonces</span>
         </a>
         <a href="{{ route('services.index') }}" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
             <span class="material-icons">build</span>
@@ -51,3 +51,5 @@
 <button id="toggle-button" class="fixed top-16 left-64 bg-red-500 text-white p-2 rounded-r focus:outline-none z-50">
     <span id="toggle-icon" class="material-icons">chevron_left</span>
 </button>
+
+

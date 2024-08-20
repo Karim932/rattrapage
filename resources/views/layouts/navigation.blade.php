@@ -15,6 +15,9 @@
                     <x-nav-link :href="route('accueil')" :active="request()->routeIs('accueil')">
                         {{ __('message.Accueil') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('services')" :active="request()->routeIs('annonce')">
+                        {{ __('Mes Annonces') }}
+                    </x-nav-link>
                     <x-nav-link :href="route('services')" :active="request()->routeIs('services')">
                         {{ __('Services') }}
                     </x-nav-link>
@@ -23,9 +26,6 @@
                     </x-nav-link>
                     <x-nav-link :href="route('benevole')" :active="request()->routeIs('benevole')">
                         {{ __('message.Bénévoles') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('benevole')" :active="request()->routeIs('donation')">
-                        {{ __('Donation') }}
                     </x-nav-link>
 
                     {{-- ici que ceux qui sont benevole / faire middleware --}}

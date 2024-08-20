@@ -14,7 +14,7 @@ class AdhesionBenevole extends Model
     protected $fillable = [
         'user_id', 'status', 'old_benevole', 'motivation', 'experience',
         'permis', 'is_active', 'additional_notes', 'type',
-        'availability_begin', 'availability_end', 'availability', 'skill_id'
+        'availability_begin', 'availability_end', 'availability', 'skill_id', 'id_service'
     ];
 
     protected $dates = ['availability_begin', 'availability_end'];
@@ -39,5 +39,10 @@ class AdhesionBenevole extends Model
     public function adhesion()
     {
         return $this->morphOne(Adhesion::class, 'fusion');
+    }
+
+    public function service()
+    {
+        return $this->belongsTo(Service::class, 'id_service');
     }
 }

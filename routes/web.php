@@ -16,9 +16,14 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AdhesionsController;
 use App\Http\Controllers\Admin\Answer;
 use App\Http\Controllers\Admin\AnswerController;
+use App\Http\Controllers\Admin\BenevoleServiceController;
 use App\Http\Controllers\Admin\CandidatureController;
 use App\Http\Controllers\LocalizationController;
 use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\Admin\SkillController;
+use App\Http\Controllers\Admin\CollecteController;
+use App\Http\Controllers\Commercant\CommercantCollecteController;
+use App\Http\Controllers\Benevole\BenevoleCollecteController;
 
 // Définit une route pour la localisation qui permet de changer la langue de l'application.
 // Elle utilise un contrôleur invocable `LocalizationController` qui gère la mise à jour de la locale.
@@ -55,7 +60,11 @@ Route::middleware(SetLocalization::class)->group(function() {
         Route::resource('users', UserController::class);
         Route::resource('adhesion', CandidatureController::class);
         Route::resource('admin/services', ServiceController::class);
-        
+        Route::resource('skills', SkillController::class);
+
+        Route::get('admin/services/add/benevole', [BenevoleServiceController::class, 'create'])->name('services.affecte');
+        Route::post('admin/services/benevole', [BenevoleServiceController::class, 'store'])->name('services.save');
+        Route::get('admin/services/{serviceId}/skills', [BenevoleServiceController::class, 'skillShow'])->name('services.skills');
 
 
         Route::name('admin.adhesion.')->controller(CandidatureController::class)->group(function() {
@@ -112,6 +121,8 @@ Route::middleware(SetLocalization::class)->group(function() {
     Route::controller(AdhesionsController::class)->group(function(){
         Route::get('/adhesions/commercant', 'createCommercant')->name('commercant');
         Route::post('/adhesions/commercant', 'storeCommercant')->name('store.commercant');
+        Route::post('/adhesions/commercant/{id}', 'updateCommercant')->name('update.commercant');
+        Route::get('/adhesions/change/commercant', 'changeCommercant')->name('change.commercant');
         Route::get('/adhesions/benevole', 'createBenevole')->name('benevole');
         Route::get('/adhesions/change/benevole', 'changeBenevole')->name('change.benevole');
         Route::put('/adhesions/change/benevole/{id}', 'updateBenevole')->name('update.benevole');
@@ -119,10 +130,32 @@ Route::middleware(SetLocalization::class)->group(function() {
         Route::get('/adhesions/benevole/dashboard', 'dashboard')->name('dashboard.benevole');
     });
 
-
-
     // Route pour accéder au tableau de bord de l'administrateur, accessible uniquement aux utilisateurs ayant le rôle d'administrateur.
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboard');
     })->middleware('can:is-admin')->name('admin.dashboard');
+});
+
+//ADMIN GESTION COLLECTES
+Route::middleware(['auth',])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('collectes', CollecteController::class);
+    Route::post('collectes/{id}/assign', [CollecteController::class, 'assign'])->name('collectes.assign');
+    Route::put('collectes/{id}/update-status', [CollecteController::class, 'updateStatus'])->name('collectes.updateStatus');
+});
+
+//INTERFACE COMMERCANT
+Route::middleware(['auth'])->prefix('commercant')->group(function () {
+    Route::get('/demande-collecte', [CommercantCollecteController::class, 'create'])->name('commercant.demande_collecte.create');
+    Route::post('/demande-collecte', [CommercantCollecteController::class, 'store'])->name('commercant.demande_collecte.store');
+    Route::get('/dashboard', [CommercantCollecteController::class, 'dashboard'])->name('commercant.dashboard');
+    Route::put('/collecte/{id}/cancel', [CommercantCollecteController::class, 'cancel'])->name('commercant.collecte.cancel');
+});
+
+//INTERFACE BENEVOLE
+Route::middleware(['auth'])->prefix('benevole')->name('benevole.')->group(function () {
+    Route::get('collectes', [BenevoleCollecteController::class, 'index'])->name('collectes.index');
+    Route::get('collectes/{id}', [BenevoleCollecteController::class, 'show'])->name('collectes.show');
+    Route::put('collectes/{id}/status', [BenevoleCollecteController::class, 'updateStatus'])->name('collectes.updateStatus');
+    Route::get('collectes/{id}/stock', [BenevoleCollecteController::class, 'stock'])->name('collectes.stock');
+    Route::post('collectes/{id}/stock', [BenevoleCollecteController::class, 'storeStock'])->name('collectes.storeStock');
 });

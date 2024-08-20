@@ -144,44 +144,6 @@
                             </tr>
                         </thead>
 
-                        <style>
-                            th {
-                                background-color: #f9fafb;
-                            }
-
-                            th a {
-                                display: inline-flex;
-                                align-items: center;
-                                color: #4a5568;
-                                text-decoration: none;
-                                font-weight: 100;
-                                transition: color 0.3s ease;
-                            }
-
-                            th a:hover {
-                                color: #283e64;
-                            }
-
-                            /* th i {
-                                margin-left: 5px;
-                                font-size: 12px;
-                            } */
-
-                            th i.fas {
-                                color: #a0aec0;
-                            }
-
-                            th i.fas.fa-arrow-up,
-                            th i.fas.fa-arrow-down {
-                                margin-left: 8px;
-                            }
-
-                            tr.border-b {
-                                border-bottom-width: 1px;
-                            }
-                        </style>
-
-
                         <tbody class="bg-white divide-y divide-gray-200">
                             @foreach ($allCandidatures as $candidature)
                             <tr>
@@ -221,7 +183,7 @@
                                     @if ($candidature->fusion)
                                         {{ $candidature->fusion->created_at->format('d/m/Y') }}
                                     @else
-                                        Statut non disponible
+                                        date non disponible
                                     @endif
                                 </td>
                                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
@@ -248,4 +210,36 @@
         </div>
     </div>
 </div>
+
+<style>
+th {
+    background-color: #f9fafb;
+}
+
+th a {
+    display: inline-flex;
+    align-items: center;
+    color: #4a5568;
+    text-decoration: none;
+    font-weight: 100;
+    transition: color 0.3s ease;
+}
+
+th a:hover {
+    color: #283e64;
+}
+
+th i.fas {
+    color: #a0aec0;
+}
+
+th i.fas.fa-arrow-up,
+th i.fas.fa-arrow-down {
+    margin-left: 8px;
+}
+
+tr.border-b {
+    border-bottom-width: 1px;
+}
+</style>
 @endsection

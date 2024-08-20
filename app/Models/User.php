@@ -30,12 +30,12 @@ class User extends Authenticatable
 
     public function adhesionCommercants()
     {
-        return $this->hasMany(AdhesionCommercant::class);
+        return $this->hasOne(AdhesionCommercant::class, 'user_id');
     }
 
     public function adhesionsBenevoles()
     {
-        return $this->hasMany(AdhesionBenevole::class, 'user_id');
+        return $this->hasOne(AdhesionBenevole::class, 'user_id');
     }
 
     public function adhesions()

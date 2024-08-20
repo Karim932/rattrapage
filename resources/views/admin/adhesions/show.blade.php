@@ -26,12 +26,12 @@
                                 <p class="text-lg"><span class="font-medium text-gray-900">ID :</span> {{ $adhesion->id }}</p>
                                 <p class="text-lg"><span class="font-medium text-gray-900">Role :</span> {{ $candidature->user->role }}</p>
                                 <p class="text-lg"><span class="font-medium text-gray-900">Email :</span> {{ $candidature->user->email }}</p>
-                                <p class="text-lg"><span class="font-medium text-gray-900">Statut :</span> 
+                                <p class="text-lg"><span class="font-medium text-gray-900">Statut :</span>
                                     <span class="inline-flex items-center justify-center px-2 py-1 rounded-full text-sm font-medium {{ $candidature->status === 'accepté' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                         {{ ucfirst($candidature->status) }}
                                     </span>
                                 </p>
-                                <p class="text-lg"><span class="font-medium text-gray-900">Active :</span> 
+                                <p class="text-lg"><span class="font-medium text-gray-900">Active :</span>
                                     <span class="inline-flex items-center justify-center px-2 py-1 rounded-full text-sm font-medium {{ $candidature->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                         {{ $candidature->is_active ? 'Oui' : 'Non' }}
                                     </span>
@@ -49,9 +49,9 @@
                             <p><strong>Ville :</strong> {{ $candidature->city }}</p>
                             <p><strong>Code Postal :</strong> {{ $candidature->postal_code }}</p>
                             <p><strong>Pays :</strong> {{ $candidature->country }}</p>
-                            <p><strong>Type de produits :</strong> {{ $candidature->product_type }}</p>
+                            <p><strong>Date Début :</strong> {{ $candidature->contract_start_date }}</p>
+                            <p><strong>Date Fin :</strong> {{ $candidature->contract_end_date }}</p>
                             <p><strong>Horaires d'ouverture :</strong> {{ $candidature->opening_hours }}</p>
-                            <p><strong>Fréquence de participation :</strong> {{ $candidature->participation_frequency }}</p>
                             <p><strong>Notes :</strong> {{ $candidature->notes }}</p>
                         </div>
                     </div>
@@ -136,7 +136,8 @@
                         <div id="dropdownMenu" class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none">
                             <div class="py-1">
                                 <a href="{{ route('adhesion.edit', $adhesion->id) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Modifier</a>
-                                <form method="POST" action="{{ route('adhesion.destroy', $adhesion->id) }}" class="block text-left">
+                                <form action="{{ route('adhesion.destroy', $adhesion->id) }}" method="POST" class="delete-user-form inline">
+                                    {{-- block text-left --}}
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-gray-100">
@@ -145,20 +146,20 @@
                                 </form>
 
                                 @if ($candidature->status === 'accepté')
-                                    <form method="POST" action="{{ route('admin.adhesion.revoque', $adhesion->id) }}" class="block text-left">
+                                    <form method="POST" action="{{ route('admin.adhesion.revoque', $adhesion->id) }}" class="revoque-user-form block text-left">
                                         @csrf
                                         <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-gray-100">
                                             Révoquer (Role → User)
                                         </button>
                                     </form>
                                 @else
-                                    <form method="POST" action="{{ route('admin.adhesion.accept', $adhesion->id) }}" class="block text-left">
+                                    <form method="POST" action="{{ route('admin.adhesion.accept', $adhesion->id) }}" class="accept-user-form block text-left">
                                         @csrf
                                         <button type="submit" class="w-full text-left px-4 py-2 text-sm text-green-700 hover:bg-gray-100">
                                             Accepter
                                         </button>
                                     </form>
-                                    <form method="POST" action="{{ route('admin.adhesion.refuse', $adhesion->id) }}" class="block text-left">
+                                    <form method="POST" action="{{ route('admin.adhesion.refuse', $adhesion->id) }}" class="refuse-user-form block text-left">
                                         @csrf
                                         <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-gray-100">
                                             Refuser

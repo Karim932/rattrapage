@@ -16,7 +16,29 @@ class AdhesionsController extends Controller
     // Afficher le formulaire pour les commerçants
     public function createCommercant()
     {
-        return view('page_navbar.commerçants.adhesion');
+        $userId = Auth::id();
+        $candidature = AdhesionCommercant::where('user_id', $userId)->first();
+
+        $hasBenevoleCandidature = AdhesionBenevole::where('user_id', $userId)->exists();
+
+        if ($hasBenevoleCandidature) {
+            return redirect()->back()->with('error', 'Vous avez déjà une candidature en tant que Bénévole.');
+        }
+
+        // Sert à check si l'user a déjà postuler
+        if ($candidature) {
+
+            // $candidature = $user->adhesionCommercants->first();
+            $idCandidature = $candidature->id;
+
+            $answers = Answer::where('candidature_id', $idCandidature)->get();
+
+
+            return view('page_navbar.commerçants.attente', compact('answers', 'candidature'));
+
+        } else {
+            return view('page_navbar.commerçants.adhesion');
+        }
     }
 
     // Traiter l'enregistrement des commerçants
@@ -25,6 +47,14 @@ class AdhesionsController extends Controller
         // Vérifier si l'utilisateur est connecté et récupérer son ID
         if (Auth::check()) {
             $userId = Auth::id();
+
+            // Vérifier si une candidature active existe déjà pour cet utilisateur
+            $existingAdhesion = AdhesionCommercant::where('user_id', $userId)->first();
+
+            if ($existingAdhesion) {
+            return redirect()->back()->with('error', 'Vous avez déjà soumis une candidature.');
+            }
+
             $request->validate([
                 'company_name' => 'required|string|max:255',
                 'siret' => 'required|string|size:14|unique:adhesion_commercants,siret',
@@ -33,9 +63,9 @@ class AdhesionsController extends Controller
                 'postal_code' => 'required|string|max:10',
                 'country' => 'required|string|max:255',
                 'notes' => 'nullable|string|max:1000',
-                'product_type' => 'nullable|string|max:255',
                 'opening_hours' => 'nullable|string|max:255',
-                'participation_frequency' => 'nullable|string|max:255'
+                'contract_start_date' => 'required|date|after_or_equal:now',
+                'contract_end_date' => 'required|date|after_or_equal:availability_begin',
             ]);
 
             // $adhesion = new AdhesionCommercant($request->all()); -> pareil que en bas mais raccourci)
@@ -47,9 +77,9 @@ class AdhesionsController extends Controller
                 'postal_code' => $request->postal_code,
                 'country' => $request->country,
                 'notes' => $request->notes,
-                'product_type' => $request->product_type,
                 'opening_hours' => $request->opening_hours,
-                'participation_frequency' => $request->participation_frequency,
+                'contract_start_date' => $request->contract_start_date,
+                'contract_end_date' => $request->contract_end_date,
                 'user_id' => $userId
             ]);
 
@@ -57,14 +87,106 @@ class AdhesionsController extends Controller
 
             // Création de l'entrée générale dans Adhesions
             $adhesion = new Adhesion([
-                'candidature_id' => $userId,
+                'candidature_id' => $adhesionCommercant->id,
                 'candidature_type' => AdhesionCommercant::class
             ]);
             $adhesion->save();
-            return view('page_navbar.services')->with('success', 'Adhésion bénévole enregistrée avec succès.');
+            return view('page_navbar.commerçants.attente')->with('success', 'Adhésion bénévole enregistrée avec succès.');
         } else {
             return redirect('login')->with('error', 'Vous devez être connecté pour effectuer cette action.');
         }
+    }
+
+    public function updateCommercant(Request $request, $id)
+    {
+        $user = Auth::user(); // Récupérer l'utilisateur connecté
+
+        // Vérifier si l'utilisateur a déjà une candidature en tant que bénévole
+        $hasBenevoleCandidature = $user->adhesions->contains(function($adh) {
+            return $adh->candidature_type === \App\Models\AdhesionBenevole::class;
+        });
+
+        if ($hasBenevoleCandidature && $request->type === 'commercant') {
+            // Si l'utilisateur a déjà une candidature en tant que bénévole et tente de soumettre en tant que commerçant
+            return back()->with('error', 'Vous avez déjà une candidature en tant que bénévole. Vous ne pouvez pas soumettre en tant que commerçant.');
+        }
+
+        $messages = [
+            'company_name.required' => 'Le nom de l\'entreprise est requis.',
+            'siret.required' => 'Le numéro SIRET est requis.',
+            'siret.size' => 'Le numéro SIRET doit contenir 14 chiffres.',
+            'address.required' => 'L\'adresse est requise.',
+            'city.required' => 'La ville est requise.',
+            'postal_code.required' => 'Le code postal est requis.',
+            'country.required' => 'Le pays est requis.',
+            'contract_start_date.required' => 'La date de début du contrat est requise.',
+            'contract_start_date.date' => 'Entrez une date valide pour la date de début.',
+            'contract_end_date.required' => 'La date de fin du contrat est requise.',
+            'contract_end_date.date' => 'Entrez une date valide pour la date de fin.',
+            'contract_end_date.after_or_equal' => 'La date de fin doit être après ou le même jour que la date de début.',
+            'opening_hours.required' => 'Les horaires d\'ouverture sont requis.',
+            'notes.max' => 'Les notes ne peuvent excéder 1000 caractères.',
+        ];
+
+        $validatedData = $request->validate([
+            'company_name' => 'required|string|max:255',
+            'siret' => 'required|string|size:14',
+            'address' => 'required|string|max:500',
+            'city' => 'required|string|max:255',
+            'postal_code' => 'required|string|max:10',
+            'country' => 'required|string|max:255',
+            'contract_start_date' => 'required|date',
+            'contract_end_date' => 'required|date|after_or_equal:contract_start_date',
+            'opening_hours' => 'required|string|max:255',
+            'notes' => 'nullable|string|max:1000'
+        ], $messages);
+
+        try {
+            $candidature = AdhesionCommercant::findOrFail($id);
+
+            $candidature->company_name = $validatedData['company_name'];
+            $candidature->siret = $validatedData['siret'];
+            $candidature->address = $validatedData['address'];
+            $candidature->city = $validatedData['city'];
+            $candidature->postal_code = $validatedData['postal_code'];
+            $candidature->country = $validatedData['country'];
+            $candidature->contract_start_date = $validatedData['contract_start_date'];
+            $candidature->contract_end_date = $validatedData['contract_end_date'];
+            $candidature->opening_hours = $validatedData['opening_hours'];
+            $candidature->notes = $validatedData['notes'];
+            $candidature->status = 'renvoyé';
+            $candidature->save();
+
+            return redirect()->route('commercant')->with('success', 'Informations du commerçant mises à jour avec succès.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Erreur lors de la mise à jour des informations du commerçant: ' . $e->getMessage());
+        }
+    }
+
+    public function changeCommercant()
+    {
+        $userId = Auth::id();
+
+        // Check if the user is logged in
+        if (!$userId) {
+            return redirect()->route('login')->with('error', 'Vous devez être connecté.');
+        }
+
+
+
+        // Retrieve the user with their commercial candidacies
+        $candidature = AdhesionCommercant::where('user_id', $userId)->first();
+
+        // Check if the user has a commercial candidature
+        // $candidature = $user->first();
+        if (!$candidature) {
+            return redirect()->route('some_route')->with('error', 'Aucune candidature commerciale trouvée.');
+        }
+
+        // Return the view with the necessary data
+        return view('page_navbar.commerçants.adhesion', [
+            'candidature' => $candidature,
+        ]);
     }
 
     // Afficher le formulaire pour les bénévoles
@@ -72,12 +194,21 @@ class AdhesionsController extends Controller
     {
         $userId = Auth::id();
         $user = User::with('adhesionsBenevoles')->find($userId);
+        $candidature = $user->adhesionsBenevoles;
         $skills = Skill::all();
 
-        // Sert à check si l'user a déjà postuler
-        if ($user && $user->adhesionsBenevoles->isNotEmpty()) {
+        $hasCommercantCandidature = AdhesionCommercant::where('user_id', $userId)->exists();
 
-            $candidature = $user->adhesionsBenevoles->first();
+        if ($hasCommercantCandidature) {
+            return redirect()->back()->with('error', 'Vous avez déjà une candidature en tant que Commerçant.');
+        }
+
+
+        // dd($user, $findCandidature);
+        // Sert à check si l'user a déjà postuler
+        if ($user && $candidature) {
+
+            // $candidature = $user->adhesionsBenevoles->first();
             $idCandidature = $candidature->id;
 
             $answers = Answer::where('candidature_id', $idCandidature)->get();
@@ -126,6 +257,7 @@ class AdhesionsController extends Controller
         // Retourner la vue avec les données nécessaires
         return view('page_navbar.benevoles.adhesion', compact('candidature', 'availability', 'skills', 'selectedSkills'));
     }
+
 
 
     public function updateBenevole(Request $request, $id)
@@ -195,6 +327,18 @@ class AdhesionsController extends Controller
     // Traiter l'enregistrement des bénévoles
     public function storeBenevole(Request $request)
     {
+        $user = Auth::user(); // Récupérer l'utilisateur connecté
+
+        // Vérifier si l'utilisateur a déjà une candidature en tant que commerçant
+        $hasCommercantCandidature = $user->adhesions->contains(function($adh) {
+            return $adh->candidature_type === \App\Models\AdhesionCommercant::class;
+        });
+
+        if ($hasCommercantCandidature && $request->type === 'benevole') {
+            // Si l'utilisateur a déjà une candidature en tant que commerçant et tente de soumettre en tant que bénévole
+            return back()->with('error', 'Vous avez déjà une candidature en tant que commerçant. Vous ne pouvez pas soumettre en tant que bénévole.');
+        }
+
         // Personnalisation des messages d'erreur
         $messages = [
             'motivation.required' => 'Votre motivation est requise pour compléter l’inscription.',
@@ -228,6 +372,13 @@ class AdhesionsController extends Controller
         if (Auth::check()) {
             $userId = Auth::id();
 
+            // Vérifier si une candidature active existe déjà pour cet utilisateur
+            $existingAdhesion = AdhesionBenevole::where('user_id', $userId)->first();
+
+            if ($existingAdhesion) {
+            return redirect()->back()->with('error', 'Vous avez déjà soumis une candidature.');
+            }
+
             $availability = $request->input('availability');
 
             // Traitement des données pour les adapter au format de stockage de votre base de données
@@ -246,7 +397,7 @@ class AdhesionsController extends Controller
                 'motivation' => $request->motivation,
                 'experience' => $request->experience,
                 'old_benevole' => $request->has('old_benevole'),
-                'availability' => json_encode($formattedAvailability),
+                'availability' => $formattedAvailability,
                 'availability_begin' => $request->availability_begin,
                 'availability_end' => $request->availability_end,
                 'permis' => $request->has('permis'),
@@ -261,7 +412,7 @@ class AdhesionsController extends Controller
                 'candidature_type' => AdhesionBenevole::class
             ]);
             $adhesion->save();
-            return view('page_navbar.services')->with('success', 'Adhésion bénévole enregistrée avec succès.');
+            return view('page_navbar.benevoles.attente')->with('success', 'Adhésion bénévole enregistrée avec succès.');
         } else {
             return redirect('login')->with('error', 'Vous devez être connecté pour effectuer cette action.');
         }

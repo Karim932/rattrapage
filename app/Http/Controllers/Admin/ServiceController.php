@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Adhesion;
+use App\Models\AdhesionBenevole;
 use App\Models\Service;
 use Illuminate\Http\Request;
+use App\Models\Skill;
+use App\Models\User;
 
 class ServiceController extends Controller
 {
@@ -28,7 +32,8 @@ class ServiceController extends Controller
      */
     public function create()
     {
-        return view('admin.services.create');
+        $skills = Skill::all();
+        return view('admin.services.create', compact('skills'));
     }
 
     /**
@@ -58,13 +63,32 @@ class ServiceController extends Controller
             'category' => 'required|string',
             'condition' => 'required|string',
             'duration' => 'nullable|integer',
+            'skills' => 'nullable|array',
+            'skills.*' => 'exists:skills,id',
+            'new_skills' => 'nullable|array',
+            'new_skills.*' => 'string|max:255|unique:skills,name',
 
         ], $messages);
 
         // Créer un nouveau service en utilisant la méthode d'instanciation avec un tableau associatif
         $service = new Service($validatedData);
         $service->save();
+        if (is_null($service->id)) {
+            // Gérer l'erreur ici, par exemple, renvoyer une réponse ou lever une exception
+            return back()->withErrors('Failed to save the service.');
+        }
 
+        // Traitement des compétences existantes
+        $service->skills()->sync($request->input('skills', []));
+
+        if (!empty($request->new_skills)) {
+            foreach ($request->new_skills as $skillName) {
+                if (!empty($skillName)) {
+                    $skill = Skill::firstOrCreate(['name' => $skillName]);
+                    $service->skills()->attach($skill->id);
+                }
+            }
+        }
 
         // Rediriger vers la liste des services avec un message de succès
         return redirect()->route('services.index')->with('success', 'Service créé avec succès.');
@@ -78,6 +102,13 @@ class ServiceController extends Controller
      */
     public function show(Service $service)
     {
+        $benevole = AdhesionBenevole::all();
+        // $benevoleDispos = User::where('role', 'benevole')
+        // ->whereNotIn('id', AdhesionBenevole::select('user_id')->distinct())
+        // ->get();
+
+        // $service = Service::with('adhesionBenevole.user')->findOrFail($service->id);
+
         return view('admin.services.show', compact('service'));
     }
 
@@ -89,7 +120,8 @@ class ServiceController extends Controller
      */
     public function edit(Service $service)
     {
-        return view('admin.services.edit', compact('service'));
+        $skills = Skill::all();
+        return view('admin.services.edit', compact('skills', 'service'));
     }
 
     /**
@@ -99,30 +131,59 @@ class ServiceController extends Controller
      * @param  \App\Models\Service  $service
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Service $service)
+    public function update(Request $request, $id)
     {
-        // Valider les données envoyées via le formulaire
+        // Personnalisation des messages d'erreur
+        $messages = [
+            'name.required' => 'Le nom du service est requis.',
+            'name.max' => 'Le nom du service ne peut excéder 255 caractères.',
+            'description.required' => 'La description du service est requise.',
+            'condition.required' => 'La condition du service est requise.',
+            'category.required' => 'La catégorie du service est requise.',
+            'duration.integer' => 'La durée doit être un nombre entier.',
+            'duration.nullable' => 'La durée du service est facultative.',
+            'skills.*.exists' => 'La compétence sélectionnée doit exister dans la base de données.',
+            'new_skills.*.unique' => 'La nouvelle compétence doit être unique.'
+        ];
+
+        // Validation des données envoyées via le formulaire
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
-            'capacity' => 'required|integer',
-            'location' => 'nullable|string|max:255',
-            'start_date' => 'required|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-        ]);
+            'status' => 'nullable|string',
+            'category' => 'required|string',
+            'condition' => 'required|string',
+            'duration' => 'nullable|integer',
+            'skills' => 'nullable|array',
+            'skills.*' => 'exists:skills,id',
+            'new_skills' => 'nullable|array',
+            'new_skills.*' => 'string|max:255|unique:skills,name',
+        ], $messages);
 
-        // Mettre à jour le service existant
-        $service->name = $validatedData['name'];
-        $service->description = $validatedData['description'];
-        $service->capacity = $validatedData['capacity'];
-        $service->location = $validatedData['location'];
-        $service->start_date = $validatedData['start_date'];
-        $service->end_date = $validatedData['end_date'];
-        $service->save();
+        $service = Service::findOrFail($id);
+        $service->update($validatedData);
+
+        // Gérer les compétences existantes
+        if (isset($validatedData['skills'])) {
+            $service->skills()->sync($validatedData['skills']);
+        } else {
+            $service->skills()->detach();
+        }
+
+        // Ajouter de nouvelles compétences si spécifié
+        if (isset($validatedData['new_skills'])) {
+            foreach ($validatedData['new_skills'] as $skillName) {
+                if ($skillName) {
+                    $skill = Skill::firstOrCreate(['name' => $skillName]);
+                    $service->skills()->attach($skill->id);
+                }
+            }
+        }
 
         // Rediriger vers la liste des services avec un message de succès
         return redirect()->route('services.index')->with('success', 'Service mis à jour avec succès.');
     }
+
 
     /**
      * Remove the specified service from storage.
@@ -138,5 +199,6 @@ class ServiceController extends Controller
         // Rediriger vers la liste des services avec un message de succès
         return redirect()->route('services.index')->with('success', 'Service supprimé avec succès.');
     }
+
 }
 

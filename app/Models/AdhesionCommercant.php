@@ -13,8 +13,10 @@ class AdhesionCommercant extends Model
 
     protected $fillable = [
         'user_id', 'company_name', 'siret', 'address', 'city', 'postal_code', 'country',
-        'status', 'is_active', 'notes', 'product_type', 'opening_hours', 'participation_frequency', 'type'
+        'status', 'is_active', 'notes', 'opening_hours', 'type', 'contract_start_date', 'contract_end_date'
     ];
+
+    protected $dates = ['contract_start_date', 'contract_end_date'];
 
     // Relation avec le modèle User
     public function user()

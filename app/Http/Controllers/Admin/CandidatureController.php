@@ -108,7 +108,6 @@ class CandidatureController extends Controller
         // Récupérer tous les utilisateurs qui n'ont pas de candidature
         $usersWithoutCandidature = User::doesntHave('adhesionsBenevoles')->doesntHave('adhesionCommercants')->get();
 
-
         // Récupérer toutes les compétences disponibles
         $skills = Skill::all();
 
@@ -120,6 +119,14 @@ class CandidatureController extends Controller
     {
         // Personnalisation des messages d'erreur
         $messages = [
+            'company_name.required' => 'Le nom de l\'entreprise est requis.',
+            'siret.required' => 'Le numéro SIRET est requis.',
+            'siret.size' => 'Le numéro SIRET doit contenir exactement 14 chiffres.',
+            'siret.unique' => 'Ce numéro SIRET est déjà enregistré.',
+            'address.required' => 'L\'adresse est requise.',
+            'city.required' => 'La ville est requise.',
+            'postal_code.required' => 'Le code postal est requis.',
+            'country.required' => 'Le pays est requis.',
             'motivation.required' => 'Votre motivation est requise pour compléter l’inscription.',
             'motivation.max' => 'La motivation ne peut excéder 500 caractères.',
             'experience.required' => 'Décrivez vos expériences précédentes en bénévolat.',
@@ -129,62 +136,99 @@ class CandidatureController extends Controller
             'availability_end.required' => 'La date de fin est requise.',
             'availability_end.date' => 'Entrez une date valide pour la date de fin.',
             'availability_end.after_or_equal' => 'La date de fin doit être après ou le même jour que la date de début.',
-            'availability_begin.after_or_equal' => 'La date de début doit être après ou le même jour que la date d\'aujourd\'hui',
+            'availability_begin.after_or_equal' => 'La date de début doit être après ou le même jour que la date d\'aujourd\'hui.',
             'additional_notes.max' => 'Les notes supplémentaires ne peuvent excéder 1000 caractères.',
         ];
 
-        $request->validate([
-            'skills' => 'required|array',
-            'skills.*' => 'exists:skills,id',
-            'motivation' => 'required|string|max:500',
-            'experience' => 'required|string|max:500',
-            'old_benevole' => 'nullable',
-            'availability' => 'required|array',
-            'availability.*.*' => 'nullable|in:1',
-            'availability_begin' => 'required|date|after_or_equal:now',
-            'availability_end' => 'required|date|after_or_equal:availability_begin',
-            'permis' => 'nullable',
-            'additional_notes' => 'nullable|string|max:500'
-        ],$messages);
-
         // Vérifier si l'utilisateur est connecté et récupérer son ID
         if (Auth::check()) {
-            $userId = Auth::id();
 
-            // Traitement des données de disponibilité
-            $availability = $request->input('availability');
-            $formattedAvailability = [];
-            foreach ($availability as $day => $times) {
-                foreach ($times as $time => $value) {
-                    $formattedAvailability[$day][$time] = ($value == '1') ? true : false;
+            if ($request->type === 'commercant') {
+                $validated = $request->validate([
+                    'user_id' => 'required|exists:users,id',
+                    'company_name' => 'required|string|max:255',
+                    'siret' => 'required|string|size:14|unique:adhesion_commercants,siret',
+                    'address' => 'required|string|max:500',
+                    'city' => 'required|string|max:255',
+                    'postal_code' => 'required|string|max:10',
+                    'country' => 'required|string|max:255',
+                    'notes' => 'nullable|string|max:1000',
+                    'opening_hours' => 'nullable|string|max:255',
+                    'contract_start_date' => 'required|date|after_or_equal:now',
+                    'contract_end_date' => 'required|date|after_or_equal:contract_start_date',
+                ], $messages);
+
+                // Utiliser l'ID de l'utilisateur choisi du formulaire
+                $userId = $request->user_id;
+
+                $adhesionCommercant = new AdhesionCommercant($validated);
+                $adhesionCommercant->user_id = $userId;
+                $adhesionCommercant->save();
+
+                $adhesion = new Adhesion([
+                    'candidature_id' => $adhesionCommercant->id,
+                    'candidature_type' => AdhesionCommercant::class
+                ]);
+                $adhesion->save();
+
+                return redirect()->route('adhesion.index')->with('success', 'Candidature commerciale enregistrée avec succès.');
+
+            } else if ($request->type === 'benevole') {
+                $validated = $request->validate([
+                    'user_id' => 'required|exists:users,id',
+                    'skills' => 'required|array',
+                    'skills.*' => 'exists:skills,id',
+                    'motivation' => 'required|string|max:500',
+                    'experience' => 'required|string|max:500',
+                    'old_benevole' => 'nullable',
+                    'availability' => 'required|array',
+                    'availability.*.*' => 'nullable|in:1',
+                    'availability_begin' => 'required|date|after_or_equal:now',
+                    'availability_end' => 'required|date|after_or_equal:availability_begin',
+                    'permis' => 'nullable',
+                    'additional_notes' => 'nullable|string|max:500'
+                ], $messages);
+
+                // Traitement des données de disponibilité
+                $availability = $request->input('availability');
+                $formattedAvailability = [];
+                foreach ($availability as $day => $times) {
+                    foreach ($times as $time => $value) {
+                        $formattedAvailability[$day][$time] = ($value == '1') ? true : false;
+                    }
                 }
+
+                // Utiliser l'ID de l'utilisateur choisi du formulaire
+                $userId = $request->user_id;
+
+                $adhesionBenevole = new AdhesionBenevole([
+                    'skill_id' => json_encode($request->skills),
+                    'motivation' => $request->motivation,
+                    'experience' => $request->experience,
+                    'old_benevole' => $request->has('old_benevole'),
+                    'availability' => $formattedAvailability,
+                    'availability_begin' => $request->availability_begin,
+                    'availability_end' => $request->availability_end,
+                    'permis' => $request->has('permis'),
+                    'additional_notes' => $request->additional_notes,
+                    'user_id' => $userId,
+                ]);
+                $adhesionBenevole->save();
+
+
+                $adhesion = new Adhesion([
+                    'candidature_id' => $adhesionBenevole->id,
+                    'candidature_type' => AdhesionBenevole::class
+                ]);
+                $adhesion->save();
+
+                return redirect()->route('adhesion.index')->with('success', 'Candidature bénévole enregistrée avec succès.');
             }
 
-            $adhesionBenevole = new AdhesionBenevole([
-                'skill_id' => json_encode($request->skills),
-                'motivation' => $request->motivation,
-                'experience' => $request->experience,
-                'old_benevole' => $request->has('old_benevole'),
-                'availability' => json_encode($formattedAvailability),
-                'availability_begin' => $request->availability_begin,
-                'availability_end' => $request->availability_end,
-                'permis' => $request->has('permis'),
-                'additional_notes' => $request->additional_notes,
-                'user_id' => $userId,
-            ]);
-            $adhesionBenevole->save();
-
-            // Création de l'entrée générale dans Adhesions
-            $adhesion = new Adhesion([
-                'candidature_id' => $adhesionBenevole->id,
-                'candidature_type' => AdhesionBenevole::class
-            ]);
-            $adhesion->save();
-            return redirect()->route('adhesion.index');
-        } else {
-            return redirect('login')->with('error', 'Vous devez être connecté pour effectuer cette action.');
+            return back()->with('error', 'Type de candidature non spécifié ou non supporté.');
         }
     }
+
 
     public function show($id)
     {
@@ -208,7 +252,7 @@ class CandidatureController extends Controller
         } else {
             $skills = []; // Ou vous pouvez laisser $skills non défini si vous ne prévoyez pas de l'utiliser pour les commerçants
         }
-        
+
         // Récupérer toutes les réponses où 'candidature_id' est égal à $fusionId
         $answers = Answer::where('candidature_id', $fusionId)->get();
 
@@ -267,7 +311,8 @@ class CandidatureController extends Controller
                 'city' => 'required|string|max:255',
                 'postal_code' => 'required|string|max:10',
                 'country' => 'required|string|max:255',
-                'product_type' => 'required|string|max:255',
+                'contract_start_date' => 'required|date|after_or_equal:now',
+                'contract_end_date' => 'required|date|after_or_equal:availability_begin',
             ], [
                 'company_name.required' => 'Le nom de l’entreprise est obligatoire.',
                 'siret.required' => 'Le numéro SIRET est obligatoire.',
@@ -276,7 +321,6 @@ class CandidatureController extends Controller
                 'city.required' => 'La ville est obligatoire.',
                 'postal_code.required' => 'Le code postal est obligatoire.',
                 'country.required' => 'Le pays est obligatoire.',
-                'product_type.required' => 'Le type de produit est obligatoire.',
             ]);
 
             // Mise à jour spécifique pour les commerçants
@@ -362,13 +406,14 @@ class CandidatureController extends Controller
     {
         $adhesion = Adhesion::with('fusion')->findOrFail($id);
         $class = get_class($adhesion->fusion);
-        $role = 'benevole';
         $user = $adhesion->fusion->user;
 
         if ($class === AdhesionCommercant::class) {
+            $role = 'commercant';
             $user->role = $role;
             $user->save();
         } elseif ($class === AdhesionBenevole::class) {
+            $role = 'benevole';
             $user->role = $role;
             $user->save();
         } else {

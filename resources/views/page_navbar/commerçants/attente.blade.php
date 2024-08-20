@@ -8,6 +8,12 @@
                 </div>
             @endif
 
+            @if(session('error'))
+                <div class="bg-red-500 text-white p-4 mb-4">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             @if (session('refused'))
                 <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
                     <strong class="font-bold">Attention:</strong>
@@ -31,11 +37,6 @@
                     </ul>
                 </div>
             @endif
-            @if(session('error'))
-                <div class="bg-red-500 text-white p-4 mb-4">
-                    {{ session('error') }}
-                </div>
-            @endif
 
             @if ($answers->isEmpty() && $candidature->status === 'en attente')
                 <div class="text-center py-8">
@@ -57,7 +58,7 @@
             @elseif ($candidature->status === 'accepté')
                 <div class="text-center py-8">
                     <h1 class="text-3xl font-bold text-gray-800 mb-4">Félicitations!</h1>
-                    <p class="text-lg text-green-600 mb-10">Votre candidature a été acceptée. Bienvenue dans l'équipe!</p>
+                    <p class="text-lg text-green-600 mb-10">Votre candidature a été acceptée. On attend votre première demande de collecte</p>
                     <div class="text-center mt-8">
                         <a href="{{ route('dashboard.benevole') }}" class="inline-flex items-center px-4 py-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" role="button">
                             Aller au tableau de bord
@@ -91,7 +92,7 @@
 
                 <!-- Bouton Modifier conditionnellement affiché -->
                 @if(!session('success') && $candidature->status == 'en cours')
-                    <a href="{{ route('change.benevole') }}" class="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" role="button">
+                    <a href="{{ route('change.commercant') }}" class="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" role="button">
                         Modifier ma candidature
                     </a>
                 @endif

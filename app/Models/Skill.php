@@ -19,8 +19,11 @@ class Skill extends Model
         return $this->belongsToMany(User::class, 'skill_user');
     }
 
-    // public function services()
-    // {
-    //     return $this->belongsToMany(Service::class, 'service_skill');
-    // }
+    public function services()
+    {
+        return $this->belongsToMany(Service::class, 'service_skill');
+    }
+
+
+
 }

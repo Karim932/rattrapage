@@ -14,6 +14,11 @@
                     </ul>
                 </div>
             @endif
+            @if(session('error'))
+                <div class="bg-red-500 text-white p-4 mb-4">
+                    {{ session('error') }}
+                </div>
+            @endif
 
             <form method="POST"
                 action="{{ isset($candidature) ? route('update.benevole', ['id' => $candidature->id]) : route('store.benevole') }}"
