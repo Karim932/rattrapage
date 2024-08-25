@@ -16,7 +16,7 @@
                         {{ __('message.Accueil') }}
                     </x-nav-link>
                     <x-nav-link :href="route('services')" :active="request()->routeIs('annonce')">
-                        {{ __('Mes Annonces') }}
+                        {{ __('Mon historique') }}
                     </x-nav-link>
                     <x-nav-link :href="route('services')" :active="request()->routeIs('services')">
                         {{ __('Services') }}

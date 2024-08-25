@@ -2,9 +2,9 @@
 <table class="min-w-full divide-y divide-gray-200">
     <thead>
         <tr>
-            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sort-link" data-sort="id" data-order="asc">
+            {{-- <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sort-link" data-sort="id" data-order="asc">
                 ID <span class="sort-icon">▲</span>
-            </th>
+            </th> --}}
             <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sort-link" data-sort="firstname" data-order="asc">
                 Prénom <span class="sort-icon">▲</span>
             </th>
@@ -25,7 +25,7 @@
     <tbody class="bg-white divide-y divide-gray-200">
         @foreach ($users as $user)
         <tr>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->id }}</td>
+            {{-- <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->id }}</td> --}}
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->firstname }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->lastname }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->email }}</td>

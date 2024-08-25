@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\Authenticate;
 
+use App\Models\Service;
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
@@ -11,6 +12,7 @@ use App\Http\Middleware\EnsureEmailIsVerified;
 use App\Http\Middleware\CheckIfBanned;
 use App\Http\Middleware\SetLocalization;
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Controllers\Admin\PlanningController;
 
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AdhesionsController;
@@ -24,6 +26,7 @@ use App\Http\Controllers\Admin\SkillController;
 use App\Http\Controllers\Admin\CollecteController;
 use App\Http\Controllers\Commercant\CommercantCollecteController;
 use App\Http\Controllers\Benevole\BenevoleCollecteController;
+use App\Http\Controllers\PaymentController;
 
 // Définit une route pour la localisation qui permet de changer la langue de l'application.
 // Elle utilise un contrôleur invocable `LocalizationController` qui gère la mise à jour de la locale.
@@ -62,9 +65,26 @@ Route::middleware(SetLocalization::class)->group(function() {
         Route::resource('admin/services', ServiceController::class);
         Route::resource('skills', SkillController::class);
 
+       
+
+        // Route pour accéder à la vue du calendrier
+        Route::get('/plannings', [PlanningController::class, 'index'])->name('plannings.index');
+        Route::get('/plannings/create', [PlanningController::class, 'create'])->name('plannings.create');
+        Route::post('/plannings', [PlanningController::class, 'store'])->name('plannings.store');
+        Route::get('/plannings/{id}/', [PlanningController::class, 'show'])->name('plannings.show');
+        Route::delete('/plannings/{id}', [PlanningController::class, 'destroy'])->name('plannings.destroy');
+        // Route pour éditer un planning
+        Route::get('plannings/{id}/edit', [PlanningController::class, 'edit'])->name('plannings.edit');
+        // Route pour mettre à jour un planning
+        Route::put('plannings/{id}/save', [PlanningController::class, 'update'])->name('plannings.update');
+
+        // Route API pour obtenir les événements du calendrier
+        Route::get('/api/plannings', [PlanningController::class, 'getEvents'])->name('api.plannings');
+
+
         Route::get('admin/services/add/benevole', [BenevoleServiceController::class, 'create'])->name('services.affecte');
         Route::post('admin/services/benevole', [BenevoleServiceController::class, 'store'])->name('services.save');
-        Route::get('admin/services/{serviceId}/skills', [BenevoleServiceController::class, 'skillShow'])->name('services.skills');
+        Route::get('/services/{serviceId}/skills', [BenevoleServiceController::class, 'skillShow']);
 
 
         Route::name('admin.adhesion.')->controller(CandidatureController::class)->group(function() {
@@ -72,10 +92,6 @@ Route::middleware(SetLocalization::class)->group(function() {
             Route::post('/adhesion/{id}/accept', 'accept')->name('accept');
             Route::post('/adhesion/{id}/revoque', 'revoque')->name('revoque');
             Route::post('/adhesion/{id}', 'refuse')->name('refuse');
-            // Route::post('/adhesion/{id}', 'destroy')->name()
-            // Route::post('/adhesion/trie?={sort}&={direction}')->name('trie');
-            // Route::get('/adhesions/filter', 'filtre')->name('filtre');
-
         });
 
         Route::get('/mise-a-jour-user', [UserController::class, 'getUsersWithoutCandidature']);
@@ -94,7 +110,8 @@ Route::middleware(SetLocalization::class)->group(function() {
 
     // Routes pour diverses fonctionnalités de l'application, chacune retournant une vue spécifique.
     Route::get('services', function () {
-        return view('page_navbar/services');
+        $services = Service::all();
+        return view('page_navbar/services', compact('services'));
     })->name('services');
 
     Route::get('/collectes', function () {
@@ -116,6 +133,15 @@ Route::middleware(SetLocalization::class)->group(function() {
     Route::get('/contact', function () {
         return view('contact');
     })->name('contact');
+
+    Route::get('/create-checkout-session', [PaymentController::class, 'createSession'])->name('checkout');
+    Route::get('/success', function () {
+        return 'Payment successful';
+    })->name('success');
+    Route::get('/cancel', function () {
+        return 'Payment cancelled';
+    })->name('cancel');
+
 
     // Avoir un rôle benevole ou commercant front
     Route::controller(AdhesionsController::class)->group(function(){
@@ -153,9 +179,12 @@ Route::middleware(['auth'])->prefix('commercant')->group(function () {
 
 //INTERFACE BENEVOLE
 Route::middleware(['auth'])->prefix('benevole')->name('benevole.')->group(function () {
-    Route::get('collectes', [BenevoleCollecteController::class, 'index'])->name('collectes.index');
-    Route::get('collectes/{id}', [BenevoleCollecteController::class, 'show'])->name('collectes.show');
-    Route::put('collectes/{id}/status', [BenevoleCollecteController::class, 'updateStatus'])->name('collectes.updateStatus');
-    Route::get('collectes/{id}/stock', [BenevoleCollecteController::class, 'stock'])->name('collectes.stock');
-    Route::post('collectes/{id}/stock', [BenevoleCollecteController::class, 'storeStock'])->name('collectes.storeStock');
+    Route::get('/collectes', [BenevoleCollecteController::class, 'index'])->name('collectes.index');
+    Route::get('/collectes/{id}', [BenevoleCollecteController::class, 'show'])->name('collectes.show');
+    Route::put('/collectes/{id}/status', [BenevoleCollecteController::class, 'updateStatus'])->name('collectes.updateStatus');
+    Route::get('/collectes/{id}/stock', [BenevoleCollecteController::class, 'stock'])->name('collectes.stock');
+    Route::post('/{id}/check-products', [BenevoleCollecteController::class, 'checkProducts'])->name('collectes.checkProducts');
+    Route::get('/{id}/add-products', [BenevoleCollecteController::class, 'addProducts'])->name('collectes.addProducts');
+    Route::post('/{id}/store-new-products', [BenevoleCollecteController::class, 'storeNewProducts'])->name('collectes.storeNewProducts');
+    Route::post('/{id}/store-stock', [BenevoleCollecteController::class, 'storeStock'])->name('collectes.storeStock');
 });

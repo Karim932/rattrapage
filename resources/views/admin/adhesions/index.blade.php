@@ -66,7 +66,7 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
                             <tr class="border-b border-gray-200">
-                                <th scope="col" class="py-3 px-4 text-left font-medium">
+                                {{-- <th scope="col" class="py-3 px-4 text-left font-medium">
                                     <a href="{{ route('adhesion.index', ['sort' => 'id', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">
                                         ID
                                         @if(request('sort') == 'id')
@@ -77,7 +77,7 @@
                                             @endif
                                         @endif
                                     </a>
-                                </th>
+                                </th> --}}
                                 <th scope="col" class="py-3 px-4 text-left font-medium">
                                     <a href="{{ route('adhesion.index', ['sort' => 'name', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">
                                         Nom / Entreprise
@@ -147,9 +147,9 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             @foreach ($allCandidatures as $candidature)
                             <tr>
-                                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                {{-- <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                     {{ $candidature->id }}
-                                </td>
+                                </td> --}}
                                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                     @if ($candidature->fusion instanceof App\Models\AdhesionCommercant)
                                         {{ $candidature->fusion->company_name }}

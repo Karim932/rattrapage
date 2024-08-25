@@ -38,4 +38,4 @@ class SkillController extends Controller
         return back()->with('success', 'Compétence supprimée avec succès.');
     }
 
-    }
+}

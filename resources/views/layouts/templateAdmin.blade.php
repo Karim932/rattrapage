@@ -23,7 +23,7 @@
         <!-- Scripts -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         @vite(['resources/css/app.css', 'resources/css/sidebarAdmin.css', 'resources/css/formulaire.css', 'resources/js/app.js',
-        'resources/js/admin.js', 'resources/js/filterUsers.js', 'resources/js/adminTabs.js'])
+        'resources/js/admin.js', 'resources/js/filterUsers.js', 'resources/js/adminTabs.js', 'resources/js/calendar.js'])
     </head>
 
     <body class="flex min-h-screen bg-gray-100">

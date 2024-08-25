@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Service;
 use App\Models\User;
 use App\Models\AdhesionBenevole;
+use App\Models\Skill;
 
 
 class BenevoleServiceController extends Controller
@@ -21,7 +22,24 @@ class BenevoleServiceController extends Controller
         })
         ->get();
 
-        return view('admin.services.add-benevole', compact('services', 'benevoles'));
+        
+        foreach ($benevoles as $benevole) {
+            $adhesion = AdhesionBenevole::where('user_id', $benevole->id)->first();
+    
+            if ($adhesion) {
+                $skillIds = json_decode($adhesion->skill_id);
+                if (is_array($skillIds)) {
+                    $skills = Skill::whereIn('id', $skillIds)->pluck('name')->toArray();
+                    $benevole->skills = $skills; // Stocker les noms des compétences directement dans l'objet $benevole
+                } else {
+                    $benevole->skills = [];
+                }
+            } else {
+                $benevole->skills = [];
+            }
+        }
+        
+        return view('admin.services.add-benevole', compact('services', 'benevoles', 'adhesion'));
     }
 
     public function store(Request $request)
@@ -51,14 +69,13 @@ class BenevoleServiceController extends Controller
         }
     }
 
-    public function skillShow(Request $request, $serviceId)
+    public function skillShow($serviceId)
     {
         $service = Service::with('skills')->find($serviceId);
-        dd($service->skills);
-        if (!$service) {
-            return response()->json(['message' => 'Service not found'], 404);
-        }
-        return response()->json(['skills' => $service->skills]);
+        return response()->json($service->skills);
     }
+
+
+
 
 }

@@ -81,7 +81,6 @@
                                 </div>
                             @endforeach
                         </div>
-                        <button type="button" id="add_new_skill_button" class="mt-2 py-2 px-4 border border-gray-300 rounded-md shadow-sm">Ajouter une compétence</button>
                     </div>
 
                     <div>

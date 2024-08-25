@@ -45,4 +45,9 @@ class AdhesionBenevole extends Model
     {
         return $this->belongsTo(Service::class, 'id_service');
     }
+
+    public function skills()
+    {
+        return $this->belongsToMany(Skill::class, 'service_skill', 'service_id'); // , 'skill_id', 'adhesion'
+    }
 }

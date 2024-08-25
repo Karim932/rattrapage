@@ -90,16 +90,6 @@
                             </div>
                         </div>
 
-                        <!-- Interface pour ajouter et supprimer des nouvelles compétences dynamiquement -->
-                        <div>
-                            <label for="new_skills" class="block text-sm font-medium text-gray-700">Ajouter de nouvelles compétences</label>
-                            <div id="new_skills_container">
-                                <!-- Les champs ajoutés apparaîtront ici -->
-                            </div>
-                            <button type="button" id="add_new_skill_button" class="mt-2 py-2 px-4 border border-gray-300 rounded-md shadow-sm">Ajouter une compétence</button>
-                        </div>
-
-
                         <div>
                             <label for="duration" class="block text-sm font-medium text-gray-700">Durée (minutes) (Optionnel)</label>
                             <input type="number" name="duration" id="duration"

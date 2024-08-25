@@ -100,33 +100,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     userSelect.add(option);
                 });
             });
-    });
+    }); 
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-    const addButton = document.getElementById('add_new_skill_button');
-    const container = document.getElementById('new_skills_container');
-
-    addButton.addEventListener('click', function() {
-        const newFieldContainer = document.createElement('div');
-        newFieldContainer.className = 'flex items-center mt-2';
-
-        const newField = document.createElement('input');
-        newField.type = 'text';
-        newField.name = 'new_skills[]';
-        newField.placeholder = 'Entrez le nom de la compétence';
-        newField.className = 'flex-grow px-4 py-2 border border-gray-300 rounded-md shadow-sm';
-
-        const removeButton = document.createElement('button');
-        removeButton.type = 'button';
-        removeButton.textContent = 'Supprimer';
-        removeButton.className = 'ml-2 py-2 px-4 border border-red-500 text-red-500 rounded-md shadow-sm hover:bg-red-500 hover:text-white';
-        removeButton.onclick = function() {
-            container.removeChild(newFieldContainer);
-        };
-
-        newFieldContainer.appendChild(newField);
-        newFieldContainer.appendChild(removeButton);
-        container.appendChild(newFieldContainer);
-    });
-});

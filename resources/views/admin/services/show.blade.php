@@ -60,34 +60,22 @@
                     <h3 class="text-lg leading-6 font-medium text-gray-900">Bénévoles Assignés</h3>
                     <p class="mt-1 max-w-2xl text-sm text-gray-500">Liste des bénévoles assignés à ce service.</p>
                 </div>
-                {{-- <div class="px-4 py-5">
-                    <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        @forelse ($benevoleDispos as $benevole)
-                        <li class="flex items-center space-x-3">
-                            <div class="flex-shrink-0">
-                                {{-- <img class="h-10 w-10 rounded-full" src="{{ $volunteer->photo_url }}" alt=""> --}}
-                            {{-- </div>
-                            <div class="text-sm font-medium text-gray-900">
-                                {{ $benevole->firstname }}
-                                {{ $benevole->lastname }}
-                            </div>
-                        </li>
+                <div class="border-t border-gray-200">
+                    <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                        @forelse ($service->adhesionBenevole as $adhesion)
+                            <li class="bg-white p-4 shadow-sm rounded-lg flex items-center space-x-3">
+                                <div class="text-sm font-medium text-gray-900">
+                                    {{ $adhesion->user->firstname }} {{ $adhesion->user->lastname }}
+                                </div>
+                            </li>
                         @empty
-                        <p>Aucun bénévole assigné à ce service.</p>
+                            <li class="col-span-full text-center text-sm text-gray-500">
+                                Aucun bénévole assigné à ce service.
+                            </li>
                         @endforelse
                     </ul>
-                </div> --
-                {{-- <div>
-                    <h2>{{ $service->name }} - Détail</h2>
-                    <h3>Utilisateurs Assignés:</h3>
-                    <ul>
-                        @foreach($service->adhesions as $adhesion)
-                            <li>{{ $adhesion->user->name }} - Email: {{ $adhesion->user->email }}</li>
-                        @endforeach
-                    </ul>
-                    <a href="{{ route('services.index') }}">Retour à la liste des services</a>
-                </div> --}}
-            </div>
+                </div>                
+            </div>            
             <div class="flex py-4 mt-5 space-x-3">
                 <a href="{{ route('services.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm font-medium">Retour à la liste des services</a>
             </div>

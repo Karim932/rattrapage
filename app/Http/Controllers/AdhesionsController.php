@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Answer;
 use App\Models\Skill;
+use Carbon\Carbon;
 
 class AdhesionsController extends Controller
 {
@@ -172,8 +173,6 @@ class AdhesionsController extends Controller
             return redirect()->route('login')->with('error', 'Vous devez être connecté.');
         }
 
-
-
         // Retrieve the user with their commercial candidacies
         $candidature = AdhesionCommercant::where('user_id', $userId)->first();
 
@@ -213,6 +212,8 @@ class AdhesionsController extends Controller
 
             $answers = Answer::where('candidature_id', $idCandidature)->get();
 
+            // dd($candidature, $idCandidature);
+
 
             return view('page_navbar.benevoles.attente', compact('answers', 'candidature'));
 
@@ -233,8 +234,10 @@ class AdhesionsController extends Controller
         // Récupérer l'utilisateur avec ses adhésions
         $user = User::with('adhesionsBenevoles')->find($userId);
 
+
         // Vérifier si l'utilisateur a une candidature
-        $candidature = $user->adhesionsBenevoles->first();
+        $candidature = $user->adhesionsBenevoles;
+
         if (!$candidature) {
             return redirect()->route('some_route')->with('error', 'Aucune candidature trouvée.');
         }
@@ -251,6 +254,7 @@ class AdhesionsController extends Controller
         };
 
 
+
         // Vérifier si 'availability' est déjà un tableau ou le décoder si c'est une chaîne JSON
         $availability = is_array($candidature->availability) ? $candidature->availability : json_decode($candidature->availability, true);
 
@@ -262,6 +266,8 @@ class AdhesionsController extends Controller
 
     public function updateBenevole(Request $request, $id)
     {
+
+        // dd($id, $request->id);
         // Personnalisation des messages d'erreur
         $messages = [
             'motivation.required' => 'Votre motivation est requise pour compléter l’inscription.',
@@ -285,7 +291,7 @@ class AdhesionsController extends Controller
             'old_benevole' => 'nullable',
             'availability' => 'required|array',
             'availability.*.*' => 'nullable|in:1',
-            'availability_begin' => 'required|date|after_or_equal:now',
+            'availability_begin' => 'required|date|after_or_equal:' . Carbon::now()->toDateString(),
             'availability_end' => 'required|date|after_or_equal:availability_begin',
             'permis' => 'nullable',
             'additional_notes' => 'nullable|string|max:500'
@@ -312,7 +318,7 @@ class AdhesionsController extends Controller
             $candidature->availability_end = $validatedData['availability_end'];
             $candidature->permis = $validatedData['permis'] ?? false;
             $candidature->additional_notes = $validatedData['additional_notes'];
-            $candidature->availability = json_encode($formattedAvailability);
+            $candidature->availability = $formattedAvailability;
             $candidature->skill_id = json_encode($validatedData['skills']);
             $candidature->status = 'renvoyé';
             $candidature->save();
@@ -362,7 +368,7 @@ class AdhesionsController extends Controller
             'old_benevole' => 'nullable',
             'availability' => 'required|array',
             'availability.*.*' => 'nullable|in:1',
-            'availability_begin' => 'required|date|after_or_equal:now',
+            'availability_begin' => 'required|date|after_or_equal:' . Carbon::now()->toDateString(),
             'availability_end' => 'required|date|after_or_equal:availability_begin',
             'permis' => 'nullable',
             'additional_notes' => 'nullable|string|max:500'
@@ -412,7 +418,8 @@ class AdhesionsController extends Controller
                 'candidature_type' => AdhesionBenevole::class
             ]);
             $adhesion->save();
-            return view('page_navbar.benevoles.attente')->with('success', 'Adhésion bénévole enregistrée avec succès.');
+
+            return redirect()->route('benevole')->with('success', 'Adhésion bénévole enregistrée avec succès.');
         } else {
             return redirect('login')->with('error', 'Vous devez être connecté pour effectuer cette action.');
         }
@@ -422,4 +429,6 @@ class AdhesionsController extends Controller
     {
         return view('page_navbar.benevoles.dashboard');
     }
+
+    
 }
