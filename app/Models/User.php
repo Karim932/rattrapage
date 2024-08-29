@@ -42,4 +42,20 @@ class User extends Authenticatable
     {
         return $this->hasMany(Adhesion::class, 'candidature_id');
     }
+
+    public function inscriptions()
+    {
+        return $this->hasMany(Inscription::class);
+    }
+
+    public function isRegisteredFor($planningId)
+    {
+        return $this->inscriptions()->where('planning_id', $planningId)->exists();
+    }
+
+    public function plannings()
+    {
+        return $this->belongsToMany(Planning::class, 'inscriptions', 'user_id', 'planning_id')
+                    ->withTimestamps();
+    }
 }

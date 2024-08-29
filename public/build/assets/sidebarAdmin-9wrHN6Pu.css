@@ -1,1 +1,0 @@
-#sidebar{transition:transform .3s ease-in-out}#sidebar.hidden{transform:translate(-100%)}#main-content{transition:margin-left .3s ease-in-out}#toggle-button{transition:left .3s ease-in-out;z-index:60;margin-left:-.5rem}#back-button{position:absolute;bottom:0;width:100%;height:4rem}.active{background-color:#ef4444;color:#fff}.hidden{display:none}

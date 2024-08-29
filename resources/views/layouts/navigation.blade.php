@@ -15,7 +15,7 @@
                     <x-nav-link :href="route('accueil')" :active="request()->routeIs('accueil')">
                         {{ __('message.Accueil') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('services')" :active="request()->routeIs('annonce')">
+                    <x-nav-link :href="route('adherent.historique')" :active="request()->routeIs('adherent.historique')">
                         {{ __('Mon historique') }}
                     </x-nav-link>
                     <x-nav-link :href="route('services')" :active="request()->routeIs('services')">
@@ -27,21 +27,6 @@
                     <x-nav-link :href="route('benevole')" :active="request()->routeIs('benevole')">
                         {{ __('message.Bénévoles') }}
                     </x-nav-link>
-
-                    {{-- ici que ceux qui sont benevole / faire middleware --}}
-                    {{-- faire un onglet missions avec dans la page avec sidebar en bas --}}
-                    {{-- @can
-                    <x-nav-link :href="route('collectes')" :active="request()->routeIs('collectes')">
-                        {{ __('message.Collectes') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('stocks')" :active="request()->routeIs('stocks')">
-                        {{ __('Stocks') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('tournees')" :active="request()->routeIs('tournees')">
-                        {{ __('message.Tournées') }}
-                    </x-nav-link>
-                    @endcan --}}
-
                     <x-nav-link :href="route('contact')" :active="request()->routeIs('contact')">
                         {{ __('Contact') }}
                     </x-nav-link>
@@ -164,18 +149,6 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('services')" :active="request()->routeIs('services')">
                 {{ __('Services') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('adhesion.index')" :active="request()->routeIs('adhesions')">
-                {{ __('Adhésions') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('collectes')" :active="request()->routeIs('collectes')">
-                {{ __('Collectes') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('stocks')" :active="request()->routeIs('stocks')">
-                {{ __('Stocks') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('tournees')" :active="request()->routeIs('tournees')">
-                {{ __('Tournées') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('benevoles')" :active="request()->routeIs('benevoles')">
                 {{ __('Bénévoles') }}

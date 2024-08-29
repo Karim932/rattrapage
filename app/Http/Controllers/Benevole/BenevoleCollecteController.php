@@ -85,7 +85,9 @@ public function stock($id)
     {
         $products = $request->input('products', []);
         $missingProducts = [];
-    
+        
+        //dd($products);
+
         // Vérification de chaque produit soumis
         foreach ($products as $index => $product) {
             if (!Produit::where('code_barre', $product['barcode'])->exists()) {
@@ -95,9 +97,10 @@ public function stock($id)
     
         // Si des produits manquent, enregistrer les données originales dans la session et rediriger
         if (!empty($missingProducts)) {
+            session(['originalProducts' => $products]);
+            //dd(session('originalProducts'));
             return redirect()->route('benevole.collectes.addProducts', $id)
-                             ->with('missingProducts', $missingProducts)  // Produits manquants
-                             ->with('originalProducts', $products);       // Tous les produits soumis, y compris ceux manquants
+                             ->with('missingProducts', $missingProducts);       // Tous les produits soumis, y compris ceux manquants
         }
     
         // Si tous les produits existent, procéder à l'entrée en stock
@@ -107,6 +110,7 @@ public function stock($id)
 
     public function addProducts($id)
 {
+    
     $missingProducts = session('missingProducts');
     $originalProducts = session('originalProducts');
     return view('benevole.collectes.addProducts', compact('missingProducts', 'originalProducts', 'id'));
@@ -133,11 +137,18 @@ public function stock($id)
                      ->with('originalProducts', $originalProducts);
 }
 
+    private function isValidLocation($emplacement)
+    {
+        $pattern = '/^[A-D][1-9][A-Z][1-9]$/';
+        return preg_match($pattern, $emplacement);
+    }
 
     // Enregistrer les produits entrés en stock pour une collecte spécifique
     public function storeStock(Request $request, $id)
     {
         $adhesionBenevole = Auth::user()->adhesionsBenevoles;
+
+        $products = $request->input('products');
 
         if (!$adhesionBenevole || $adhesionBenevole->status !== 'accepté') {
             return redirect()->route('benevole')->with('error', 'Vous devez être un bénévole actif pour accéder à cette page.');
@@ -148,9 +159,21 @@ public function stock($id)
                             ->where('status', 'En Attente de Stockage')
                             ->firstOrFail();
 
-        $products = $request->input('products');
-
         foreach ($products as $product) {
+
+            if (Carbon::parse($product['expiration_date'])->isPast()) {
+                return back()->withErrors(['expiration_date' => 'Le produit avec le code-barres ' . $product['barcode'] . ' a une date d\'expiration passée.'])
+                ->with('originalProducts', $products);
+            }
+
+            $emplacement = $product['location_section'] . $product['location_allee'] . $product['location_etagere'] . $product['location_position'];
+
+            // Valider l'emplacement
+            if (!$this->isValidLocation($emplacement)) {
+                return back()->withErrors(['location' => 'L\'emplacement ' . $emplacement . ' n\'est pas valide.'])
+                ->with('originalProducts', $products);;
+            }
+
             $produit = Produit::where('code_barre', $product['barcode'])->first();
 
             // Vérifier s'il existe déjà un lot avec la même date d'expiration
@@ -161,6 +184,7 @@ public function stock($id)
             if ($stock) {
                 // Si un lot existe, ajouter la quantité
                 $stock->quantite += $product['quantity'];
+                $stock->date_entree = Carbon::now();
                 $stock->save();
             } else {
                 // Sinon, créer un nouveau lot
@@ -172,9 +196,20 @@ public function stock($id)
                     'date_expiration' => $product['expiration_date']
                 ]);
             }
+            
         }
 
-        $collecte->status = 'stocké';
+        $stockEntries[] = 
+        [
+            'produit_id' => $product['produit_id'],
+            'quantite' => $product['quantity'],
+            'emplacement' => $emplacement,
+            'date_entree' => Carbon::now()->toDateTimeString(),
+            'date_expiration' => $product['expiration_date']
+        ];
+
+        $collecte->status = 'Terminé';
+        $collecte->stock_entries = json_encode($stockEntries);
         $collecte->save();
 
         return redirect()->route('benevole.collectes.index')->with('success', 'Produits entrés en stock avec succès.');

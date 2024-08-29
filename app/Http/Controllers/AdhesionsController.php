@@ -14,6 +14,10 @@ use Carbon\Carbon;
 
 class AdhesionsController extends Controller
 {
+    public function candidature(){
+        return view('benevoles');
+    }
+
     // Afficher le formulaire pour les commerçants
     public function createCommercant()
     {

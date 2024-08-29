@@ -16,17 +16,17 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6"> 
                         <!-- Boucle pour afficher les services -->
                         @foreach ($services as $service)
-                            <div class="flex flex-col bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300">
-                                <div class="p-4 flex-grow">
-                                    <h2 class="text-lg font-semibold text-gray-900">{{ $service->name }}</h2>
-                                    <div class="text-gray-600 overflow-auto" style="scrollbar-width: thin;">{{ $service->description }}</div>
-                                </div>
-                                <div class="px-4 py-3 bg-gray-50 text-right">
-                                    <a href="#" class="inline-flex items-center px-4 py-2 bg-blue-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring focus:ring-blue-300 disabled:opacity-25 transition">
-                                        Voir le planning
-                                    </a>
-                                </div>
+                        <div class="flex flex-col bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300">
+                            <div class="p-4 flex-grow">
+                                <h2 class="text-lg font-semibold text-gray-900">{{ $service->name }}</h2>
+                                <div class="text-gray-600 overflow-auto" style="scrollbar-width: thin;">{{ $service->description }}</div>
                             </div>
+                            <div class="px-4 py-3 bg-gray-50 text-right">
+                                <a href="{{ route('adherent.index', ['service_id' => $service->id]) }}" class="inline-flex items-center px-4 py-2 bg-blue-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring focus:ring-blue-300 disabled:opacity-25 transition">
+                                    Voir les créneaux disponible
+                                </a>
+                            </div>
+                        </div>
                         @endforeach
                     </div>
                 </main>      

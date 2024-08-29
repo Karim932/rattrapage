@@ -57,9 +57,26 @@
                 @endif
             </div>
 
+            
+
             <div class="mt-8">
                 <div class="flex justify-end space-x-4">
-                    <!-- Back Button -->
+                    <a href="{{ route('plannings.inscrits', $planning->id) }}" 
+                        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-indigo-600 bg-white hover:bg-indigo-50">
+                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A9 9 0 1119.071 3.98M12 7v5l4 2"></path>
+                         </svg>
+                         Voir les inscrits
+                     </a>                     
+                     
+                    <a href="{{ route('plannings.benevole', $planning->id) }}"
+                        class="inline-flex items-center justify-center px-4 py-2 rounded-md shadow-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6.38 18.06a9 9 0 0011.24 0M7.46 9a5 5 0 119.08 0M8 14l-1.5 3M16 14l1.5 3" />
+                        </svg>
+                        Gérer les bénévoles
+                    </a>
+                                                        
                     <button type="button" 
                             class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 rounded-md shadow-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out" 
                             onclick="window.history.back();">
@@ -79,7 +96,7 @@
                     </a>
             
                     <!-- Delete Button -->
-                    <form action="{{ route('plannings.destroy', $planning->id) }}" method="POST" class="delete-user-form inline-block">
+                    <form action="{{ route('plannings.destroy', $planning->id) }}" method="POST" class="delete-user-form inline">
                         @csrf
                         @method('DELETE')
                         <button type="submit" 

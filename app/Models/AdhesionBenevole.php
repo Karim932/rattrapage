@@ -50,4 +50,10 @@ class AdhesionBenevole extends Model
     {
         return $this->belongsToMany(Skill::class, 'service_skill', 'service_id'); // , 'skill_id', 'adhesion'
     }
+
+    public function plannings()
+    {
+        return $this->belongsToMany(Planning::class, 'planning_benevole', 'benevole_id', 'planning_id');
+    }
+
 }

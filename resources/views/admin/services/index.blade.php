@@ -83,6 +83,9 @@
                                 <a href="{{ route('skills.index') }}" class="flex items-center bg-green-600 text-white px-4 py-2 rounded-md shadow hover:shadow-md transition duration-300 hover:bg-green-700">
                                     <i class="fas fa-wrench mr-2"></i> Gérer les Compétences
                                 </a>
+                                <a href="{{ route('plannings.index') }}" class="flex items-center bg-indigo-600 text-white px-4 py-2 rounded-md shadow hover:shadow-md transition duration-300 hover:bg-indigo-700">
+                                    <i class="fas fa-calendar mr-2"></i>Voir les plannings
+                                </a>
                             </div>
                         </div>
                     </div>

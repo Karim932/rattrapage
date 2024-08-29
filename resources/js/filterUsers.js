@@ -249,16 +249,34 @@ $(document).ready(function() {
             });
         });
 
-        // Gère les réponses de succès de l'Ajax
+        // // Gère les réponses de succès de l'Ajax
+        // function handleSuccess(response) {
+        //     showSuccessMessage(response.message);
+        //     $('#confirmation-modal').fadeOut('fast', function() {
+        //         $(this).addClass('hidden'); // Masque la modal de confirmation.
+        //     });
+        //     setTimeout(function() {
+        //         location.reload(); // Recharge la page pour afficher les changements après 10 secondes.
+        //     }, 1000);
+        // }
+
         function handleSuccess(response) {
-            showSuccessMessage(response.message);
+            showSuccessMessage(response.message);  // Affiche un message de succès
             $('#confirmation-modal').fadeOut('fast', function() {
-                $(this).addClass('hidden'); // Masque la modal de confirmation.
+                $(this).addClass('hidden');  // Masque la modal de confirmation
             });
+        
             setTimeout(function() {
-                location.reload(); // Recharge la page pour afficher les changements après 10 secondes.
-            }, 1000);
+                // Vérifie si une URL de redirection est fournie
+                if (response.redirectUrl && response.redirectUrl.trim() !== '') {
+                    window.location.href = response.redirectUrl;  // Redirige vers l'URL retournée par le serveur
+                } else {
+                    location.reload();  // Recharge la page actuelle si aucune URL n'est fournie
+                }
+            }, 1000);  // Redirige après un délai pour permettre à l'utilisateur de lire le message de succès
         }
+        
+        
 
         // Affiche les erreurs
         function handleError(xhr) {

@@ -1,22 +1,15 @@
 <?php
 
 use App\Http\Middleware\Authenticate;
-
 use App\Models\Service;
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
-// mail vérifié ou non
-use App\Http\Middleware\EnsureEmailIsVerified;
-
 use App\Http\Middleware\CheckIfBanned;
 use App\Http\Middleware\SetLocalization;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\Admin\PlanningController;
-
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AdhesionsController;
-use App\Http\Controllers\Admin\Answer;
 use App\Http\Controllers\Admin\AnswerController;
 use App\Http\Controllers\Admin\BenevoleServiceController;
 use App\Http\Controllers\Admin\CandidatureController;
@@ -26,7 +19,15 @@ use App\Http\Controllers\Admin\SkillController;
 use App\Http\Controllers\Admin\CollecteController;
 use App\Http\Controllers\Commercant\CommercantCollecteController;
 use App\Http\Controllers\Benevole\BenevoleCollecteController;
+use App\Http\Controllers\CreneauController;
+use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PageNavController;
+
+
+// mail vérifié ou non
+use App\Http\Middleware\EnsureEmailIsVerified;
+use App\Models\Inscription;
 
 // Définit une route pour la localisation qui permet de changer la langue de l'application.
 // Elle utilise un contrôleur invocable `LocalizationController` qui gère la mise à jour de la locale.
@@ -38,130 +39,120 @@ Route::middleware(SetLocalization::class)->group(function() {
     // Inclut les routes d'authentification à partir d'un autre fichier.
     require __DIR__.'/auth.php';
 
-    // Route pour la page d'accueil de l'application.
-    Route::get('/accueil', function () {
-        return view('accueil');
-    })->name('accueil');
-
-    // Redirige la racine du site vers la route 'accueil'.
-    Route::get('/', function () {
-        return redirect()->route('accueil');
-    });
-
-    // AdminMiddleware::class
-    // Groupe de routes pour les utilisateurs authentifiés, incluant un middleware pour vérifier si l'utilisateur est banni.
+    Route::get('/accueil', [PageNavController::class, 'accueil'])->name('accueil'); 
+    Route::get('/', [PageNavController::class, 'redirection']);
+    
+    
     Route::middleware([Authenticate::class, CheckIfBanned::class])->group(function () {
+        // Paiement stripe dans (service Front)
+        Route::prefix('stripe')->name('stripe.')->controller(PaymentController::class)->group(function (){
+            Route::get('/create-checkout-session', 'createSession')->name('checkout');
+            Route::get('/success', 'success')->name('success');
+            Route::get('/cancel', 'cancel')->name('cancel');
+        });
 
         // Groupe de routes pour la gestion du profil utilisateur avec des actions spécifiques gérées dans `ProfileController`.
         Route::name('profile.')->controller(ProfileController::class)->group(function () {
-            Route::get('/profile', 'edit')->name('edit'); // Affiche le formulaire d'édition du profil.
-            Route::patch('/profile', 'update')->name('update'); // Met à jour les informations du profil.
-            Route::delete('/profile','destroy')->name('destroy'); // Supprime le profil de l'utilisateur.
+            Route::get('/profile', 'edit')->name('edit'); 
+            Route::patch('/profile', 'update')->name('update'); 
+            Route::delete('/profile','destroy')->name('destroy'); 
+        });
+    
+        // Avoir un rôle benevole ou commercant front
+        Route::controller(AdhesionsController::class)->group(function(){
+            Route::get('/benevoles', 'candidature')->name('benevoles');
+            Route::get('/adhesions/commercant', 'createCommercant')->name('commercant');
+            Route::post('/adhesions/commercant', 'storeCommercant')->name('store.commercant');
+            Route::post('/adhesions/commercant/{id}', 'updateCommercant')->name('update.commercant');
+            Route::get('/adhesions/change/commercant', 'changeCommercant')->name('change.commercant');
+            Route::get('/adhesions/benevole', 'createBenevole')->name('benevole');
+            Route::get('/adhesions/change/benevole', 'changeBenevole')->name('change.benevole');
+            Route::put('/adhesions/change/benevole/{id}', 'updateBenevole')->name('update.benevole');
+            Route::post('/adhesions/benevole', 'storeBenevole')->name('store.benevole');
+            Route::get('/adhesions/benevole/dashboard', 'dashboard')->name('dashboard.benevole');
         });
 
-        // Route de ressource pour les utilisateurs, permettant de gérer les opérations CRUD via `CandidatureController`.
+        Route::prefix('creneaux')->name('adherent.')->controller(CreneauController::class)->group(function (){
+            Route::get('/','index')->name('index');
+            Route::get('filter', 'filter')->name('filter');
+            Route::post('/creneaux/inscrire', 'inscrire')->name('inscrire');
+        });
+        Route::get('services', [InscriptionController::class, 'service'])->name('services');
+        Route::get('/mon-historique', [InscriptionController::class, 'historique'])->name('adherent.historique');
+        Route::delete('/plannings/{id}/cancel', [InscriptionController::class, 'cancel'])->name('plannings.cancel');
+        
+    });
+
+
+    // POUR LE BACK OFFICE 
+    // Groupe de routes pour les utilisateurs authentifiés, incluant un middleware pour vérifier si l'utilisateur est banni et s'il est admin.
+    Route::middleware([Authenticate::class, AdminMiddleware::class, CheckIfBanned::class])->group(function () {
+
+        // Route de ressource pour les utilisateurs, permettant de gérer les opérations CRUD.
         Route::resource('users', UserController::class);
         Route::resource('adhesion', CandidatureController::class);
         Route::resource('admin/services', ServiceController::class);
         Route::resource('skills', SkillController::class);
 
-       
+        // Route pour accéder au tableau de bord de l'administrateur
+        Route::get('/admin/dashboard', function () {
+            return view('admin.dashboard');
+        })->middleware('can:is-admin')->name('admin.dashboard');
 
-        // Route pour accéder à la vue du calendrier
-        Route::get('/plannings', [PlanningController::class, 'index'])->name('plannings.index');
-        Route::get('/plannings/create', [PlanningController::class, 'create'])->name('plannings.create');
-        Route::post('/plannings', [PlanningController::class, 'store'])->name('plannings.store');
-        Route::get('/plannings/{id}/', [PlanningController::class, 'show'])->name('plannings.show');
-        Route::delete('/plannings/{id}', [PlanningController::class, 'destroy'])->name('plannings.destroy');
-        // Route pour éditer un planning
-        Route::get('plannings/{id}/edit', [PlanningController::class, 'edit'])->name('plannings.edit');
-        // Route pour mettre à jour un planning
-        Route::put('plannings/{id}/save', [PlanningController::class, 'update'])->name('plannings.update');
-
-        // Route API pour obtenir les événements du calendrier
-        Route::get('/api/plannings', [PlanningController::class, 'getEvents'])->name('api.plannings');
-
-
-        Route::get('admin/services/add/benevole', [BenevoleServiceController::class, 'create'])->name('services.affecte');
-        Route::post('admin/services/benevole', [BenevoleServiceController::class, 'store'])->name('services.save');
-        Route::get('/services/{serviceId}/skills', [BenevoleServiceController::class, 'skillShow']);
-
-
-        Route::name('admin.adhesion.')->controller(CandidatureController::class)->group(function() {
-            Route::get('/candidatures/{id}/{type}', 'show')->name('show');
-            Route::post('/adhesion/{id}/accept', 'accept')->name('accept');
-            Route::post('/adhesion/{id}/revoque', 'revoque')->name('revoque');
-            Route::post('/adhesion/{id}', 'refuse')->name('refuse');
+        //Gestion des utilisateurs ADMIN
+        Route::prefix('users')->name('users.')->controller(UserController::class)->group(function (){
+            // Routes supplémentaires pour le filtrage des utilisateurs, le bannissement et le débannissement.
+            Route::get('/filter-users', 'filterUsers')->name('filter'); // Filtre les utilisateurs.
+            Route::post('ban/{id}', 'banUser')->name('ban');
+            Route::post('unban/{id}', 'unbanUser')->name('unban');
         });
-
         Route::get('/mise-a-jour-user', [UserController::class, 'getUsersWithoutCandidature']);
 
-        Route::post('/answer/{id}', [AnswerController::class, 'store'])->name('answer.store');
-        Route::get('/answer/{id}', [AnswerController::class, 'store'])->name('answer.store');
+        //Gestion des plannings ADMIN
+        Route::prefix('plannings')->name('plannings.')->controller(PlanningController::class)->group(function (){
+            // Route pour accéder à la vue du calendrier
+            Route::get('/', 'index')->name('index'); 
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{id}/', 'show')->name('show');
+            Route::delete('{id}', 'destroy')->name('destroy'); 
+            Route::get('{id}/edit', 'edit')->name('edit'); 
+            Route::put('{id}/save', 'update')->name('update');
+            Route::get('{id}/benevole', 'showBenevole')->name('benevole');
+            Route::post('{id}/benevole', 'addBenevole')->name('addBenevole');
+            Route::delete('{id}/benevole/{benevoleId}', 'removeBenevole')->name('removeBenevole');
+            Route::get('{id}/inscrits', 'showInscrits')->name('inscrits');
+            Route::delete('{planning}/inscriptions/{user}', 'destroyInscription')->name('inscriptions.destroy');
+            Route::get('{id}/add-adherent', 'showAddAdherentForm')->name('addAdherent');
+            Route::post('{id}/add-adherent', 'storeAdherent')->name('storeAdherent');
+        });
+        // Route API pour obtenir les événements du calendrier
+        Route::get('/api/plannings', [PlanningController::class, 'getEvents'])->name('api.plannings');
+        Route::post('/inscriptions/store', [InscriptionController::class, 'store'])->name('inscriptions.store');
+        
+        Route::prefix('admin/services')->name('services.')->controller(BenevoleServiceController::class)->group(function (){
+            Route::get('add/benevole', 'create')->name('affecte');
+            Route::post('benevole', 'store')->name('save');
+            Route::get('{serviceId}/skills', 'skillShow');
+        });
 
+        Route::prefix('admin/adhesion/candidatures')->name('admin.adhesion.')->controller(CandidatureController::class)->group(function() {
+            Route::get('{id}/{type}', 'show')->name('show');
+            Route::post('{id}/accept', 'accept')->name('accept');
+            Route::post('{id}/revoque', 'revoque')->name('revoque');
+            Route::post('{id}', 'refuse')->name('refuse');
+        });
 
+        Route::prefix('answer')->name('answer.')->controller(AnswerController::class)->group(function() {
+            Route::post('{id}', 'store')->name('store');
+            Route::get('{id}', 'store')->name('store');
+        });
+        
+    });    
 
-        // Routes supplémentaires pour le filtrage des utilisateurs, le bannissement et le débannissement.
-        Route::get('/filter-users', [UserController::class, 'filterUsers'])->name('users.filter'); // Filtre les utilisateurs.
-        Route::post('/users/ban/{id}', [UserController::class, 'banUser'])->name('users.ban');
-        Route::post('/users/unban/{id}', [UserController::class, 'unbanUser'])->name('users.unban');
-
-    });
-
-    // Routes pour diverses fonctionnalités de l'application, chacune retournant une vue spécifique.
-    Route::get('services', function () {
-        $services = Service::all();
-        return view('page_navbar/services', compact('services'));
-    })->name('services');
-
-    Route::get('/collectes', function () {
-        return view('collectes');
-    })->name('collectes');
-
-    Route::get('/stocks', function () {
-        return view('stocks');
-    })->name('stocks');
-
-    Route::get('/tournees', function () {
-        return view('tournees');
-    })->name('tournees');
-
-    Route::get('/benevoles', function () {
-        return view('benevoles');
-    })->name('benevoles');
-
-    Route::get('/contact', function () {
-        return view('contact');
-    })->name('contact');
-
-    Route::get('/create-checkout-session', [PaymentController::class, 'createSession'])->name('checkout');
-    Route::get('/success', function () {
-        return 'Payment successful';
-    })->name('success');
-    Route::get('/cancel', function () {
-        return 'Payment cancelled';
-    })->name('cancel');
-
-
-    // Avoir un rôle benevole ou commercant front
-    Route::controller(AdhesionsController::class)->group(function(){
-        Route::get('/adhesions/commercant', 'createCommercant')->name('commercant');
-        Route::post('/adhesions/commercant', 'storeCommercant')->name('store.commercant');
-        Route::post('/adhesions/commercant/{id}', 'updateCommercant')->name('update.commercant');
-        Route::get('/adhesions/change/commercant', 'changeCommercant')->name('change.commercant');
-        Route::get('/adhesions/benevole', 'createBenevole')->name('benevole');
-        Route::get('/adhesions/change/benevole', 'changeBenevole')->name('change.benevole');
-        Route::put('/adhesions/change/benevole/{id}', 'updateBenevole')->name('update.benevole');
-        Route::post('/adhesions/benevole', 'storeBenevole')->name('store.benevole');
-        Route::get('/adhesions/benevole/dashboard', 'dashboard')->name('dashboard.benevole');
-    });
-
-    // Route pour accéder au tableau de bord de l'administrateur, accessible uniquement aux utilisateurs ayant le rôle d'administrateur.
-    Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard');
-    })->middleware('can:is-admin')->name('admin.dashboard');
 });
 
+// Partie de fares
 //ADMIN GESTION COLLECTES
 Route::middleware(['auth',])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('collectes', CollecteController::class);
@@ -188,3 +179,4 @@ Route::middleware(['auth'])->prefix('benevole')->name('benevole.')->group(functi
     Route::post('/{id}/store-new-products', [BenevoleCollecteController::class, 'storeNewProducts'])->name('collectes.storeNewProducts');
     Route::post('/{id}/store-stock', [BenevoleCollecteController::class, 'storeStock'])->name('collectes.storeStock');
 });
+

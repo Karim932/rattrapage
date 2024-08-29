@@ -1,6 +1,6 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-D5QegdQr.css",
+    "file": "assets/app-D67fD3Dk.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
@@ -10,7 +10,7 @@
     "isEntry": true
   },
   "resources/css/sidebarAdmin.css": {
-    "file": "assets/sidebarAdmin-9wrHN6Pu.css",
+    "file": "assets/sidebarAdmin-C9d6J-8K.css",
     "src": "resources/css/sidebarAdmin.css",
     "isEntry": true
   },
@@ -33,13 +33,13 @@
     "isEntry": true
   },
   "resources/js/calendar.js": {
-    "file": "assets/calendar-DtaYIREX.js",
+    "file": "assets/calendar-CEsYcYa1.js",
     "name": "calendar",
     "src": "resources/js/calendar.js",
     "isEntry": true
   },
   "resources/js/filterUsers.js": {
-    "file": "assets/filterUsers-DNm0hOWS.js",
+    "file": "assets/filterUsers-Bq3RtH6G.js",
     "name": "filterUsers",
     "src": "resources/js/filterUsers.js",
     "isEntry": true

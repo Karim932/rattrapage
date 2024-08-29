@@ -23,6 +23,43 @@ background-color: #EF4444;
 color: white;
 }
 
+.sidebar-nav a {
+    padding: 0.8rem 0.5rem !important; /* Ajustez le padding pour réduire la taille */
+}
+
+/* Style de base pour la sidebar */
+.sidebar-nav {
+    overflow-y: auto;
+    max-height: calc(100vh - 4rem); /* Adaptez la hauteur si nécessaire */
+}
+
+/* Stylisation de la barre de défilement pour Webkit (Chrome, Safari, Edge) */
+.sidebar-nav::-webkit-scrollbar {
+    width: 10px; /* Largeur de la barre de défilement */
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Couleur de la piste de la barre de défilement */
+    border-radius: 10px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: #888; /* Couleur de la barre de défilement elle-même */
+    border-radius: 10px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Couleur au survol */
+}
+
+/* Stylisation de la barre de défilement pour Firefox */
+.sidebar-nav {
+    scrollbar-width: thin; /* 'auto' ou 'thin' */
+    scrollbar-color: #888 #f1f1f1; /* Couleur de la barre et de la piste */
+}
+
+
+
 .hidden {
     display: none;
 }

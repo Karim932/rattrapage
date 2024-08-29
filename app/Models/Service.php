@@ -22,4 +22,9 @@ class Service extends Model
     {
         return $this->hasMany(AdhesionBenevole::class, 'id_service');
     }
+
+    public function plannings()
+    {
+        return $this->hasOne(Planning::class);
+    }
 }
