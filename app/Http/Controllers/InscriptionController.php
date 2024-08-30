@@ -13,12 +13,14 @@ class InscriptionController extends Controller
 {
 
     public function service() {
+        
         $services = Service::all();
         return view('page_navbar/services', compact('services'));
     }
 
     public function store(Request $request)
     {
+        
         $request->validate([
             'planning_id' => 'required|exists:plannings,id',
             'user_id' => 'required|exists:users,id', // Vérifiez que l'utilisateur est bien authentifié

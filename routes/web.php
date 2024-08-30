@@ -24,10 +24,16 @@ use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PageNavController;
 use App\Http\Controllers\Admin\StockController;
+use Illuminate\Support\Facades\Auth;
 
 
 // mail vérifié ou non
 use App\Http\Middleware\EnsureEmailIsVerified;
+
+Route::get('/example', function () {
+    return Auth::check() ? 'Logged in' : 'Not logged in';
+})->middleware('web');
+
 
 // Définit une route pour la localisation qui permet de changer la langue de l'application.
 // Elle utilise un contrôleur invocable `LocalizationController` qui gère la mise à jour de la locale.
@@ -160,6 +166,10 @@ Route::middleware([Authenticate::class, AdminMiddleware::class, CheckIfBanned::c
     Route::put('collectes/{id}/update-status', [CollecteController::class, 'updateStatus'])->name('collectes.updateStatus');
 });
 
+Route::middleware([Authenticate::class, AdminMiddleware::class, CheckIfBanned::class])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('stock', StockController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+});
+
 //INTERFACE COMMERCANT
 Route::middleware(['auth'])->prefix('commercant')->group(function () {
     Route::get('/demande-collecte', [CommercantCollecteController::class, 'create'])->name('commercant.demande_collecte.create');
@@ -178,8 +188,4 @@ Route::middleware(['auth'])->prefix('benevole')->name('benevole.')->group(functi
     Route::get('/{id}/add-products', [BenevoleCollecteController::class, 'addProducts'])->name('collectes.addProducts');
     Route::post('/{id}/store-new-products', [BenevoleCollecteController::class, 'storeNewProducts'])->name('collectes.storeNewProducts');
     Route::post('/{id}/store-stock', [BenevoleCollecteController::class, 'storeStock'])->name('collectes.storeStock');
-});
-
-Route::middleware([Authenticate::class, AdminMiddleware::class, CheckIfBanned::class])->prefix('admin')->name('admin.')->group(function () {
-    Route::resource('stock', StockController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 });

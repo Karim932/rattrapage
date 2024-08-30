@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Planning;
-use App\Models\Inscription; // Assurez-vous d'avoir un modèle Inscription si nécessaire
+use App\Models\Inscription; 
+use Illuminate\Support\Facades\Auth;
 
 class CreneauController extends Controller
 {
@@ -13,6 +14,12 @@ class CreneauController extends Controller
 
     public function index(Request $request)
     {
+
+        // Vérifier si l'utilisateur connecté a payé sa cotisation
+        if (Auth::user()->cotisation === false) {
+            // Si la cotisation n'est pas payée, retourner une autre vue ou un message
+            return redirect()->route('stripe.checkout'); // Assurez-vous que cette vue existe
+        }
 
         $plannings = Planning::with(['service', 'inscriptions'])
                             ->where('service_id', $request->service_id)
