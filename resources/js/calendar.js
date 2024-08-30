@@ -29,12 +29,30 @@ document.addEventListener('DOMContentLoaded', function() {
             prev: 'fa-chevron-left',
             next: 'fa-chevron-right'
         },
+        noEventsContent: function() {
+            return "Il n'y a pas de planning";
+        },
         events: function(fetchInfo, successCallback, failureCallback) {
+            // Optionally show a loading indicator
+            calendarEl.classList.add('loading');
+
             var city = document.getElementById('city') ? document.getElementById('city').value : '';
+            var service = document.getElementById('service_id') ? document.getElementById('service_id').value : '';
+
             var url = '/api/plannings';
+            var params = [];
+
             if (city) {
-                url += '?city=' + encodeURIComponent(city);
+                params.push('city=' + encodeURIComponent(city));
             }
+            if (service) {
+                params.push('service_id=' + encodeURIComponent(service));
+            }
+
+            if (params.length > 0) {
+                url += '?' + params.join('&');
+            }
+
             fetch(url)
                 .then(response => {
                     if (!response.ok) {
@@ -43,12 +61,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     return response.json();
                 })
                 .then(data => {
-                    // console.log('Fetched events:', data); // Pour vérifier les données reçues
+                    // Ajouter un délai de 3 secondes avant de retirer la classe de chargement
+                    setTimeout(function() {
+                        calendarEl.classList.remove('loading');
+                    }, 1000);
                     successCallback(data);
+
                 })
                 .catch(error => {
+                    calendarEl.classList.remove('loading');
                     console.error('Error fetching events:', error);
                     failureCallback(error);
+                    // Hide loading indicator
                 });
         }
     });

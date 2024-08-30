@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Middleware\Authenticate;
-use App\Models\Service;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\CheckIfBanned;
@@ -20,14 +19,15 @@ use App\Http\Controllers\Admin\CollecteController;
 use App\Http\Controllers\Commercant\CommercantCollecteController;
 use App\Http\Controllers\Benevole\BenevoleCollecteController;
 use App\Http\Controllers\CreneauController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PageNavController;
+use App\Http\Controllers\Admin\StockController;
 
 
 // mail vérifié ou non
 use App\Http\Middleware\EnsureEmailIsVerified;
-use App\Models\Inscription;
 
 // Définit une route pour la localisation qui permet de changer la langue de l'application.
 // Elle utilise un contrôleur invocable `LocalizationController` qui gère la mise à jour de la locale.
@@ -80,7 +80,7 @@ Route::middleware(SetLocalization::class)->group(function() {
         Route::get('services', [InscriptionController::class, 'service'])->name('services');
         Route::get('/mon-historique', [InscriptionController::class, 'historique'])->name('adherent.historique');
         Route::delete('/plannings/{id}/cancel', [InscriptionController::class, 'cancel'])->name('plannings.cancel');
-        
+
     });
 
 
@@ -95,18 +95,16 @@ Route::middleware(SetLocalization::class)->group(function() {
         Route::resource('skills', SkillController::class);
 
         // Route pour accéder au tableau de bord de l'administrateur
-        Route::get('/admin/dashboard', function () {
-            return view('admin.dashboard');
-        })->middleware('can:is-admin')->name('admin.dashboard');
+        Route::get('/admin/dashboard', [DashboardController::class, 'index'])->middleware('can:is-admin')->name('admin.dashboard');
 
         //Gestion des utilisateurs ADMIN
         Route::prefix('users')->name('users.')->controller(UserController::class)->group(function (){
-            // Routes supplémentaires pour le filtrage des utilisateurs, le bannissement et le débannissement.
-            Route::get('/filter-users', 'filterUsers')->name('filter'); // Filtre les utilisateurs.
             Route::post('ban/{id}', 'banUser')->name('ban');
             Route::post('unban/{id}', 'unbanUser')->name('unban');
         });
         Route::get('/mise-a-jour-user', [UserController::class, 'getUsersWithoutCandidature']);
+        Route::get('/filter-users', [UserController::class, 'filterUsers'])->name('filter'); 
+
 
         //Gestion des plannings ADMIN
         Route::prefix('plannings')->name('plannings.')->controller(PlanningController::class)->group(function (){
@@ -133,7 +131,9 @@ Route::middleware(SetLocalization::class)->group(function() {
         Route::prefix('admin/services')->name('services.')->controller(BenevoleServiceController::class)->group(function (){
             Route::get('add/benevole', 'create')->name('affecte');
             Route::post('benevole', 'store')->name('save');
-            Route::get('{serviceId}/skills', 'skillShow');
+            Route::get('/{service}/skills', 'skillShow');
+            Route::post('/benevole/remove/{adhesion_id}', 'removeBenevole')->name('benevole.detach');
+
         });
 
         Route::prefix('admin/adhesion/candidatures')->name('admin.adhesion.')->controller(CandidatureController::class)->group(function() {
@@ -144,8 +144,8 @@ Route::middleware(SetLocalization::class)->group(function() {
         });
 
         Route::prefix('answer')->name('answer.')->controller(AnswerController::class)->group(function() {
-            Route::post('{id}', 'store')->name('store');
-            Route::get('{id}', 'store')->name('store');
+            Route::post('{id}/response', 'store')->name('response.store');
+            Route::get('{id}/', 'store')->name('store');
         });
         
     });    
@@ -154,7 +154,7 @@ Route::middleware(SetLocalization::class)->group(function() {
 
 // Partie de fares
 //ADMIN GESTION COLLECTES
-Route::middleware(['auth',])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware([Authenticate::class, AdminMiddleware::class, CheckIfBanned::class])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('collectes', CollecteController::class);
     Route::post('collectes/{id}/assign', [CollecteController::class, 'assign'])->name('collectes.assign');
     Route::put('collectes/{id}/update-status', [CollecteController::class, 'updateStatus'])->name('collectes.updateStatus');
@@ -180,3 +180,6 @@ Route::middleware(['auth'])->prefix('benevole')->name('benevole.')->group(functi
     Route::post('/{id}/store-stock', [BenevoleCollecteController::class, 'storeStock'])->name('collectes.storeStock');
 });
 
+Route::middleware([Authenticate::class, AdminMiddleware::class, CheckIfBanned::class])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('stock', StockController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+});

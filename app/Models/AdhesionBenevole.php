@@ -22,7 +22,10 @@ class AdhesionBenevole extends Model
      // est traitée comme un tableau
     protected $casts = [
         'availability' => 'array',
-        'skill_id' => 'array'
+        'skill_id' => 'array',
+        'old_benevole' => 'boolean',  
+        'permis' => 'boolean',
+        
     ];
 
     // Relation avec le modèle User

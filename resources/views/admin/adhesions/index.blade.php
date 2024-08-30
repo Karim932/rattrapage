@@ -40,6 +40,8 @@
                     <option value="en cours">En cours</option>
                     <option value="accepté">Accepté</option>
                     <option value="refusé">Rejeté</option>
+                    <option value="renvoyé">Renvoyé</option>
+
                 </select>
             </div>
 
@@ -66,18 +68,6 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
                             <tr class="border-b border-gray-200">
-                                {{-- <th scope="col" class="py-3 px-4 text-left font-medium">
-                                    <a href="{{ route('adhesion.index', ['sort' => 'id', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">
-                                        ID
-                                        @if(request('sort') == 'id')
-                                            @if(request('direction') == 'asc')
-                                                <i class="fas fa-arrow-up"></i>
-                                            @else
-                                                <i class="fas fa-arrow-down"></i>
-                                            @endif
-                                        @endif
-                                    </a>
-                                </th> --}}
                                 <th scope="col" class="py-3 px-4 text-left font-medium">
                                     <a href="{{ route('adhesion.index', ['sort' => 'name', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">
                                         Nom / Entreprise

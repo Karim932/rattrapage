@@ -19,27 +19,37 @@ class PlanningController extends Controller
     public function index(Request $request)
     {
         $city = $request->input('city');
-        
-        // Récupérer les plannings avec les services, triés par ville
-        if ($city) {
-            $plannings = Planning::with('service')
-                ->where('city', $city)
-                ->orderBy('date')
-                ->get();
-        } else {
-            $plannings = Planning::with('service')
-                ->orderBy('city')
-                ->orderBy('date')
-                ->get();
+        $serviceId = $request->input('service_id');
+
+        $query = Planning::with('service');
+
+        // Filtrer par ville si elle est sélectionnée
+        if (!empty($city)) {
+            $query->where('city', $city);
         }
-    
+
+        // Filtrer par service si un service est sélectionné
+        if (!empty($serviceId)) {
+            $query->where('service_id', $serviceId);         
+        }
+
+        // Trier les plannings par ville puis par date
+        $plannings = $query->orderBy('service_id')
+                   ->orderBy('city')
+                   ->orderBy('date')
+                   ->get();
+
         // Renvoyer les villes distinctes pour le filtre
         $cities = Planning::select('city')->distinct()->orderBy('city')->get();
 
-        // dd($cities, $plannings, $city);
-    
-        return view('admin.services.plannings.index', compact('plannings', 'cities', 'city'));
+        // Renvoyer les services distincts pour le filtre
+        $services = Service::orderBy('name')->get();
+
+        // Retourner la vue avec les plannings filtrés et triés
+        return view('admin.services.plannings.index', compact('plannings', 'cities', 'services', 'city', 'serviceId'));
     }
+
+
 
     public function create()
     {
@@ -222,16 +232,28 @@ class PlanningController extends Controller
     public function getEvents(Request $request)
     {
         $city = $request->input('city');
-        
+        $service = $request->input('service_id');
+
         // Charger les plannings avec la relation 'service'
         $planningsQuery = Planning::with('service');
-        
+
+        // Filtrer par ville si elle est sélectionnée
         if ($city) {
             $planningsQuery->where('city', $city);
         }
 
-        $plannings = $planningsQuery->orderBy('city')->orderBy('date')->get();
+        // Filtrer par service si un service est sélectionné
+        if ($service) {
+            $planningsQuery->where('service_id', $service);
+        }
 
+        // Trier les plannings par ville, par service et par date
+        $plannings = $planningsQuery->orderBy('city')
+                                    ->orderBy('service_id')
+                                    ->orderBy('date')
+                                    ->get();
+
+        // Construire la réponse JSON pour les événements
         $events = $plannings->map(function ($planning) {
             return [
                 'title' => $planning->service->name . ' - ' . ($planning->city ?? 'Ville non spécifiée'),  // Ajoutez la ville directement au titre
@@ -240,9 +262,6 @@ class PlanningController extends Controller
                 'url' => route('plannings.show', $planning->id),
             ];
         });
-        
-        return response()->json($events);
-        
 
         return response()->json($events);
     }

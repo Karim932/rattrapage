@@ -12,7 +12,9 @@ export default defineConfig({
                 'resources/js/admin.js',
                 'resources/js/filterUsers.js',
                 'resources/js/adminTabs.js',
-                'resources/js/calendar.js'
+                'resources/js/calendar.js',
+                'resources/js/dashboard.js',
+
             ],
             refresh: true,
         }),

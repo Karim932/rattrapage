@@ -19,15 +19,14 @@
                                 <option value="{{ $service->id }}">{{ $service->name }}</option>
                             @endforeach
                         </select>
-                    </div>                    
+                    </div>
                     <div class="mb-6 relative">
                         <label for="skills" class="block text-sm font-medium text-gray-700">Compétences pour le service</label>
-                        <div class="relative">
-                            <select id="skills" name="skills[]" multiple class="block w-full pl-4 pr-12 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 sm:text-sm">
-                            </select>
-                        </div>
-                    </div>                    
-                    
+                        <select id="skills" name="skills[]" multiple class="block w-full pl-4 pr-12 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 sm:text-sm">
+                            <!-- Les options seront ajoutées ici par jQuery -->
+                        </select>
+                    </div>
+                                               
                     <div class="mb-6">
                         <label for="user_id" class="block text-sm font-medium text-gray-700">Bénévole</label>
                         <select id="user_id" name="user_id" class="mt-1 block w-full py-3 px-4 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
@@ -53,28 +52,36 @@
                             </svg>
                             Assigner le bénévole
                         </button>
-
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+
+
 <script>
-document.getElementById('service_id').addEventListener('change', function() {
-    var serviceId = this.value;
-    fetch(`/services/${serviceId}/skills`)
-        .then(response => response.json())
-        .then(data => {
-            var select = document.getElementById('skills');
-            select.innerHTML = '';
-            data.forEach(skill => {
-                var option = new Option(skill.name, skill.id);
-                select.appendChild(option);
-            });
-        })
-        .catch(error => console.log('Error:', error));
-});
+    $('#service_id').change(function() {
+        var serviceId = $(this).val();
+        $.ajax({
+            url: '/admin/services/' + serviceId + '/skills',
+            type: 'GET',
+            success: function(data) {
+                console.log(data); 
+                $('#skills').empty();
+                $.each(data, function(key, value) {
+                    $('#skills').append(new Option(value, key));
+                });
+            },
+            error: function(xhr, status, error) {
+                console.error("Error: " + error);
+                console.error("Status: " + status);
+                console.dir(xhr);
+            }
+        });
+    });
 
 </script>
+    
 @endsection

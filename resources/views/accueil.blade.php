@@ -3,6 +3,12 @@
 
 @section('content')
 <header class="relative bg-cover bg-center" style="background-image: url('picture/header.png'); height: 80vh;">
+    @if(session('error'))
+                    <div role="alert" class="bg-red-500 text-white p-4 rounded-md">
+                        {{ session('error') }}
+                    </div>
+    @endif
+
     <div class="absolute inset-0 bg-black opacity-50"></div>
     <div class="container mx-auto px-6 py-24 relative z-10">
         <h1 class="text-5xl font-bold text-center text-white">NO MORE WASTE</h1>

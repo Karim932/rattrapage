@@ -33,6 +33,10 @@ class AdhesionsController extends Controller
         // Sert à check si l'user a déjà postuler
         if ($candidature) {
 
+            if($candidature->status === 'accepté'){
+                return redirect()->route('commercant.dashboard');
+            }
+
             // $candidature = $user->adhesionCommercants->first();
             $idCandidature = $candidature->id;
 
@@ -204,6 +208,10 @@ class AdhesionsController extends Controller
 
         if ($hasCommercantCandidature) {
             return redirect()->back()->with('error', 'Vous avez déjà une candidature en tant que Commerçant.');
+        }
+
+        if($candidature->status === 'accepté'){
+            return redirect()->route('benevole.collectes.index');
         }
 
 

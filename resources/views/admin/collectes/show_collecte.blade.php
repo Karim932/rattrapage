@@ -77,7 +77,7 @@
             @if($collecte->stock_entries)
                 <ul class="list-disc pl-4 mt-4">
                     @foreach(json_decode($collecte->stock_entries, true) as $product)
-                        <li>{{ $product['name'] ?? 'Produit inconnu' }} - {{ $product['quantity'] }} unités - Emplacement : {{ $product['location'] }}</li>
+                        <li>{{ $product['nom'] ?? 'Produit inconnu' }} - {{ $product['quantite'] }} unités - Emplacement : {{ $product['emplacement'] }}</li>
                     @endforeach
                 </ul>
             @else

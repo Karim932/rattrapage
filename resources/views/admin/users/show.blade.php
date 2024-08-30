@@ -7,13 +7,11 @@
 
     <div class="max-w-3xl mx-auto bg-white shadow-lg rounded-lg p-6">
         <div class="flex items-center space-x-6 mb-4">
-            @if($user->profile_picture)
-                <img src="{{ asset('storage/'.$user->profile_picture) }}" alt="Profile Picture" class="h-20 w-20 object-cover rounded-full border-2 border-gray-300">
-            @else
-                <div class="h-20 w-20 flex items-center justify-center bg-gray-200 rounded-full text-gray-500">
-                    <span class="text-xl">{{ substr($user->firstname, 0, 1) }}{{ substr($user->lastname, 0, 1) }}</span>
-                </div>
-            @endif
+            
+            <div class="h-20 w-20 flex items-center justify-center bg-gray-200 rounded-full text-gray-500">
+                <span class="text-xl">{{ substr($user->firstname, 0, 1) }}{{ substr($user->lastname, 0, 1) }}</span>
+            </div>
+      
             <div>
                 <h2 class="text-xl font-semibold text-gray-800">{{ $user->firstname }} {{ $user->lastname }}</h2>
                 <p class="text-gray-600">{{ $user->email }}</p>
@@ -28,16 +26,18 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
                 <h3 class="text-lg font-medium text-gray-700">Informations Personnelles</h3>
-                <p class="mt-2 text-gray-600 flex items-center"><i class="fas fa-calendar-alt mr-2"></i> <strong>Date de Naissance:</strong> {{ $user->date_of_birth }}</p>
+                <p class="mt-2 text-gray-600 flex items-center"><i class="fas fa-calendar-alt mr-2"></i> <strong>Date de Naissance: </strong>&nbsp; 
+                    {{ \Carbon\Carbon::parse($user->date_of_birth)->format('d/m/Y') }}
+                </p>
                 <p class="mt-2 text-gray-600 flex items-center"><i class="fas fa-map-marker-alt mr-2"></i> <strong>Adresse:</strong> {{ $user->address }}</p>
-                <p class="mt-2 text-gray-600 flex items-center"><i class="fas fa-city mr-2"></i> <strong>Ville:</strong> {{ $user->city }}</p>
-                <p class="mt-2 text-gray-600 flex items-center"><i class="fas fa-flag mr-2"></i> <strong>Pays:</strong> {{ $user->country }}</p>
-                <p class="mt-2 text-gray-600 flex items-center"><i class="fas fa-phone mr-2"></i> <strong>Numéro de Téléphone:</strong> {{ $user->phone_number }}</p>
+                <p class="mt-2 text-gray-600 flex items-center"><i class="fas fa-city mr-2"></i> <strong>Ville: </strong>&nbsp; {{ $user->city }}</p>
+                <p class="mt-2 text-gray-600 flex items-center"><i class="fas fa-flag mr-2"></i> <strong>Pays: </strong>&nbsp; {{ $user->country }}</p>
+                <p class="mt-2 text-gray-600 flex items-center"><i class="fas fa-phone mr-2"></i> <strong>Numéro de Téléphone: </strong>&nbsp; {{ $user->phone_number }}</p>
             </div>
             <div>
                 <h3 class="text-lg font-medium text-gray-700">Rôle et Statut</h3>
-                <p class="mt-2 text-gray-600 flex items-center"><i class="fas fa-user-tag mr-2"></i> <strong>Rôle:</strong> {{ $user->role }}</p>
-                <p class="mt-2 text-gray-600 flex items-center"><i class="fas fa-user-check mr-2"></i> <strong>Status:</strong> {{ $user->banned ? 'Banni' : 'Actif' }}</p>
+                <p class="mt-2 text-gray-600 flex items-center"><i class="fas fa-user-tag mr-2"></i> <strong>Rôle:</strong>&nbsp; {{ $user->role ? 'Banni' : $user->role }}</p>
+                <p class="mt-2 text-gray-600 flex items-center"><i class="fas fa-user-check mr-2"></i> <strong>Status:</strong>&nbsp; {{ $user->banned ? 'Banni' : 'Actif' }}</p>
             </div>
         </div>
 

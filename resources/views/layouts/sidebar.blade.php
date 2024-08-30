@@ -16,7 +16,7 @@
             <span class="material-icons">person_add</span>
             <span class="ml-4">Adhésion des utilisateurs</span>
         </a>
-        <a href="#" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
+        <a href="{{ route('admin.collectes.index') }}" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
             <span class="material-icons">local_shipping</span>
             <span class="ml-4">Gestion des collectes</span>
         </a>
@@ -28,10 +28,6 @@
             <span class="material-icons">local_shipping</span>
             <span class="ml-4">Gestion des tournées</span>
         </a>
-        <a href="#" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
-            <span class="material-icons">post_add</span>
-            <span class="ml-4">Gestion des Annonces</span>
-        </a>
         <a href="{{ route('services.index') }}" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
             <span class="material-icons">build</span>
             <span class="ml-4">Gestion des Services</span>
@@ -39,6 +35,10 @@
         <a href="{{ route('plannings.index') }}" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
             <span class="material-icons">calendar_today</span>
             <span class="ml-4">Gestion des plannings</span>
+        </a>
+        <a href="#" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
+            <span class="material-icons">post_add</span>
+            <span class="ml-4">Gestion des Annonces</span>
         </a>
         <a href="#" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
             <span class="material-icons">language</span>

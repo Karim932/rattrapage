@@ -227,7 +227,8 @@
 
                 <div>
                     <label for="old_benevole" class="block text-sm font-medium text-gray-700 mt-6">Ancien bénévole</label>
-                    <input type="checkbox" name="old_benevole" id="old_benevole" class="mt-2 align-middle"
+                    <input type="hidden" name="old_benevole" value="0"> 
+                    <input type="checkbox" name="old_benevole" id="old_benevole" value="1" class="mt-2 align-middle"
                             {{ old('old_benevole') ? 'checked' : '' }}>
                 </div>
 
@@ -262,7 +263,8 @@
 
                 <div>
                     <label for="permis" class="block text-sm font-medium text-gray-700 mt-6">Permis de conduire</label>
-                    <input type="checkbox" name="permis" id="permis" class="mt-2 align-middle"
+                    <input type="hidden" name="permis" value="0">
+                    <input type="checkbox" name="permis" id="permis" value="1" class="mt-2 align-middle"
                             {{ (old('permis')) ? 'checked' : '' }}>
                 </div>
 
@@ -348,9 +350,11 @@
                 <div>
                     <label for="notes" class="block text-sm font-medium text-gray-700 mt-6">Notes</label>
                     <textarea name="notes" id="notes"
-                              class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
-                              placeholder="Notes supplémentaires sur l'entreprise">{{ old('notes') }}</textarea>
+                        class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+                        placeholder="Notes supplémentaires sur l'entreprise">{{ old('notes') }}</textarea>
+
                 </div>
+                
             </div>
 
             <div class="flex justify-between mt-6">
@@ -373,13 +377,6 @@
 </div>
 
 <script>
-    // document.getElementById('type-user').addEventListener('change', function () {
-    //     var type = this.value;
-    //     console.log('Type sélectionné:', type); // Pour déboguer
-    //     document.getElementById('benevole-section').style.display = (type === 'benevole' ? 'block' : 'none');
-    //     document.getElementById('commercant-section').style.display = (type === 'commercant' ? 'block' : 'none');
-    // });
-
         document.getElementById('type-user').addEventListener('change', function () {
         var type = this.value;
         console.log('Type sélectionné:', type); // Pour déboguer

@@ -60,8 +60,10 @@
 
                 <div>
                     <label for="old_benevole" class="block text-sm font-medium text-gray-700">Ancien bénévole</label>
-                    <input type="checkbox" name="old_benevole" id="old_benevole" class="mt-2 align-middle"
-                           {{ $candidature->old_benevole ? 'checked' : '' }}>
+                        <input type="hidden" name="old_benevole" value="0"> 
+                        <input type="checkbox" name="old_benevole" id="old_benevole" value="1" class="mt-2 align-middle" 
+                        {{ $candidature->old_benevole ? 'checked' : '' }}>
+
                 </div>
 
                 <div>
@@ -95,8 +97,9 @@
 
                 <div>
                     <label for="permis" class="block text-sm font-medium text-gray-700">Permis de conduire</label>
-                    <input type="checkbox" name="permis" id="permis" class="mt-2 align-middle"
-                           {{ $candidature->permis ? 'checked' : '' }}>
+                    <input type="hidden" name="permis" value="0">
+                    <input type="checkbox" name="permis" id="permis" value="1" class="mt-2 align-middle" 
+                    {{ $candidature->permis ? 'checked' : '' }}>
                 </div>
 
                 <div>

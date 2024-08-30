@@ -17,6 +17,10 @@
                 <div class="border-t border-gray-200">
                     <dl>
                         <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Type du Service</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $service->type }}</dd>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                             <dt class="text-sm font-medium text-gray-500">Nom du Service</dt>
                             <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $service->name }}</dd>
                         </div>
@@ -63,10 +67,21 @@
                 <div class="border-t border-gray-200">
                     <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
                         @forelse ($service->adhesionBenevole as $adhesion)
-                            <li class="bg-white p-4 shadow-sm rounded-lg flex items-center space-x-3">
+                            <li class="bg-white p-4 shadow-sm rounded-lg flex items-center justify-between">
                                 <div class="text-sm font-medium text-gray-900">
                                     {{ $adhesion->user->firstname }} {{ $adhesion->user->lastname }}
                                 </div>
+                                <!-- Bouton pour détacher le bénévole (définir service_id à null) -->
+                                <button onclick="event.preventDefault(); document.getElementById('detach-form-{{ $adhesion->id }}').submit();"
+                                    class="text-blue-500 hover:text-blue-700">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                                <!-- Formulaire pour détacher le bénévole -->
+                                <form id="detach-form-{{ $adhesion->id }}" action="{{ route('services.benevole.detach', ['adhesion_id' => $adhesion->id]) }}" method="POST" style="display: none;">
+                                    @csrf
+                                </form>
                             </li>
                         @empty
                             <li class="col-span-full text-center text-sm text-gray-500">
@@ -75,7 +90,7 @@
                         @endforelse
                     </ul>
                 </div>                
-            </div>            
+            </div>                    
             <div class="flex py-4 mt-5 space-x-3">
                 <a href="{{ route('services.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm font-medium">Retour à la liste des services</a>
             </div>

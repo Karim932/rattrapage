@@ -28,6 +28,16 @@
                     @method('PUT')
 
                     <div>
+                        <label for="type" class="block text-sm font-medium text-gray-700">Type de service</label>
+                        <select name="type" id="type" required
+                                class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+                            <option value="" disabled selected>Choisir le type de service</option>
+                            <option value="reservations" {{ old('type', $service->type) == 'reservations' ? 'selected' : '' }}>Réservations</option>
+                            <option value="postes" {{ old('type', $service->type) == 'postes' ? 'selected' : '' }}>Postes</option>
+                        </select>
+                    </div>
+
+                    <div>
                         <label for="name" class="block text-sm font-medium text-gray-700">Nom du Service</label>
                         <input type="text" name="name" id="name" required
                                class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
@@ -40,8 +50,6 @@
                                 class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
                             <option value="disponible" {{ old('status', $service->status) == 'disponible' ? 'selected' : '' }}>Disponible</option>
                             <option value="indisponible" {{ old('status', $service->status) == 'indisponible' ? 'selected' : '' }}>Indisponible</option>
-                            <option value="en_attente" {{ old('status', $service->status) == 'en_attente' ? 'selected' : '' }}>En Attente</option>
-                            <option value="complet" {{ old('status', $service->status) == 'complet' ? 'selected' : '' }}>Complet</option>
                         </select>
                     </div>
 
@@ -53,12 +61,11 @@
 
                     <div>
                         <label for="category" class="block text-sm font-medium text-gray-700">Catégorie</label>
-                        <select name="category" id="category" required
-                                class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
-                            <option value="" disabled>Choisir une catégorie</option>
-                            <option value="nourriture" {{ old('category', $service->category) == 'nourriture' ? 'selected' : '' }}>Nourriture</option>
-                            <option value="electronique" {{ old('category', $service->category) == 'electronique' ? 'selected' : '' }}>Electronique</option>
-                            <option value="appartement" {{ old('category', $service->category) == 'appartement' ? 'selected' : '' }}>Appartement</option>
+                        <select name="category" id="category" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+                            <option value="" disabled {{ old('category', $currentCategory) == '' ? 'selected' : '' }}>Choisir une catégorie</option>
+                            @foreach(['alimentation', 'technologie', 'immobilier', 'vetements', 'beaute', 'loisirs', 'services', 'automobile', 'education', 'sport', 'voyage', 'animaux', 'jardinage', 'mobilier', 'bricolage', 'financier', 'arts'] as $category)
+                                <option value="{{ $category }}" {{ old('category', $currentCategory) == $category ? 'selected' : '' }}>{{ ucfirst($category) }}</option>
+                            @endforeach
                         </select>
                     </div>
 

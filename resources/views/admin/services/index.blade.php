@@ -9,10 +9,36 @@
             <div class="bg-white shadow-md rounded-lg p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h1 class="text-2xl font-semibold text-gray-700">Gestion des Services</h1>
+                    
                     <a href="{{ route('services.create') }}" class="flex items-center bg-indigo-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-indigo-700 transition duration-300">
                         <i class="fas fa-plus mr-2"></i> Ajouter un Service
                     </a>
                 </div>
+
+                <!-- Notification de succès -->
+                @if(session('success'))
+                    <div class="bg-green-500 text-white p-4 rounded-lg shadow-md mb-6">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                
 
                 @if($services->isEmpty())
                     <p class="text-gray-700">Aucun service disponible pour le moment.</p>
@@ -29,6 +55,9 @@
                                     </th>
                                     <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Statut
+                                    </th>
+                                    <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Type du Service
                                     </th>
                                     <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Date de Création
@@ -53,6 +82,9 @@
                                             <div class="text-sm text-gray-500">{{ $service->status }}</div>
                                         </td>
                                         <td class="px-6 py-4 border-b border-gray-200">
+                                            <div class="text-sm text-gray-500">{{ $service->type }}</div>
+                                        </td>
+                                        <td class="px-6 py-4 border-b border-gray-200">
                                             <div class="text-sm text-gray-500">{{ \Carbon\Carbon::parse($service->created_at)->format('d/m/Y') }}</div>
                                         </td>
                                         <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
@@ -60,7 +92,7 @@
                                             <div class="flex items-center">
                                                 <a href="{{ route('services.show', $service->id) }}">Voir</a>
                                                 <a href="{{ route('services.edit', $service->id) }}" class="text-indigo-600 hover:text-indigo-900 ml-4">Modifier</a>
-                                                <form action="{{ route('services.destroy', $service->id) }}" method="POST" class="deletes-user-form inline">
+                                                <form action="{{ route('services.destroy', $service->id) }}" method="POST" class="delete-user-form inline">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="text-red-600 hover:text-red-900 ml-4">Supprimer</button>

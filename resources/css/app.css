@@ -168,6 +168,26 @@ input:focus {
 }
 
 
+#calendar.loading::before {
+    content: "Chargement...";
+    position: absolute;
+    top: 80%;
+    left: 55%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5em;
+    color: #555;
+    z-index: 1000;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+    text-align: center;
+}
+
+
+
+
 
 
 

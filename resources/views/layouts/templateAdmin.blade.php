@@ -16,14 +16,18 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+
         {{-- <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"> --}}
         {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css"> --}}
 
 
         <!-- Scripts -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
         @vite(['resources/css/app.css', 'resources/css/sidebarAdmin.css', 'resources/css/formulaire.css', 'resources/js/app.js',
-        'resources/js/admin.js', 'resources/js/filterUsers.js', 'resources/js/adminTabs.js', 'resources/js/calendar.js'])
+                'resources/js/dashboard.js', 'resources/js/admin.js', 'resources/js/filterUsers.js', 'resources/js/adminTabs.js', 'resources/js/calendar.js'])
     </head>
 
     <body class="flex min-h-screen bg-gray-100">

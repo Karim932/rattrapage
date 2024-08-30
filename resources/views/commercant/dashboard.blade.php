@@ -10,7 +10,12 @@
             @endif
 
             <div class="bg-white p-8 shadow-lg rounded-lg space-y-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">Mes Collectes</h2>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-gray-800">Mes Collectes</h2>
+                    <a href="{{ route('commercant.demande_collecte.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition duration-300">
+                        Demander une collecte
+                    </a>
+                </div>
 
                 @if ($collectes->isEmpty())
                     <p class="text-gray-600">Vous n'avez aucune collecte en cours.</p>
@@ -26,7 +31,7 @@
                         </thead>
                         <tbody>
                             @foreach ($collectes as $collecte)
-                                <tr>
+                                <tr class="hover:bg-gray-100 transition duration-200">
                                     <td class="py-2">{{ $collecte->date_collecte }}</td>
                                     <td class="py-2">{{ $collecte->status }}</td>
                                     <td class="py-2">

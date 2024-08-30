@@ -10,7 +10,7 @@ class Service extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'description', 'status', 'category', 'condition', 'duration'
+        'name', 'description', 'status', 'category', 'condition', 'duration', 'type'
     ];
 
     public function skills()

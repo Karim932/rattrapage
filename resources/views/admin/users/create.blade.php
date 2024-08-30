@@ -100,14 +100,6 @@
                 @enderror
             </div>
 
-            <div class="mb-4">
-                <label for="profile_picture" class="block text-sm font-medium text-gray-700">Photo de Profil</label>
-                <input type="file" name="profile_picture" id="profile_picture" class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                @error('profile_picture')
-                    <p class="text-red-600 text-sm">{{ $message }}</p>
-                @enderror
-            </div>
-
             <div class="flex justify-between">
                 <a href="{{ route('users.index') }}" class="bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-800 transition duration-200">Retour</a>
                 <button type="submit" class="bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-800 transition duration-200">Enregistrer</button>

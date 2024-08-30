@@ -81,12 +81,12 @@ class CollecteController extends Controller
         $jourSemaine = Carbon::parse($collecte->date_collecte)->translatedFormat('l');
 
         $benevoles = AdhesionBenevole::where('status', 'accepté')
-        ->where(function ($query) use ($jourSemaine) {
-            $query->whereJsonContains("availability->{$jourSemaine}->matin", '1')
-                  ->orWhereJsonContains("availability->{$jourSemaine}->midi", '1')
-                  ->orWhereJsonContains("availability->{$jourSemaine}->soir", '1');
-        })
-        ->get();
+    ->where(function ($query) use ($jourSemaine) {
+        $query->whereJsonContains("availability->{$jourSemaine}->matin", true)
+              ->orWhereJsonContains("availability->{$jourSemaine}->midi", true)
+              ->orWhereJsonContains("availability->{$jourSemaine}->soir", true);
+    })
+    ->get();
 
         return view('admin.collectes.show_collecte', compact('collecte', 'benevoles'));
     }

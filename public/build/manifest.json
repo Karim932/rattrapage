@@ -1,6 +1,6 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-D67fD3Dk.css",
+    "file": "assets/app-DJENY1sq.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
@@ -33,13 +33,19 @@
     "isEntry": true
   },
   "resources/js/calendar.js": {
-    "file": "assets/calendar-CEsYcYa1.js",
+    "file": "assets/calendar-C8dVedLM.js",
     "name": "calendar",
     "src": "resources/js/calendar.js",
     "isEntry": true
   },
+  "resources/js/dashboard.js": {
+    "file": "assets/dashboard-RamXcM2Y.js",
+    "name": "dashboard",
+    "src": "resources/js/dashboard.js",
+    "isEntry": true
+  },
   "resources/js/filterUsers.js": {
-    "file": "assets/filterUsers-Bq3RtH6G.js",
+    "file": "assets/filterUsers-DOw3TLyu.js",
     "name": "filterUsers",
     "src": "resources/js/filterUsers.js",
     "isEntry": true

@@ -96,7 +96,7 @@ class CandidatureController extends Controller
         }
 
         // Charger les données avec la relation polymorphique fusion et paginer
-        $allCandidatures = $query->with('fusion.user')->paginate(20);
+        $allCandidatures = $query->with('fusion.user')->orderBy('created_at', 'desc')->paginate(20);
 
         // Retourner la vue avec les données paginées et triées
         return view('admin.adhesions.index', compact('allCandidatures'));
@@ -117,44 +117,78 @@ class CandidatureController extends Controller
 
     public function store(Request $request)
     {
-        // Personnalisation des messages d'erreur
-        $messages = [
-            'company_name.required' => 'Le nom de l\'entreprise est requis.',
-            'siret.required' => 'Le numéro SIRET est requis.',
-            'siret.size' => 'Le numéro SIRET doit contenir exactement 14 chiffres.',
-            'siret.unique' => 'Ce numéro SIRET est déjà enregistré.',
-            'address.required' => 'L\'adresse est requise.',
-            'city.required' => 'La ville est requise.',
-            'postal_code.required' => 'Le code postal est requis.',
-            'country.required' => 'Le pays est requis.',
-            'motivation.required' => 'Votre motivation est requise pour compléter l’inscription.',
-            'motivation.max' => 'La motivation ne peut excéder 500 caractères.',
-            'experience.required' => 'Décrivez vos expériences précédentes en bénévolat.',
-            'experience.max' => 'L’expérience ne peut excéder 500 caractères.',
-            'availability_begin.required' => 'La date de début est requise.',
-            'availability_begin.date' => 'Entrez une date valide pour la date de début.',
-            'availability_end.required' => 'La date de fin est requise.',
-            'availability_end.date' => 'Entrez une date valide pour la date de fin.',
-            'availability_end.after_or_equal' => 'La date de fin doit être après ou le même jour que la date de début.',
-            'availability_begin.after_or_equal' => 'La date de début doit être après ou le même jour que la date d\'aujourd\'hui.',
-            'additional_notes.max' => 'Les notes supplémentaires ne peuvent excéder 1000 caractères.',
-        ];
-
         // Vérifier si l'utilisateur est connecté et récupérer son ID
         if (Auth::check()) {
 
             if ($request->type === 'commercant') {
+                $messages = [
+                    'user_id.required' => 'L\'utilisateur est requis.',
+                    'user_id.exists' => 'L\'utilisateur sélectionné n\'existe pas.',
+                    'company_name.required' => 'Le nom de l\'entreprise est requis.',
+                    'company_name.string' => 'Le nom de l\'entreprise doit être une chaîne de caractères.',
+                    'company_name.max' => 'Le nom de l\'entreprise ne doit pas dépasser 255 caractères.',
+                    'siret.required' => 'Le numéro SIRET est requis.',
+                    'siret.string' => 'Le numéro SIRET doit être une chaîne de caractères.',
+                    'siret.size' => 'Le numéro SIRET doit comporter exactement 14 caractères.',
+                    'siret.unique' => 'Ce numéro SIRET est déjà utilisé.',
+                    'address.required' => 'L\'adresse est requise.',
+                    'address.string' => 'L\'adresse doit être une chaîne de caractères.',
+                    'address.max' => 'L\'adresse ne doit pas dépasser 500 caractères.',
+                    'city.required' => 'La ville est requise.',
+                    'city.string' => 'La ville doit être une chaîne de caractères.',
+                    'city.max' => 'La ville ne doit pas dépasser 255 caractères.',
+                    'postal_code.required' => 'Le code postal est requis.',
+                    'postal_code.string' => 'Le code postal doit être une chaîne de caractères.',
+                    'postal_code.max' => 'Le code postal ne doit pas dépasser 10 caractères.',
+                    'postal_code.regex' => 'Le code postal doit être un nombre valide (ex: 75001).',
+                    'country.required' => 'Le pays est requis.',
+                    'country.string' => 'Le pays doit être une chaîne de caractères.',
+                    'country.max' => 'Le pays ne doit pas dépasser 255 caractères.',
+                    'country.regex' => 'Le pays doit contenir uniquement des lettres et des espaces.',
+                    'notes.string' => 'Les notes doivent être une chaîne de caractères.',
+                    'notes.max' => 'Les notes ne doivent pas dépasser 1000 caractères.',
+                    'opening_hours.string' => 'Les heures d\'ouverture doivent être une chaîne de caractères.',
+                    'opening_hours.max' => 'Les heures d\'ouverture ne doivent pas dépasser 255 caractères.',
+                    'contract_start_date.required' => 'La date de début du contrat est requise.',
+                    'contract_start_date.date' => 'La date de début du contrat doit être une date valide.',
+                    'contract_start_date.after_or_equal' => 'La date de début du contrat doit être aujourd\'hui ou plus tard.',
+                    'contract_end_date.required' => 'La date de fin du contrat est requise.',
+                    'contract_end_date.date' => 'La date de fin du contrat doit être une date valide.',
+                    'contract_end_date.after_or_equal' => 'La date de fin du contrat doit être égale ou postérieure à la date de début.',
+                ];
+            
                 $validated = $request->validate([
                     'user_id' => 'required|exists:users,id',
                     'company_name' => 'required|string|max:255',
-                    'siret' => 'required|string|size:14|unique:adhesion_commercants,siret',
+                    'siret' => [
+                        'required',
+                        'string',
+                        'size:14',
+                        'unique:adhesion_commercants,siret',
+                        'regex:/^\d{14}$/'
+                    ],
                     'address' => 'required|string|max:500',
-                    'city' => 'required|string|max:255',
-                    'postal_code' => 'required|string|max:10',
-                    'country' => 'required|string|max:255',
+                    'city' => [
+                        'required',
+                        'string',
+                        'max:255',
+                        'regex:/^[a-zA-Z\s\-]+$/'
+                    ],
+                    'postal_code' => [
+                        'required',
+                        'string',
+                        'max:10',
+                        'regex:/^\d{5}$/'
+                    ],
+                    'country' => [
+                        'required',
+                        'string',
+                        'max:255',
+                        'regex:/^[a-zA-Z\s]+$/'
+                    ],
                     'notes' => 'nullable|string|max:1000',
                     'opening_hours' => 'nullable|string|max:255',
-                    'contract_start_date' => 'required|date|after_or_equal:now',
+                    'contract_start_date' => 'required|date|after_or_equal:today',
                     'contract_end_date' => 'required|date|after_or_equal:contract_start_date',
                 ], $messages);
 
@@ -174,20 +208,64 @@ class CandidatureController extends Controller
                 return redirect()->route('adhesion.index')->with('success', 'Candidature commerciale enregistrée avec succès.');
 
             } else if ($request->type === 'benevole') {
+                $messages = [
+                    'user_id.required' => 'L\'utilisateur est requis.',
+                    'user_id.exists' => 'L\'utilisateur sélectionné n\'existe pas.',
+                    'skills.required' => 'Les compétences sont requises.',
+                    'skills.array' => 'Les compétences doivent être un tableau.',
+                    'skills.*.exists' => 'Certaines compétences sélectionnées n\'existent pas.',
+                    'motivation.required' => 'La motivation est requise.',
+                    'motivation.string' => 'La motivation doit être une chaîne de caractères.',
+                    'motivation.max' => 'La motivation ne doit pas dépasser 500 caractères.',
+                    'experience.required' => 'L\'expérience est requise.',
+                    'experience.string' => 'L\'expérience doit être une chaîne de caractères.',
+                    'experience.max' => 'L\'expérience ne doit pas dépasser 500 caractères.',
+                    'old_benevole.nullable' => 'L\'ancienneté du bénévole est optionnelle.',
+                    'availability.required' => 'La disponibilité est requise.',
+                    'availability.array' => 'La disponibilité doit être un tableau.',
+                    'availability.*.*.in' => 'Les valeurs de disponibilité doivent être valides.',
+                    'availability_begin.required' => 'La date de début de disponibilité est requise.',
+                    'availability_begin.date' => 'La date de début de disponibilité doit être une date valide.',
+                    'availability_begin.after_or_equal' => 'La date de début de disponibilité doit être aujourd\'hui ou plus tard.',
+                    'availability_end.required' => 'La date de fin de disponibilité est requise.',
+                    'availability_end.date' => 'La date de fin de disponibilité doit être une date valide.',
+                    'availability_end.after_or_equal' => 'La date de fin de disponibilité doit être égale ou postérieure à la date de début.',
+                    'permis.nullable' => 'Le permis est optionnel.',
+                    'additional_notes.nullable' => 'Les notes supplémentaires sont optionnelles.',
+                    'additional_notes.string' => 'Les notes supplémentaires doivent être une chaîne de caractères.',
+                    'additional_notes.max' => 'Les notes supplémentaires ne doivent pas dépasser 500 caractères.',
+                ];
+                
                 $validated = $request->validate([
                     'user_id' => 'required|exists:users,id',
                     'skills' => 'required|array',
                     'skills.*' => 'exists:skills,id',
-                    'motivation' => 'required|string|max:500',
-                    'experience' => 'required|string|max:500',
-                    'old_benevole' => 'nullable',
+                    'motivation' => [
+                        'required',
+                        'string',
+                        'max:500',
+                        'regex:/^[a-zA-Z0-9\s\-.,\'"!?()]+$/'
+                    ],
+                    'experience' => [
+                        'required',
+                        'string',
+                        'max:500',
+                        'regex:/^[a-zA-Z0-9\s\-.,\'"!?()]+$/'
+                    ],
+                    'old_benevole' => 'nullable|boolean',
                     'availability' => 'required|array',
                     'availability.*.*' => 'nullable|in:1',
                     'availability_begin' => 'required|date|after_or_equal:now',
                     'availability_end' => 'required|date|after_or_equal:availability_begin',
-                    'permis' => 'nullable',
-                    'additional_notes' => 'nullable|string|max:500'
+                    'permis' => 'nullable|boolean',
+                    'additional_notes' => [
+                        'nullable',
+                        'string',
+                        'max:500',
+                        'regex:/^[a-zA-Z0-9\s\-.,\'"!?()]+$/'
+                    ],
                 ], $messages);
+                
 
                 // Traitement des données de disponibilité
                 $availability = $request->input('availability');
@@ -245,9 +323,13 @@ class CandidatureController extends Controller
 
         $candidature = $adhesion->fusion;
         $fusionId = $adhesion->fusion->id;
+        $skillIds = $candidature->skill_id;
 
         if ($candidature instanceof \App\Models\AdhesionBenevole && !is_null($candidature->skill_id)) {
-            $skillIds = json_decode($candidature->skill_id, true);
+            if (is_string($skillIds) && $this->isJson($skillIds)) {
+                // Décoder la chaîne JSON en tableau
+                $skillIds = json_decode($skillIds, true);
+            }
             $skills = \App\Models\Skill::whereIn('id', $skillIds)->pluck('name')->toArray();
         } else {
             $skills = []; // Ou vous pouvez laisser $skills non défini si vous ne prévoyez pas de l'utiliser pour les commerçants
@@ -272,6 +354,7 @@ class CandidatureController extends Controller
 
         $adhesion = Adhesion::with('fusion')->findOrFail($id);
         $candidature = $adhesion->fusion;
+        $selectedSkills = $candidature->skill_id;
 
         // Vérifier si 'availability' est déjà un tableau ou le décoder si c'est une chaîne JSON
         $availability = is_array($candidature->availability) ? $candidature->availability : json_decode($candidature->availability, true);
@@ -283,8 +366,12 @@ class CandidatureController extends Controller
             // Récupérer toutes les compétences disponibles
             $skills = Skill::all();
 
-            // Décoder la chaîne JSON en tableau
-            $selectedSkills = json_decode($candidature->skill_id, true);
+            /// Vérifier si la chaîne est un JSON valide
+            if (is_string($selectedSkills) && $this->isJson($selectedSkills)) {
+                // Décoder la chaîne JSON en tableau
+                $selectedSkills = json_decode($selectedSkills, true);
+            } 
+
 
             // Vérifier que $selectedSkills est bien un tableau
             if (!is_array($selectedSkills)) {
@@ -303,55 +390,136 @@ class CandidatureController extends Controller
         $adhesion = Adhesion::with('fusion')->findOrFail($id);
         $candidature = $adhesion->fusion;
 
+
+
         if ($candidature instanceof AdhesionCommercant) {
+            $messages = [
+                'company_name.required' => 'Le nom de l\'entreprise est requis.',
+                'company_name.string' => 'Le nom de l\'entreprise doit être une chaîne de caractères.',
+                'company_name.max' => 'Le nom de l\'entreprise ne doit pas dépasser 255 caractères.',
+                'siret.required' => 'Le numéro SIRET est requis.',
+                'siret.string' => 'Le numéro SIRET doit être une chaîne de caractères.',
+                'siret.size' => 'Le numéro SIRET doit comporter exactement 14 caractères.',
+                'siret.unique' => 'Ce numéro SIRET est déjà utilisé.',
+                'address.required' => 'L\'adresse est requise.',
+                'address.string' => 'L\'adresse doit être une chaîne de caractères.',
+                'address.max' => 'L\'adresse ne doit pas dépasser 500 caractères.',
+                'city.required' => 'La ville est requise.',
+                'city.string' => 'La ville doit être une chaîne de caractères.',
+                'city.max' => 'La ville ne doit pas dépasser 255 caractères.',
+                'postal_code.required' => 'Le code postal est requis.',
+                'postal_code.string' => 'Le code postal doit être une chaîne de caractères.',
+                'postal_code.max' => 'Le code postal ne doit pas dépasser 10 caractères.',
+                'postal_code.regex' => 'Le code postal doit être un nombre valide (ex: 75001).',
+                'country.required' => 'Le pays est requis.',
+                'country.string' => 'Le pays doit être une chaîne de caractères.',
+                'country.max' => 'Le pays ne doit pas dépasser 255 caractères.',
+                'country.regex' => 'Le pays doit contenir uniquement des lettres et des espaces.',
+                'notes.string' => 'Les notes doivent être une chaîne de caractères.',
+                'notes.max' => 'Les notes ne doivent pas dépasser 1000 caractères.',
+                'opening_hours.string' => 'Les heures d\'ouverture doivent être une chaîne de caractères.',
+                'opening_hours.max' => 'Les heures d\'ouverture ne doivent pas dépasser 255 caractères.',
+                'contract_start_date.required' => 'La date de début du contrat est requise.',
+                'contract_start_date.date' => 'La date de début du contrat doit être une date valide.',
+                'contract_start_date.after_or_equal' => 'La date de début du contrat doit être aujourd\'hui ou plus tard.',
+                'contract_end_date.required' => 'La date de fin du contrat est requise.',
+                'contract_end_date.date' => 'La date de fin du contrat doit être une date valide.',
+                'contract_end_date.after_or_equal' => 'La date de fin du contrat doit être égale ou postérieure à la date de début.',
+            ];
+        
             $validatedData = $request->validate([
                 'company_name' => 'required|string|max:255',
-                'siret' => 'required|numeric|digits:14',
+                'siret' => [
+                    'required',
+                    'string',
+                    'size:14',
+                    'unique:adhesion_commercants,siret',
+                    'regex:/^\d{14}$/'
+                ],
                 'address' => 'required|string|max:500',
-                'city' => 'required|string|max:255',
-                'postal_code' => 'required|string|max:10',
-                'country' => 'required|string|max:255',
+                'city' => [
+                    'required',
+                    'string',
+                    'max:255',
+                    'regex:/^[a-zA-Z\s\-]+$/'
+                ],
+                'postal_code' => [
+                    'required',
+                    'string',
+                    'max:10',
+                    'regex:/^\d{5}$/'
+                ],
+                'country' => [
+                    'required',
+                    'string',
+                    'max:255',
+                    'regex:/^[a-zA-Z\s]+$/'
+                ],
+                'notes' => 'nullable|string|max:1000',
+                'opening_hours' => 'nullable|string|max:255',
                 'contract_start_date' => 'required|date|after_or_equal:now',
-                'contract_end_date' => 'required|date|after_or_equal:availability_begin',
-            ], [
-                'company_name.required' => 'Le nom de l’entreprise est obligatoire.',
-                'siret.required' => 'Le numéro SIRET est obligatoire.',
-                'siret.digits' => 'Le numéro SIRET doit comporter 14 chiffres.',
-                'address.required' => 'L’adresse est obligatoire.',
-                'city.required' => 'La ville est obligatoire.',
-                'postal_code.required' => 'Le code postal est obligatoire.',
-                'country.required' => 'Le pays est obligatoire.',
-            ]);
+                'contract_end_date' => 'required|date|after_or_equal:contract_start_date',
+            ], $messages);
 
             // Mise à jour spécifique pour les commerçants
             $candidature->update($validatedData);
 
         } elseif ($candidature instanceof AdhesionBenevole) {
+            $messages = [
+                'skills.required' => 'Les compétences sont requises.',
+                'skills.array' => 'Les compétences doivent être un tableau.',
+                'skills.*.exists' => 'Certaines compétences sélectionnées n\'existent pas.',
+                'motivation.required' => 'La motivation est requise.',
+                'motivation.string' => 'La motivation doit être une chaîne de caractères.',
+                'motivation.max' => 'La motivation ne doit pas dépasser 500 caractères.',
+                'experience.required' => 'L\'expérience est requise.',
+                'experience.string' => 'L\'expérience doit être une chaîne de caractères.',
+                'experience.max' => 'L\'expérience ne doit pas dépasser 500 caractères.',
+                'old_benevole.nullable' => 'L\'ancienneté du bénévole est optionnelle.',
+                'availability.required' => 'La disponibilité est requise.',
+                'availability.array' => 'La disponibilité doit être un tableau.',
+                'availability.*.*.in' => 'Les valeurs de disponibilité doivent être valides.',
+                'availability_begin.required' => 'La date de début de disponibilité est requise.',
+                'availability_begin.date' => 'La date de début de disponibilité doit être une date valide.',
+                'availability_begin.after_or_equal' => 'La date de début de disponibilité doit être aujourd\'hui ou plus tard.',
+                'availability_end.required' => 'La date de fin de disponibilité est requise.',
+                'availability_end.date' => 'La date de fin de disponibilité doit être une date valide.',
+                'availability_end.after_or_equal' => 'La date de fin de disponibilité doit être égale ou postérieure à la date de début.',
+                'permis.nullable' => 'Le permis est optionnel.',
+                'additional_notes.nullable' => 'Les notes supplémentaires sont optionnelles.',
+                'additional_notes.string' => 'Les notes supplémentaires doivent être une chaîne de caractères.',
+                'additional_notes.max' => 'Les notes supplémentaires ne doivent pas dépasser 500 caractères.',
+            ];
+            
             $validatedData = $request->validate([
                 'skills' => 'required|array',
                 'skills.*' => 'exists:skills,id',
-                'motivation' => 'required|string|max:500',
-                'experience' => 'required|string|max:500',
-                'old_benevole' => 'nullable',
+                'motivation' => [
+                    'required',
+                    'string',
+                    'max:500',
+                    'regex:/^[a-zA-Z0-9\s\-.,\'"!?()]+$/'
+                ],
+                'experience' => [
+                    'required',
+                    'string',
+                    'max:500',
+                    'regex:/^[a-zA-Z0-9\s\-.,\'"!?()]+$/'
+                ],
+                'old_benevole' => 'boolean',
                 'availability' => 'required|array',
                 'availability.*.*' => 'nullable|in:1',
                 'availability_begin' => 'required|date|after_or_equal:now',
                 'availability_end' => 'required|date|after_or_equal:availability_begin',
-                'permis' => 'nullable',
-                'additional_notes' => 'nullable|string|max:1000',
-            ], [
-                'motivation.required' => 'Votre motivation est requise pour compléter l’inscription.',
-                'motivation.max' => 'La motivation ne peut excéder 500 caractères.',
-                'experience.required' => 'Décrivez vos expériences précédentes en bénévolat.',
-                'experience.max' => 'L’expérience ne peut excéder 500 caractères.',
-                'availability_begin.required' => 'La date de début est requise.',
-                'availability_begin.date' => 'Entrez une date valide pour la date de début.',
-                'availability_begin.after_or_equal' => 'La date de début doit être après ou le même jour que la date d\'aujourd\'hui',
-                'availability_end.required' => 'La date de fin est requise.',
-                'availability_end.date' => 'Entrez une date valide pour la date de fin.',
-                'availability_end.after_or_equal' => 'La date de fin doit être après ou le même jour que la date de début.',
-                'additional_notes.max' => 'Les notes supplémentaires ne peuvent excéder 1000 caractères.',
-            ]);
+                'permis' => 'boolean',
+                'additional_notes' => [
+                    'nullable',
+                    'string',
+                    'max:500',
+                    'regex:/^[a-zA-Z0-9\s\-.,\'"!?()]+$/'
+                ],
+            ], $messages);
+            
 
             $availability = $request->input('availability');
             $formattedAvailability = [];
@@ -362,8 +530,15 @@ class CandidatureController extends Controller
             }
 
             $candidature->availability = json_encode($formattedAvailability);
-            $candidature->skill_id = json_encode($validatedData['skills']);
-
+            // Vérifier si $validatedData['skills'] est déjà un JSON
+            if (is_array($validatedData['skills']) || !$this->isJson($validatedData['skills'])) {
+                // Si ce n'est pas un JSON valide ou si c'est un tableau, l'encoder en JSON
+                $candidature->skill_id = json_encode($validatedData['skills']);
+            } else {
+                // Sinon, conserver la valeur telle quelle
+                $candidature->skill_id = $validatedData['skills'];
+            }
+            
             // Mise à jour spécifique pour les bénévoles
             $candidature->update($validatedData);
             $candidature->status = 'renvoyé';
@@ -465,5 +640,17 @@ class CandidatureController extends Controller
         }
     }
 
+
+    /**
+     * Vérifie si une chaîne est un JSON valide.
+     *
+     * @param string $string
+     * @return bool
+     */
+    private function isJson($string)
+    {
+        json_decode($string);
+        return (json_last_error() === JSON_ERROR_NONE);
+    }
 
 }

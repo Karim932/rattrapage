@@ -34,18 +34,74 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'firstname' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
+            'firstname' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[a-zA-ZÀ-ÿ\s\-]+$/u' // uniquement les lettres, accents, espaces et tirets
+            ],
+            'lastname' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[a-zA-ZÀ-ÿ\s\-]+$/u' 
+            ],
             'email' => 'required|string|email|max:255|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'date_of_birth' => 'nullable|date',
-            'address' => 'nullable|string',
-            'city' => 'nullable|string',
-            'country' => 'nullable|string',
-            'phone_number' => 'nullable|string',
-            'role' => 'required|string',
-            'profile_picture' => 'nullable|image'
-        ]);
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', // Au moins une majuscule, une minuscule, un chiffre et un caractère spécial
+            ],
+            'date_of_birth' => 'required|date|before:today',
+            'address' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+            'country' => 'required|string|max:255',
+            'phone_number' => 'required|string|regex:/^\+?[0-9]{7,15}$/', // Numéro de téléphone valide 
+            'role' => 'required|string|in:admin,user,benevole, commercant',
+        ], [
+            'firstname.required' => 'Le prénom est obligatoire.',
+            'firstname.string' => 'Le prénom doit être une chaîne de caractères.',
+            'firstname.max' => 'Le prénom ne doit pas dépasser 255 caractères.',
+            'firstname.regex' => 'Le prénom ne doit contenir que des lettres, des espaces ou des tirets.',
+        
+            'lastname.required' => 'Le nom de famille est obligatoire.',
+            'lastname.string' => 'Le nom de famille doit être une chaîne de caractères.',
+            'lastname.max' => 'Le nom de famille ne doit pas dépasser 255 caractères.',
+            'lastname.regex' => 'Le nom de famille ne doit contenir que des lettres, des espaces ou des tirets.',
+        
+            'email.required' => 'L\'adresse e-mail est obligatoire.',
+            'email.string' => 'L\'adresse e-mail doit être une chaîne de caractères.',
+            'email.email' => 'L\'adresse e-mail doit être une adresse valide.',
+            'email.max' => 'L\'adresse e-mail ne doit pas dépasser 255 caractères.',
+            'email.unique' => 'L\'adresse e-mail est déjà utilisée.',
+        
+            'password.required' => 'Le mot de passe est obligatoire.',
+            'password.string' => 'Le mot de passe doit être une chaîne de caractères.',
+            'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
+            'password.confirmed' => 'Les mots de passe ne correspondent pas.',
+            'password.regex' => 'Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial.',
+        
+            'date_of_birth.date' => 'La date de naissance doit être une date valide.',
+            'date_of_birth.before' => 'La date de naissance doit être une date antérieure à aujourd\'hui.',
+        
+            'address.string' => 'L\'adresse doit être une chaîne de caractères.',
+            'address.max' => 'L\'adresse ne doit pas dépasser 255 caractères.',
+        
+            'city.string' => 'La ville doit être une chaîne de caractères.',
+            'city.max' => 'La ville ne doit pas dépasser 255 caractères.',
+        
+            'country.string' => 'Le pays doit être une chaîne de caractères.',
+            'country.max' => 'Le pays ne doit pas dépasser 255 caractères.',
+        
+            'phone_number.string' => 'Le numéro de téléphone doit être une chaîne de caractères.',
+            'phone_number.regex' => 'Le numéro de téléphone doit être valide, avec entre 7 et 15 chiffres.',
+        
+            'role.required' => 'Le rôle est obligatoire.',
+            'role.string' => 'Le rôle doit être une chaîne de caractères.',
+            'role.in' => 'Le rôle doit être l\'un des suivants: admin, user, moderator.',
+        ]);        
 
         $user = User::create([
             'firstname' => $request->firstname,
@@ -60,12 +116,6 @@ class UserController extends Controller
             'role' => $request->role,
             'banned' => false
         ]);
-
-        if ($request->hasFile('profile_picture')) {
-            $path = $request->file('profile_picture')->store('profile_pictures', 'public');
-            $user->profile_picture = $path;
-            $user->save();
-        }
 
         return redirect()->route('users.index')->with('success', 'User created successfully');
     }
@@ -94,32 +144,83 @@ class UserController extends Controller
     public function update(Request $request, string $id)
     {
         $user = User::findOrFail($id);
+
         $request->validate([
-            'firstname' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8|confirmed',
-            'date_of_birth' => 'nullable|date',
-            'address' => 'nullable|string',
-            'city' => 'nullable|string',
-            'country' => 'nullable|string',
-            'phone_number' => 'nullable|string',
-            'role' => 'required|string',
-            'profile_picture' => 'nullable|image'
-        ]);
+            'firstname' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[a-zA-ZÀ-ÿ\s\-]+$/u' // uniquement les lettres, accents, espaces et tirets
+            ],
+            'lastname' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[a-zA-ZÀ-ÿ\s\-]+$/u' 
+            ],
+            'email' => 'required|string|email|max:255|unique:users,email'. $user->id,
+            'password' => [
+                'nullable',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', // Au moins une majuscule, une minuscule, un chiffre et un caractère spécial
+            ],
+            'date_of_birth' => 'required|date|before:today',
+            'address' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+            'country' => 'required|string|max:255',
+            'phone_number' => 'required|string|regex:/^\+?[0-9]{7,15}$/', // Numéro de téléphone valide 
+            'role' => 'required|string|in:admin,user,benevole, commercant',
+        ], [
+            'firstname.required' => 'Le prénom est obligatoire.',
+            'firstname.string' => 'Le prénom doit être une chaîne de caractères.',
+            'firstname.max' => 'Le prénom ne doit pas dépasser 255 caractères.',
+            'firstname.regex' => 'Le prénom ne doit contenir que des lettres, des espaces ou des tirets.',
+        
+            'lastname.required' => 'Le nom de famille est obligatoire.',
+            'lastname.string' => 'Le nom de famille doit être une chaîne de caractères.',
+            'lastname.max' => 'Le nom de famille ne doit pas dépasser 255 caractères.',
+            'lastname.regex' => 'Le nom de famille ne doit contenir que des lettres, des espaces ou des tirets.',
+        
+            'email.required' => 'L\'adresse e-mail est obligatoire.',
+            'email.string' => 'L\'adresse e-mail doit être une chaîne de caractères.',
+            'email.email' => 'L\'adresse e-mail doit être une adresse valide.',
+            'email.max' => 'L\'adresse e-mail ne doit pas dépasser 255 caractères.',
+            'email.unique' => 'L\'adresse e-mail est déjà utilisée.',
+        
+            'password.required' => 'Le mot de passe est obligatoire.',
+            'password.string' => 'Le mot de passe doit être une chaîne de caractères.',
+            'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
+            'password.confirmed' => 'Les mots de passe ne correspondent pas.',
+            'password.regex' => 'Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial.',
+        
+            'date_of_birth.date' => 'La date de naissance doit être une date valide.',
+            'date_of_birth.before' => 'La date de naissance doit être une date antérieure à aujourd\'hui.',
+        
+            'address.string' => 'L\'adresse doit être une chaîne de caractères.',
+            'address.max' => 'L\'adresse ne doit pas dépasser 255 caractères.',
+        
+            'city.string' => 'La ville doit être une chaîne de caractères.',
+            'city.max' => 'La ville ne doit pas dépasser 255 caractères.',
+        
+            'country.string' => 'Le pays doit être une chaîne de caractères.',
+            'country.max' => 'Le pays ne doit pas dépasser 255 caractères.',
+        
+            'phone_number.string' => 'Le numéro de téléphone doit être une chaîne de caractères.',
+            'phone_number.regex' => 'Le numéro de téléphone doit être valide, avec entre 7 et 15 chiffres.',
+        
+            'role.required' => 'Le rôle est obligatoire.',
+            'role.string' => 'Le rôle doit être une chaîne de caractères.',
+            'role.in' => 'Le rôle doit être l\'un des suivants: admin, user, moderator.',
+        ]);    
 
         $user->fill($request->except(['password', 'profile_picture']));
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }
         $user->save();
-
-        if ($request->hasFile('profile_picture')) {
-            $path = $request->file('profile_picture')->store('profile_pictures', 'public');
-            $user->profile_picture = $path;
-            $user->save();
-        }
-
+        
         return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 

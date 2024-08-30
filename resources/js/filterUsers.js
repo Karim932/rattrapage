@@ -52,7 +52,6 @@ $(document).ready(function() {
                 // Construit la ligne du tableau avec les données de l'utilisateur.
                 table.append(`
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.id}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.firstname}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.lastname}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.email}</td>
@@ -99,8 +98,7 @@ $(document).ready(function() {
 
                 // Extraction et vérification du premier contenu de cellule pour décider de la prochaine action.
                 const firstTdContent = $('#users-table table tbody tr td:first').text().trim();
-                console.log('Content after load:', firstTdContent);
-
+                
                 // Condition pour gérer l'absence de données.
                 if (firstTdContent === "" || firstTdContent === "Aucun utilisateur trouvé") {
                     console.log('Table is empty or shows "Aucun utilisateur trouvé". No need to reload.');
@@ -123,16 +121,12 @@ $(document).ready(function() {
             const $this = $(this);
             let sortOrder = $this.data('order');
 
-            // console.log("avant changement :", $this.data('sort'), sortOrder); // Affichage de l'ordre de tri actuel
-
             // Bascule de l'ordre de tri entre ascendant et descendant
             sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
 
             // Mise à jour de l'attribut de données et de l'attribut DOM pour refléter le nouvel ordre
             $this.data('order', sortOrder);
             $this.attr('data-order', sortOrder);
-
-            // console.log("après changement :", $this.data('sort'), sortOrder); // Affichage du nouvel ordre de tri
 
             // Mise à jour des icônes de tri et rechargement du tableau avec les nouveaux paramètres de tri
             updateSortIcons($this.data('sort'), sortOrder);

@@ -33,6 +33,17 @@
                     @csrf
 
                     <div>
+                        <label for="type" class="block text-sm font-medium text-gray-700">Type de service</label>
+                        <select name="type" id="type" required
+                                class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+                            <option value="" disabled selected>Choisir le type de service</option>
+                            <option value="reservations" {{ old('type') == 'reservations' ? 'selected' : '' }}>Réservations</option>
+                            <option value="postes" {{ old('type') == 'postes' ? 'selected' : '' }}>Postes</option>
+                        </select>
+                    </div>
+                    
+
+                    <div>
                         <label for="name" class="block text-sm font-medium text-gray-700">Nom du Service</label>
                         <input type="text" name="name" id="name" required
                                class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
@@ -45,8 +56,6 @@
                                 class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
                             <option value="disponible" {{ old('status') == 'disponible' ? 'selected' : '' }}>Disponible</option>
                             <option value="indisponible" {{ old('status') == 'indisponible' ? 'selected' : '' }}>Indisponible</option>
-                            <option value="en_attente" {{ old('status') == 'en_attente' ? 'selected' : '' }}>En Attente</option>
-                            <option value="complet" {{ old('status') == 'complet' ? 'selected' : '' }}>Complet</option>
                         </select>
                     </div>
 
@@ -58,12 +67,11 @@
 
                     <div>
                         <label for="category" class="block text-sm font-medium text-gray-700">Catégorie</label>
-                        <select name="category" id="category" required
-                                class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
-                            <option value="" disabled selected>Choisir une catégorie</option>
-                            <option value="nourriture">Nourriture</option>
-                            <option value="electronique">Electronique</option>
-                            <option value="appartement">Appartement</option>
+                        <select name="category" id="category" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+                            <option value="" disabled {{ old('category') == '' ? 'selected' : '' }}>Choisir une catégorie</option>
+                            @foreach(['alimentation', 'technologie', 'immobilier', 'vetements', 'beaute', 'loisirs', 'services', 'automobile', 'education', 'sport', 'voyage', 'animaux', 'jardinage', 'mobilier', 'bricolage', 'financier', 'arts'] as $category)
+                                <option value="{{ $category }}" {{ old('category') == $category ? 'selected' : '' }}>{{ ucfirst($category) }}</option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -91,7 +99,7 @@
                         </div>
 
                         <div>
-                            <label for="duration" class="block text-sm font-medium text-gray-700">Durée (minutes) (Optionnel)</label>
+                            <label for="duration" class="block text-sm font-medium text-gray-700">Durée Prévu (minutes) (Optionnel)</label>
                             <input type="number" name="duration" id="duration"
                                 class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
                                 value="{{ old('duration') }}">

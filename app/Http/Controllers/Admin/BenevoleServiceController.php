@@ -25,19 +25,34 @@ class BenevoleServiceController extends Controller
         
         foreach ($benevoles as $benevole) {
             $adhesion = AdhesionBenevole::where('user_id', $benevole->id)->first();
-    
+            
             if ($adhesion) {
-                $skillIds = json_decode($adhesion->skill_id);
-                if (is_array($skillIds)) {
-                    $skills = Skill::whereIn('id', $skillIds)->pluck('name')->toArray();
-                    $benevole->skills = $skills; // Stocker les noms des compétences directement dans l'objet $benevole
+                // Vérifier si le contenu de skill_id est déjà un tableau ou un JSON
+                if (is_string($adhesion->skill_id)) {
+                    // Tenter de décoder le JSON
+                    $skillIds = json_decode($adhesion->skill_id, true);
+        
+                    // Vérifier si le décodage a réussi et que le résultat est un tableau
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($skillIds)) {
+                        $skills = Skill::whereIn('id', $skillIds)->pluck('name')->toArray();
+                        $benevole->skills = $skills;
+                    } else {
+                        // Si ce n'est pas un JSON valide, supposer qu'il peut être autre chose ou une erreur
+                        $benevole->skills = [];
+                    }
+                } elseif (is_array($adhesion->skill_id)) {
+                    // Si c'est déjà un tableau, l'utiliser directement
+                    $skills = Skill::whereIn('id', $adhesion->skill_id)->pluck('name')->toArray();
+                    $benevole->skills = $skills;
                 } else {
+                    // Si ce n'est ni un tableau ni une chaîne JSON, réinitialiser à un tableau vide
                     $benevole->skills = [];
                 }
             } else {
                 $benevole->skills = [];
             }
         }
+        
         
         return view('admin.services.add-benevole', compact('services', 'benevoles', 'adhesion'));
     }
@@ -52,8 +67,6 @@ class BenevoleServiceController extends Controller
 
         // Trouver l'adhésion existante du bénévole
         $adhesion = AdhesionBenevole::where('user_id', $request->user_id)->first();
-
-        // dd($adhesion->id_service, $adhesion->is_active, $request->service_id);
 
         // Si l'adhésion existe, mettre à jour l'id_service
         if ($adhesion) {
@@ -71,11 +84,20 @@ class BenevoleServiceController extends Controller
 
     public function skillShow($serviceId)
     {
-        $service = Service::with('skills')->find($serviceId);
-        return response()->json($service->skills);
+        $service = Service::with('skills')->findOrFail($serviceId);
+        $skills = $service->skills->pluck('name', 'id');
+        
+        return response()->json($skills);
     }
 
 
+    public function removeBenevole($service_id)
+    {
+        // dd($service_id);
+        $benevoleService = AdhesionBenevole::findOrFail($service_id);
+        $benevoleService->update(['id_service' => null]);
+        return back()->with('success', 'Bénévole retiré avec succès.');
+    }
 
 
 }

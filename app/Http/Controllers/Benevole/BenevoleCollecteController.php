@@ -81,31 +81,41 @@ public function stock($id)
             ->with('originalProducts', session('originalProducts')); // Transmettre les produits originaux à la vue
 }
 
-    public function checkProducts(Request $request, $id)
-    {
-        $products = $request->input('products', []);
-        $missingProducts = [];
-        
-        //dd($products);
+public function checkProducts(Request $request, $id)
+{
+    $products = $request->input('products', []);
+    $missingProducts = [];
 
-        // Vérification de chaque produit soumis
-        foreach ($products as $index => $product) {
-            if (!Produit::where('code_barre', $product['barcode'])->exists()) {
-                $missingProducts[] = $product;  // Ajouter les produits manquants à la liste
-            }
-        }
-    
-        // Si des produits manquent, enregistrer les données originales dans la session et rediriger
-        if (!empty($missingProducts)) {
-            session(['originalProducts' => $products]);
-            //dd(session('originalProducts'));
-            return redirect()->route('benevole.collectes.addProducts', $id)
-                             ->with('missingProducts', $missingProducts);       // Tous les produits soumis, y compris ceux manquants
-        }
-    
-        // Si tous les produits existent, procéder à l'entrée en stock
-        return $this->storeStock($request, $id);
+    //dd($products);
+
+    // Vérifier si $products est bien un tableau
+    if (!is_array($products)) {
+        return back()->withErrors(['error' => 'Les données des produits ne sont pas correctement formatées.']);
     }
+
+    // Vérification de chaque produit soumis
+    foreach ($products as $index => $product) {
+        // Vérifier si le produit est un tableau
+        if (!is_array($product)) {
+            return back()->withErrors(['error' => 'Les données du produit ne sont pas correctement formatées.']);
+        }
+
+        if (!Produit::where('code_barre', $product['barcode'])->exists()) {
+            $missingProducts[] = $product;  // Ajouter les produits manquants à la liste
+        }
+    }
+
+    // Si des produits manquent, enregistrer les données originales dans la session et rediriger
+    if (!empty($missingProducts)) {
+        session(['originalProducts' => $products]);
+        return redirect()->route('benevole.collectes.addProducts', $id)
+                         ->with('missingProducts', $missingProducts);       // Tous les produits soumis, y compris ceux manquants
+    }
+
+    // Si tous les produits existent, procéder à l'entrée en stock
+    return $this->storeStock($request, $id);
+}
+
     
 
     public function addProducts($id)
@@ -145,68 +155,111 @@ public function stock($id)
 
     // Enregistrer les produits entrés en stock pour une collecte spécifique
     public function storeStock(Request $request, $id)
-    {
-        $adhesionBenevole = Auth::user()->adhesionsBenevoles;
+{
+    $adhesionBenevole = Auth::user()->adhesionsBenevoles;
 
-        $products = $request->input('products');
+    if (!$adhesionBenevole || $adhesionBenevole->status !== 'accepté') {
+        return redirect()->route('benevole')->with('error', 'Vous devez être un bénévole actif pour accéder à cette page.');
+    }
 
-        if (!$adhesionBenevole || $adhesionBenevole->status !== 'accepté') {
-            return redirect()->route('benevole')->with('error', 'Vous devez être un bénévole actif pour accéder à cette page.');
+    $collecte = Collecte::where('benevole_id', $adhesionBenevole->id)
+                        ->where('id', $id)
+                        ->where('status', 'En Attente de Stockage')
+                        ->firstOrFail();
+
+    $products = $request->input('products', []);
+    $fraisProducts = $request->input('products_frais', []);
+    
+    $stockEntries = [];
+
+    // Traitement des produits standards
+    foreach ($products as $product) {
+        if (Carbon::parse($product['expiration_date'])->isPast()) {
+            return back()->withErrors(['expiration_date' => 'Le produit avec le code-barres ' . $product['barcode'] . ' a une date d\'expiration passée.'])
+                         ->with('originalProducts', $products);
         }
 
-        $collecte = Collecte::where('benevole_id', $adhesionBenevole->id)
-                            ->where('id', $id)
-                            ->where('status', 'En Attente de Stockage')
-                            ->firstOrFail();
+        $emplacement = $product['location_section'] . $product['location_allee'] . $product['location_etagere'] . $product['location_position'];
 
-        foreach ($products as $product) {
-
-            if (Carbon::parse($product['expiration_date'])->isPast()) {
-                return back()->withErrors(['expiration_date' => 'Le produit avec le code-barres ' . $product['barcode'] . ' a une date d\'expiration passée.'])
-                ->with('originalProducts', $products);
-            }
-
-            $emplacement = $product['location_section'] . $product['location_allee'] . $product['location_etagere'] . $product['location_position'];
-
-            // Valider l'emplacement
-            if (!$this->isValidLocation($emplacement)) {
-                return back()->withErrors(['location' => 'L\'emplacement ' . $emplacement . ' n\'est pas valide.'])
-                ->with('originalProducts', $products);;
-            }
-
-            $produit = Produit::where('code_barre', $product['barcode'])->first();
-
-            // Vérifier s'il existe déjà un lot avec la même date d'expiration
-            $stock = Stock::where('produit_id', $produit->id)
-                          ->where('date_expiration', $product['expiration_date'])
-                          ->first();
-
-            if ($stock) {
-                // Si un lot existe, ajouter la quantité
-                $stock->quantite += $product['quantity'];
-                $stock->date_entree = Carbon::now();
-                $stock->save();
-            } else {
-                // Sinon, créer un nouveau lot
-                Stock::create([
-                    'produit_id' => $produit->id,
-                    'quantite' => $product['quantity'],
-                    'emplacement' => $product['location'],
-                    'date_entree' => Carbon::now(),
-                    'date_expiration' => $product['expiration_date']
-                ]);
-            }
-            
+        // Valider l'emplacement
+        if (!$this->isValidLocation($emplacement) && empty($product['froid'])) {
+            return back()->withErrors(['location' => 'L\'emplacement ' . $emplacement . ' n\'est pas valide.'])
+                         ->with('originalProducts', $products);
         }
 
-        $stockEntries[] = 
-        [
-            'produit_id' => $product['produit_id'],
+        $produit = Produit::where('code_barre', $product['barcode'])->first();
+
+        // Vérifier s'il existe déjà un lot avec la même date d'expiration
+        $stock = Stock::where('produit_id', $produit->id)
+                      ->where('date_expiration', $product['expiration_date'])
+                      ->first();
+
+        if ($stock) {
+            $stock->quantite += $product['quantity'];
+            $stock->date_entree = Carbon::now();
+            $stock->save();
+        } else {
+            Stock::create([
+                'produit_id' => $produit->id,
+                'quantite' => $product['quantity'],
+                'emplacement' => $emplacement,
+                'date_entree' => Carbon::now(),
+                'date_expiration' => $product['expiration_date']
+            ]);
+        }
+        
+        $stockEntries[] = [
+            'produit_id' => $produit->id,
+            'nom' => $produit['nom'],
             'quantite' => $product['quantity'],
             'emplacement' => $emplacement,
             'date_entree' => Carbon::now()->toDateTimeString(),
             'date_expiration' => $product['expiration_date']
         ];
+    }
+
+        // Traitement des produits frais
+        foreach ($fraisProducts as $product) {
+            $produit = Produit::where('code_barre', $product['barcode'])->first(); // ID du produit frais sélectionné
+            $poids = $product['poids'];
+            $expirationDate = $product['expiration_date'];
+            $emplacementFroid = $product['froid'];
+
+            // Ajouter une validation pour la date d'expiration des produits frais
+            if (Carbon::parse($expirationDate)->isPast()) {
+                return back()->withErrors(['expiration_date' => 'Le produit frais sélectionné a une date d\'expiration passée.'])
+                            ->with('originalProducts', $fraisProducts);
+            }
+            
+            if ($product['poids'] <= 0) {
+                return back()->withErrors(['poids' => 'Le poids du produit frais ' . $product['barcode'] . ' doit être supérieur à 0.'])
+                             ->with('originalProducts', $products);
+            }
+            
+            // Valider l'emplacement pour les produits frais
+            if (empty($emplacementFroid)) {
+                return back()->withErrors(['froid' => 'L\'emplacement froid est requis pour les produits frais.'])
+                            ->with('originalProducts', $fraisProducts);
+            }
+            
+
+            $stockEntries[] = [
+                'produit_id' => $produit->id,
+                'nom' => $produit['nom'],
+                'quantite' => $poids,
+                'emplacement' => $emplacementFroid,
+                'date_entree' => Carbon::now()->toDateTimeString(),
+                'date_expiration' => $expirationDate
+            ];
+
+            Stock::create([
+                'produit_id' => $produit->id,
+                'quantite' => $poids,
+                'emplacement' => $emplacementFroid,
+                'date_entree' => Carbon::now(),
+                'date_expiration' => $expirationDate
+            ]);
+        }
 
         $collecte->status = 'Terminé';
         $collecte->stock_entries = json_encode($stockEntries);
@@ -214,5 +267,6 @@ public function stock($id)
 
         return redirect()->route('benevole.collectes.index')->with('success', 'Produits entrés en stock avec succès.');
     }
+
 
 }

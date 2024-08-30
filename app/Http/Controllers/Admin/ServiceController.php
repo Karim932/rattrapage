@@ -49,25 +49,31 @@ class ServiceController extends Controller
         $messages = [
             'name.required' => 'Le nom du service est requis.',
             'name.max' => 'Le nom du service ne peut excéder 255 caractères.',
+            'name.regex' => 'Le nom du service peut uniquement contenir des lettres et des espaces.',
             'description.required' => 'La description du service est requise.',
+            'description.min' => 'La description doit comporter au moins 10 caractères.',
+            'type.required' => 'Le type du service est requis.',
+            'type.in' => 'Le type du service fourni n\'est pas valide.',
             'condition.required' => 'La condition du service est requise.',
             'category.required' => 'La catégorie du service est requise.',
             'duration.integer' => 'La durée doit être un nombre entier.',
-            'duration.nullable' => 'La durée du service est facultative.',
+            'duration.between' => 'La durée doit être comprise entre 1 et 365 jours.',
+            'skills.*.exists' => 'La compétence sélectionnée n\'est pas valide.',
         ];
 
         // Validation des données envoyées via le formulaire
         $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'status' => 'nullable|string',
+            'name' => 'required|string|max:255|regex:/^[a-zA-ZÀ-ÿ\s\'\-\.\(\)\,\éÉèÈêÊëËîÎïÏôÔöÖûÛüÜçÇ]+$/',
+            'description' => 'required|string|min:10',
+            'status' => 'nullable|string|max:255|regex:/^[a-zA-Z0-9\s]+$/',
             'category' => 'required|string',
             'condition' => 'required|string',
-            'duration' => 'nullable|integer',
+            'type' => 'required|string|in:reservations,postes',
+            'duration' => 'nullable|integer|between:1,365',
             'skills' => 'nullable|array',
             'skills.*' => 'exists:skills,id',
-
         ], $messages);
+
 
         // Créer un nouveau service en utilisant la méthode d'instanciation avec un tableau associatif
         $service = new Service($validatedData);
@@ -123,7 +129,9 @@ class ServiceController extends Controller
     public function edit(Service $service)
     {
         $skills = Skill::all();
-        return view('admin.services.edit', compact('skills', 'service'));
+
+        $currentCategory = $service->category;
+        return view('admin.services.edit', compact('skills', 'service', 'currentCategory'));
     }
 
     /**
@@ -138,23 +146,28 @@ class ServiceController extends Controller
         // Personnalisation des messages d'erreur
         $messages = [
             'name.required' => 'Le nom du service est requis.',
-            'name.max' => 'Le nom du service ne peut excéder 500 caractères.',
+            'name.max' => 'Le nom du service ne peut excéder 255 caractères.',
+            'name.regex' => 'Le nom du service peut uniquement contenir des lettres et des espaces.',
             'description.required' => 'La description du service est requise.',
+            'description.min' => 'La description doit comporter au moins 10 caractères.',
+            'type.required' => 'Le type du service est requis.',
+            'type.in' => 'Le type du service fourni n\'est pas valide.',
             'condition.required' => 'La condition du service est requise.',
             'category.required' => 'La catégorie du service est requise.',
             'duration.integer' => 'La durée doit être un nombre entier.',
-            'duration.nullable' => 'La durée du service est facultative.',
-            'skills.*.exists' => 'La compétence sélectionnée doit exister dans la base de données.',
+            'duration.between' => 'La durée doit être comprise entre 1 et 365 jours.',
+            'skills.*.exists' => 'La compétence sélectionnée n\'est pas valide.',
         ];
 
         // Validation des données envoyées via le formulaire
         $validatedData = $request->validate([
-            'name' => 'required|string|max:500',
-            'description' => 'required|string',
-            'status' => 'nullable|string',
+            'name' => 'required|string|max:255|regex:/^[a-zA-ZÀ-ÿ\s\'\-\.\(\)\,\éÉèÈêÊëËîÎïÏôÔöÖûÛüÜçÇ]+$/',
+            'description' => 'required|string|min:10',
+            'status' => 'nullable|string|max:255|regex:/^[a-zA-Z0-9\s]+$/',
             'category' => 'required|string',
             'condition' => 'required|string',
-            'duration' => 'nullable|integer',
+            'type' => 'required|string|in:reservations,postes',
+            'duration' => 'nullable|integer|between:1,365',
             'skills' => 'nullable|array',
             'skills.*' => 'exists:skills,id',
         ], $messages);

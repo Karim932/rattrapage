@@ -27,9 +27,9 @@
                     <x-nav-link :href="route('benevole')" :active="request()->routeIs('benevole')">
                         {{ __('message.Bénévoles') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('contact')" :active="request()->routeIs('contact')">
+                    {{-- <x-nav-link :href="route('contact')" :active="request()->routeIs('contact')">
                         {{ __('Contact') }}
-                    </x-nav-link>
+                    </x-nav-link> --}}
                 </div>
             </div>
 
@@ -153,9 +153,9 @@
             <x-responsive-nav-link :href="route('benevoles')" :active="request()->routeIs('benevoles')">
                 {{ __('Bénévoles') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('contact')" :active="request()->routeIs('contact')">
+            {{-- <x-responsive-nav-link :href="route('contact')" :active="request()->routeIs('contact')">
                 {{ __('Contact') }}
-            </x-responsive-nav-link>
+            </x-responsive-nav-link> --}}
         </div>
 
         <!-- Responsive Settings Options -->

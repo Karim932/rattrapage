@@ -58,4 +58,5 @@ class User extends Authenticatable
         return $this->belongsToMany(Planning::class, 'inscriptions', 'user_id', 'planning_id')
                     ->withTimestamps();
     }
+
 }

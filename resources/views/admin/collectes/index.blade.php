@@ -24,7 +24,6 @@
         </a>
     </div>
 
-    
     <div class="my-6">
         <form action="{{ route('admin.collectes.index') }}" method="GET" class="flex flex-wrap items-center">
             <div class="mr-4 mb-4">
@@ -64,7 +63,6 @@
         </form>
     </div>
 
-    
     <div class="flex flex-col">
         <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
@@ -72,18 +70,7 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
                             <tr class="border-b border-gray-200">
-                                <th scope="col" class="py-3 px-4 text-left font-medium">
-                                    <a href="{{ route('admin.collectes.index', ['sort' => 'id', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc']) }}">
-                                        ID
-                                        @if(request('sort') == 'id')
-                                            @if(request('direction') == 'asc')
-                                                <i class="fas fa-arrow-up"></i>
-                                            @else
-                                                <i class="fas fa-arrow-down"></i>
-                                            @endif
-                                        @endif
-                                    </a>
-                                </th>
+                                <!-- Remove the ID column -->
                                 <th scope="col" class="py-3 px-4 text-left font-medium">
                                     Commerçant
                                 </th>
@@ -105,9 +92,7 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             @foreach ($collectes as $collecte)
                             <tr>
-                                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                    {{ $collecte->id }}
-                                </td>
+                                <!-- Remove the ID column -->
                                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                     {{ $collecte->commercant->company_name }}
                                 </td>
