@@ -10,10 +10,22 @@
                 <div class="flex justify-between items-center mb-6">
                     <h1 class="text-2xl font-semibold text-gray-700">Gestion des Services</h1>
                     
-                    <a href="{{ route('services.create') }}" class="flex items-center bg-indigo-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-indigo-700 transition duration-300">
-                        <i class="fas fa-plus mr-2"></i> Ajouter un Service
-                    </a>
+                    <div class="flex space-x-4">
+                        <a href="{{ route('services.create') }}" class="flex items-center bg-indigo-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-indigo-700 transition duration-300">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Ajouter un Service
+                        </a>
+                        <a href="{{ route('propose.index') }}" class="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md shadow-sm hover:shadow-md transition duration-300 hover:bg-blue-700">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12l5 5L20 7"></path>
+                            </svg>
+                            Voir les Services Proposés
+                        </a>
+                    </div>
                 </div>
+                
 
                 <!-- Notification de succès -->
                 @if(session('success'))

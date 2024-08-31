@@ -18,7 +18,7 @@ class AdhesionsController extends Controller
         return view('benevoles');
     }
 
-    // Afficher le formulaire pour les commerçants
+    
     public function createCommercant()
     {
         $userId = Auth::id();
@@ -30,14 +30,14 @@ class AdhesionsController extends Controller
             return redirect()->back()->with('error', 'Vous avez déjà une candidature en tant que Bénévole.');
         }
 
-        // Sert à check si l'user a déjà postuler
+        
         if ($candidature) {
 
             if($candidature->status === 'accepté'){
                 return redirect()->route('commercant.dashboard');
             }
 
-            // $candidature = $user->adhesionCommercants->first();
+            
             $idCandidature = $candidature->id;
 
             $answers = Answer::where('candidature_id', $idCandidature)->get();
@@ -50,14 +50,14 @@ class AdhesionsController extends Controller
         }
     }
 
-    // Traiter l'enregistrement des commerçants
+   
     public function storeCommercant(Request $request)
     {
-        // Vérifier si l'utilisateur est connecté et récupérer son ID
+        
         if (Auth::check()) {
             $userId = Auth::id();
 
-            // Vérifier si une candidature active existe déjà pour cet utilisateur
+            
             $existingAdhesion = AdhesionCommercant::where('user_id', $userId)->first();
 
             if ($existingAdhesion) {
@@ -77,7 +77,7 @@ class AdhesionsController extends Controller
                 'contract_end_date' => 'required|date|after_or_equal:availability_begin',
             ]);
 
-            // $adhesion = new AdhesionCommercant($request->all()); -> pareil que en bas mais raccourci)
+            
             $adhesionCommercant = new AdhesionCommercant([
                 'company_name' => $request->company_name,
                 'siret' => $request->siret,
@@ -94,7 +94,7 @@ class AdhesionsController extends Controller
 
             $adhesionCommercant->save();
 
-            // Création de l'entrée générale dans Adhesions
+            
             $adhesion = new Adhesion([
                 'candidature_id' => $adhesionCommercant->id,
                 'candidature_type' => AdhesionCommercant::class
@@ -108,15 +108,14 @@ class AdhesionsController extends Controller
 
     public function updateCommercant(Request $request, $id)
     {
-        $user = Auth::user(); // Récupérer l'utilisateur connecté
+        $user = Auth::user(); 
 
-        // Vérifier si l'utilisateur a déjà une candidature en tant que bénévole
+        
         $hasBenevoleCandidature = $user->adhesions->contains(function($adh) {
             return $adh->candidature_type === \App\Models\AdhesionBenevole::class;
         });
 
         if ($hasBenevoleCandidature && $request->type === 'commercant') {
-            // Si l'utilisateur a déjà une candidature en tant que bénévole et tente de soumettre en tant que commerçant
             return back()->with('error', 'Vous avez déjà une candidature en tant que bénévole. Vous ne pouvez pas soumettre en tant que commerçant.');
         }
 
@@ -176,27 +175,21 @@ class AdhesionsController extends Controller
     {
         $userId = Auth::id();
 
-        // Check if the user is logged in
         if (!$userId) {
             return redirect()->route('login')->with('error', 'Vous devez être connecté.');
         }
 
-        // Retrieve the user with their commercial candidacies
         $candidature = AdhesionCommercant::where('user_id', $userId)->first();
 
-        // Check if the user has a commercial candidature
-        // $candidature = $user->first();
         if (!$candidature) {
             return redirect()->route('some_route')->with('error', 'Aucune candidature commerciale trouvée.');
         }
 
-        // Return the view with the necessary data
         return view('page_navbar.commerçants.adhesion', [
             'candidature' => $candidature,
         ]);
     }
 
-    // Afficher le formulaire pour les bénévoles
     public function createBenevole()
     {
         $userId = Auth::id();
@@ -210,21 +203,18 @@ class AdhesionsController extends Controller
             return redirect()->back()->with('error', 'Vous avez déjà une candidature en tant que Commerçant.');
         }
 
-        if($candidature->status === 'accepté'){
+        if ($candidature && $candidature->status === 'accepté') {
             return redirect()->route('benevole.collectes.index');
         }
-
+        
 
         // dd($user, $findCandidature);
-        // Sert à check si l'user a déjà postuler
         if ($user && $candidature) {
 
-            // $candidature = $user->adhesionsBenevoles->first();
             $idCandidature = $candidature->id;
 
             $answers = Answer::where('candidature_id', $idCandidature)->get();
 
-            // dd($candidature, $idCandidature);
 
 
             return view('page_navbar.benevoles.attente', compact('answers', 'candidature'));
@@ -238,39 +228,31 @@ class AdhesionsController extends Controller
     {
         $userId = Auth::id();
 
-        // Vérifier si l'utilisateur est connecté
         if (!$userId) {
             return redirect()->route('login')->with('error', 'Vous devez être connecté.');
         }
 
-        // Récupérer l'utilisateur avec ses adhésions
         $user = User::with('adhesionsBenevoles')->find($userId);
 
 
-        // Vérifier si l'utilisateur a une candidature
         $candidature = $user->adhesionsBenevoles;
 
         if (!$candidature) {
             return redirect()->route('some_route')->with('error', 'Aucune candidature trouvée.');
         }
 
-        // Récupérer toutes les compétences disponibles
         $skills = Skill::all();
 
-        // Décoder la chaîne JSON en tableau
         $selectedSkills = json_decode($candidature->skill_id, true);
 
-        // Vérifier que $selectedSkills est bien un tableau
         if (!is_array($selectedSkills)) {
             $selectedSkills = [];
         };
 
 
 
-        // Vérifier si 'availability' est déjà un tableau ou le décoder si c'est une chaîne JSON
         $availability = is_array($candidature->availability) ? $candidature->availability : json_decode($candidature->availability, true);
 
-        // Retourner la vue avec les données nécessaires
         return view('page_navbar.benevoles.adhesion', compact('candidature', 'availability', 'skills', 'selectedSkills'));
     }
 
@@ -280,7 +262,6 @@ class AdhesionsController extends Controller
     {
 
         // dd($id, $request->id);
-        // Personnalisation des messages d'erreur
         $messages = [
             'motivation.required' => 'Votre motivation est requise pour compléter l’inscription.',
             'motivation.max' => 'La motivation ne peut excéder 500 caractères.',
@@ -310,10 +291,8 @@ class AdhesionsController extends Controller
         ],$messages);
 
         try {
-            // Trouver la candidature par ID
             $candidature = AdhesionBenevole::findOrFail($id);
 
-            // Traitement des données de disponibilité
             $availability = $request->input('availability');
             $formattedAvailability = [];
             foreach ($availability as $day => $times) {
@@ -322,7 +301,6 @@ class AdhesionsController extends Controller
                 }
             }
 
-            // Mise à jour des propriétés de la candidature
             $candidature->motivation = $validatedData['motivation'];
             $candidature->experience = $validatedData['experience'];
             $candidature->old_benevole = $validatedData['old_benevole'] ?? false;
@@ -342,22 +320,18 @@ class AdhesionsController extends Controller
     }
 
 
-    // Traiter l'enregistrement des bénévoles
     public function storeBenevole(Request $request)
     {
-        $user = Auth::user(); // Récupérer l'utilisateur connecté
+        $user = Auth::user(); 
 
-        // Vérifier si l'utilisateur a déjà une candidature en tant que commerçant
         $hasCommercantCandidature = $user->adhesions->contains(function($adh) {
             return $adh->candidature_type === \App\Models\AdhesionCommercant::class;
         });
 
         if ($hasCommercantCandidature && $request->type === 'benevole') {
-            // Si l'utilisateur a déjà une candidature en tant que commerçant et tente de soumettre en tant que bénévole
             return back()->with('error', 'Vous avez déjà une candidature en tant que commerçant. Vous ne pouvez pas soumettre en tant que bénévole.');
         }
 
-        // Personnalisation des messages d'erreur
         $messages = [
             'motivation.required' => 'Votre motivation est requise pour compléter l’inscription.',
             'motivation.max' => 'La motivation ne peut excéder 500 caractères.',
@@ -386,11 +360,9 @@ class AdhesionsController extends Controller
             'additional_notes' => 'nullable|string|max:500'
         ],$messages);
 
-        // Vérifier si l'utilisateur est connecté et récupérer son ID
         if (Auth::check()) {
             $userId = Auth::id();
 
-            // Vérifier si une candidature active existe déjà pour cet utilisateur
             $existingAdhesion = AdhesionBenevole::where('user_id', $userId)->first();
 
             if ($existingAdhesion) {
@@ -399,7 +371,6 @@ class AdhesionsController extends Controller
 
             $availability = $request->input('availability');
 
-            // Traitement des données pour les adapter au format de stockage de votre base de données
             $formattedAvailability = [];
             foreach ($availability as $day => $times) {
                 foreach ($times as $time => $value) {
@@ -407,8 +378,6 @@ class AdhesionsController extends Controller
                 }
             }
 
-            // Créer l'entrée dans la table adhesions_benevoles
-            // AdhesionBenevole::create($validatedData);
             $adhesionBenevole = new AdhesionBenevole([
 
                 'skill_id' => json_encode($request->skills),
@@ -424,7 +393,6 @@ class AdhesionsController extends Controller
             ]);
             $adhesionBenevole->save();
 
-            // Création de l'entrée générale dans Adhesions
             $adhesion = new Adhesion([
                 'candidature_id' => $adhesionBenevole->id,
                 'candidature_type' => AdhesionBenevole::class

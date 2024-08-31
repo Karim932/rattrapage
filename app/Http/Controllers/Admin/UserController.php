@@ -60,6 +60,7 @@ class UserController extends Controller
             'country' => 'required|string|max:255',
             'phone_number' => 'required|string|regex:/^\+?[0-9]{7,15}$/', // Numéro de téléphone valide 
             'role' => 'required|string|in:admin,user,benevole, commercant',
+            'cotisation' => 'required|boolean',
         ], [
             'firstname.required' => 'Le prénom est obligatoire.',
             'firstname.string' => 'Le prénom doit être une chaîne de caractères.',
@@ -104,6 +105,7 @@ class UserController extends Controller
         ]);        
 
         $user = User::create([
+            'cotisation' => $request->cotisation,
             'firstname' => $request->firstname,
             'lastname' => $request->lastname,
             'email' => $request->email,
@@ -172,6 +174,7 @@ class UserController extends Controller
             'country' => 'required|string|max:255',
             'phone_number' => 'required|string|regex:/^\+?[0-9]{7,15}$/', // Numéro de téléphone valide 
             'role' => 'required|string|in:admin,user,benevole, commercant',
+            'cotisation' => 'required|boolean',
         ], [
             'firstname.required' => 'Le prénom est obligatoire.',
             'firstname.string' => 'Le prénom doit être une chaîne de caractères.',

@@ -23,9 +23,11 @@
                 <select name="service_id" id="service_id" class="form-control w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
                     <option value="">Tous les services</option>
                     @foreach($services as $service)
-                        <option value="{{ $service->id }}" {{ $service->id == $serviceId ? 'selected' : '' }}>
-                            {{ $service->name }}
-                        </option>
+                        @if($service->type === 'reservations')
+                            <option value="{{ $service->id }}" {{ $service->id == $serviceId ? 'selected' : '' }}>
+                                {{ $service->name }}
+                            </option>
+                        @endif
                     @endforeach
                 </select>
             </div>

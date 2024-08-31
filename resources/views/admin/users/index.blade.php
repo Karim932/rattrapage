@@ -12,14 +12,12 @@
         </div>
     @endif
 
-    <!-- Bouton Ajouter un Utilisateur -->
     <div class="mb-6 flex justify-end">
         <a href="{{ route('users.create') }}" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-blue-800 transition duration-300">
             <i class="fas fa-user-plus mr-2"></i> Ajouter un Utilisateur
         </a>
     </div>
 
-    <!-- Conteneur pour les messages de succès -->
     <div id="success-message" class="hidden bg-green-700 text-white p-4 mb-4 rounded-lg shadow-md">
         <span id="success-text"></span>
     </div>
@@ -48,7 +46,6 @@
         </button>
     </div>
 
-    <!-- Table des utilisateurs -->
     <div id="users-table">
         @include('admin.users.partialsTable.user-and-role', ['users' => $users])
     </div>

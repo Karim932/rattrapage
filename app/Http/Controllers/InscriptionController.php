@@ -74,20 +74,36 @@ class InscriptionController extends Controller
     }
 
 
+    // public function historique()
+    // {
+    //     if (Auth::check()) {
+    //         $user = User::find(Auth::id()); // Récupère l'utilisateur par son ID
+
+    //         // Utilisation correcte de la relation avec ->plannings()
+    //         $plannings = $user->plannings()->orderBy('date', 'desc')->get();
+            
+    //         return view('page_navbar.adherent.historique', compact('plannings'));
+    //     } else {
+    //         // Redirige vers la page de connexion si l'utilisateur n'est pas authentifié
+    //         return redirect()->route('login')->with('error', 'Vous devez être connecté pour accéder à cette page.');
+    //     }
+    // }
+
     public function historique()
     {
         if (Auth::check()) {
-            $user = User::find(Auth::id()); // Récupère l'utilisateur par son ID
+            $user = User::with(['plannings', 'annonces']) 
+                    ->find(Auth::id());
 
-            // Utilisation correcte de la relation avec ->plannings()
             $plannings = $user->plannings()->orderBy('date', 'desc')->get();
-            
-            return view('page_navbar.adherent.historique', compact('plannings'));
+            $annonces = $user->annonces()->orderBy('created_at', 'desc')->get(); 
+
+            return view('page_navbar.adherent.historique', compact('plannings', 'annonces'));
         } else {
-            // Redirige vers la page de connexion si l'utilisateur n'est pas authentifié
             return redirect()->route('login')->with('error', 'Vous devez être connecté pour accéder à cette page.');
         }
     }
+
 
     public function cancel($id)
     {
@@ -98,10 +114,20 @@ class InscriptionController extends Controller
             return redirect()->back()->with('error', 'L\'événement n\'existe pas.');
         }
 
+        // Calculer le temps restant avant l'événement
+        $now = \Carbon\Carbon::now();
+        $eventTime = \Carbon\Carbon::parse($planning->date . ' ' . $planning->start_time);
+
+        // Vérifier si l'événement commence dans moins de 48 heures
+        if ($eventTime->diffInHours($now) < 48) {
+            return redirect()->back()->with('error', 'Vous ne pouvez pas annuler votre participation à l\'événement moins de 48 heures avant son début.');
+        }
+
         // Supprimer l'inscription
         $user->plannings()->detach($id);
 
         return redirect()->back()->with('success', 'Vous avez annulé votre participation à l\'événement.');
     }
+
 
 }

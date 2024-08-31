@@ -15,7 +15,6 @@ class BenevoleServiceController extends Controller
     public function create()
     {
         $services = Service::all();
-        // Récupération des bénévoles qui n'ont pas d'adhésion active avec un service assigné
         $benevoles = User::where('role', 'benevole')
         ->whereHas('adhesionsBenevoles', function ($query) {
             $query->whereNull('id_service');
@@ -27,25 +26,19 @@ class BenevoleServiceController extends Controller
             $adhesion = AdhesionBenevole::where('user_id', $benevole->id)->first();
             
             if ($adhesion) {
-                // Vérifier si le contenu de skill_id est déjà un tableau ou un JSON
                 if (is_string($adhesion->skill_id)) {
-                    // Tenter de décoder le JSON
                     $skillIds = json_decode($adhesion->skill_id, true);
         
-                    // Vérifier si le décodage a réussi et que le résultat est un tableau
                     if (json_last_error() === JSON_ERROR_NONE && is_array($skillIds)) {
                         $skills = Skill::whereIn('id', $skillIds)->pluck('name')->toArray();
                         $benevole->skills = $skills;
                     } else {
-                        // Si ce n'est pas un JSON valide, supposer qu'il peut être autre chose ou une erreur
                         $benevole->skills = [];
                     }
                 } elseif (is_array($adhesion->skill_id)) {
-                    // Si c'est déjà un tableau, l'utiliser directement
                     $skills = Skill::whereIn('id', $adhesion->skill_id)->pluck('name')->toArray();
                     $benevole->skills = $skills;
                 } else {
-                    // Si ce n'est ni un tableau ni une chaîne JSON, réinitialiser à un tableau vide
                     $benevole->skills = [];
                 }
             } else {
@@ -59,19 +52,16 @@ class BenevoleServiceController extends Controller
 
     public function store(Request $request)
     {
-        // Validation des données reçues
         $request->validate([
             'service_id' => 'required|exists:services,id',
             'user_id' => 'required|exists:users,id'
         ]);
 
-        // Trouver l'adhésion existante du bénévole
         $adhesion = AdhesionBenevole::where('user_id', $request->user_id)->first();
 
-        // Si l'adhésion existe, mettre à jour l'id_service
         if ($adhesion) {
             $adhesion->id_service = $request->service_id;
-            $adhesion->is_active = true; // Mettre à jour is_active si nécessaire
+            $adhesion->is_active = true; 
             $adhesion->save();
 
             // Rediriger avec un message de succès

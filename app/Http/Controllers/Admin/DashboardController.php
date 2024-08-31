@@ -81,10 +81,5 @@ class DashboardController extends Controller
         return view('admin.dashboard', compact('registrationData', 'bansData', 'roleLabels', 'roleCounts', 'months', 'activeUsersCount', 'usersTotalCount', 'benevoleStatusData', 
         'commercantStatusData'));
     }
-
-
-
-
-    
-    
+   
 }

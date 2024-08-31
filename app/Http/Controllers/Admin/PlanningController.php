@@ -285,7 +285,7 @@ class PlanningController extends Controller
         // Validation and logic to update an event
         $planning = Planning::findOrFail($id);
         $planning->update($request->all());
-        return redirect()->route('plannings.index')->with('success', 'Event updated successfully.');
+        return redirect()->route('plannings.index')->with('success', 'Le planning a bien été modifié.');
     }
 
     public function show($id)
@@ -309,7 +309,7 @@ class PlanningController extends Controller
             $planning->delete();
             return response()->json([
                 'status' => 'success',
-                'message' => 'Event deleted successfully.',
+                'message' => 'Le planning a bien été supprimé.',
                 'redirectUrl' => route('plannings.index') // URL vers laquelle rediriger
             ]);
         } catch (\Exception $e) {

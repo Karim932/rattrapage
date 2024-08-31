@@ -37,7 +37,7 @@
                 @endif
             </div>
 
-            <!-- Bouton de retour en bas de page -->
+            
             <div class="mt-8">
                 <a href="{{ route('benevole.collectes.index') }}" class="bg-gray-500 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-gray-600 transition duration-300">Retour</a>
             </div>

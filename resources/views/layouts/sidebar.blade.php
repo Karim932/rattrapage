@@ -20,11 +20,11 @@
             <span class="material-icons">local_shipping</span>
             <span class="ml-4">Gestion des collectes</span>
         </a>
-        <a href="#" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
+        <a href="{{ route('admin.stock.index') }}" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
             <span class="material-icons">inventory</span>
             <span class="ml-4">Gestion des Stocks</span>
         </a>
-        <a href="#" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
+        <a href="{{ route('admin.distributions.index') }}" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
             <span class="material-icons">local_shipping</span>
             <span class="ml-4">Gestion des tournées</span>
         </a>
@@ -36,17 +36,13 @@
             <span class="material-icons">calendar_today</span>
             <span class="ml-4">Gestion des plannings</span>
         </a>
-        <a href="#" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
+        <a href="{{ route('annonces.index') }}" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
             <span class="material-icons">post_add</span>
             <span class="ml-4">Gestion des Annonces</span>
         </a>
-        <a href="#" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
-            <span class="material-icons">language</span>
-            <span class="ml-4">Multilingue</span>
-        </a>
-        <a href="#" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
+        <a href="{{ route('admin.contact.index') }}" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
             <span class="material-icons">contact_mail</span>
-            <span class="ml-4">Contact et Information</span>
+            <span class="ml-4">Contact</span>
         </a>
         <a href="{{ route('services') }}" class="flex items-center p-4 text-gray-700 hover:bg-red-500 hover:text-white">
             <span class="material-icons">arrow_back</span>

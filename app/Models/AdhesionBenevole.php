@@ -28,10 +28,9 @@ class AdhesionBenevole extends Model
         
     ];
 
-    // Relation avec le modèle User
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function answers()

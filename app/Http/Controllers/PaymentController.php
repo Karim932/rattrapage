@@ -25,7 +25,7 @@ class PaymentController extends Controller
                         'description' => 'Adhésion pour un an à nos services exclusifs',
                         'images' => ['http://51.210.101.132/picture/payment.webp'],
                     ],
-                    'unit_amount' => 50000, // Prix en cents, exemple ici 50 USD
+                    'unit_amount' => 50000, 
                 ],
                 'quantity' => 1,
             ]],

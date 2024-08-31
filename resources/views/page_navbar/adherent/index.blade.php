@@ -19,9 +19,6 @@
                 </button>
             </form>
 
-
-
-
             <!-- Notification de succès -->
             @if(session('success'))
                 <div class="bg-green-500 text-white p-4 rounded-lg shadow-md mb-6">

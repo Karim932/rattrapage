@@ -23,17 +23,14 @@ class CandidatureController extends Controller
 
     public function index(Request $request)
     {
-        // Construit la requête sur la table Adhesion
         $query = Adhesion::query();
 
-        // Applique le filtre de statut s'il est présent
         if ($request->filled('status')) {
             $query->whereHas('fusion', function ($q) use ($request) {
                 $q->where('status', $request->status);
             });
         }
 
-        // Applique le filtre de type si spécifié
         if ($request->filled('type')) {
             if ($request->type === 'Commerçant') {
                 $query->whereHasMorph('fusion', [AdhesionCommercant::class]);
@@ -42,7 +39,6 @@ class CandidatureController extends Controller
             }
         }
 
-        // Joindre la table users via la relation polymorphique
         $query->leftJoin('adhesion_benevoles', function($join) {
             $join->on('adhesion_benevoles.id', '=', 'adhesions.candidature_id')
                 ->where('adhesions.candidature_type', '=', AdhesionBenevole::class);
@@ -95,29 +91,23 @@ class CandidatureController extends Controller
             }
         }
 
-        // Charger les données avec la relation polymorphique fusion et paginer
         $allCandidatures = $query->with('fusion.user')->orderBy('created_at', 'desc')->paginate(20);
 
-        // Retourner la vue avec les données paginées et triées
         return view('admin.adhesions.index', compact('allCandidatures'));
 
     }
 
     public function create()
     {
-        // Récupérer tous les utilisateurs qui n'ont pas de candidature
         $usersWithoutCandidature = User::doesntHave('adhesionsBenevoles')->doesntHave('adhesionCommercants')->get();
 
-        // Récupérer toutes les compétences disponibles
         $skills = Skill::all();
 
-        // Passer les compétences à la vue
         return view('admin.adhesions.create', compact('skills', 'usersWithoutCandidature'));
     }
 
     public function store(Request $request)
     {
-        // Vérifier si l'utilisateur est connecté et récupérer son ID
         if (Auth::check()) {
 
             if ($request->type === 'commercant') {
@@ -192,7 +182,6 @@ class CandidatureController extends Controller
                     'contract_end_date' => 'required|date|after_or_equal:contract_start_date',
                 ], $messages);
 
-                // Utiliser l'ID de l'utilisateur choisi du formulaire
                 $userId = $request->user_id;
 
                 $adhesionCommercant = new AdhesionCommercant($validated);
@@ -267,7 +256,6 @@ class CandidatureController extends Controller
                 ], $messages);
                 
 
-                // Traitement des données de disponibilité
                 $availability = $request->input('availability');
                 $formattedAvailability = [];
                 foreach ($availability as $day => $times) {
@@ -276,7 +264,6 @@ class CandidatureController extends Controller
                     }
                 }
 
-                // Utiliser l'ID de l'utilisateur choisi du formulaire
                 $userId = $request->user_id;
 
                 $adhesionBenevole = new AdhesionBenevole([
@@ -316,7 +303,6 @@ class CandidatureController extends Controller
             return redirect()->route('adhesion.index')->with('error', 'Adhésion non trouvée.');
         }
 
-        // Vérifier si la relation fusion est bien chargée
         if (!$adhesion->fusion) {
             return redirect()->route('adhesion.index')->with('error', 'Candidature spécifique non trouvée.');
         }
@@ -327,18 +313,15 @@ class CandidatureController extends Controller
 
         if ($candidature instanceof \App\Models\AdhesionBenevole && !is_null($candidature->skill_id)) {
             if (is_string($skillIds) && $this->isJson($skillIds)) {
-                // Décoder la chaîne JSON en tableau
                 $skillIds = json_decode($skillIds, true);
             }
             $skills = \App\Models\Skill::whereIn('id', $skillIds)->pluck('name')->toArray();
         } else {
-            $skills = []; // Ou vous pouvez laisser $skills non défini si vous ne prévoyez pas de l'utiliser pour les commerçants
+            $skills = []; 
         }
 
-        // Récupérer toutes les réponses où 'candidature_id' est égal à $fusionId
         $answers = Answer::where('candidature_id', $fusionId)->get();
 
-        // dd($fusionId, $adhesion, $adhesion->fusion, $answers);
 
         return view('admin.adhesions.show', [
             'adhesion' => $adhesion,
@@ -356,24 +339,19 @@ class CandidatureController extends Controller
         $candidature = $adhesion->fusion;
         $selectedSkills = $candidature->skill_id;
 
-        // Vérifier si 'availability' est déjà un tableau ou le décoder si c'est une chaîne JSON
         $availability = is_array($candidature->availability) ? $candidature->availability : json_decode($candidature->availability, true);
 
         if ($candidature instanceof AdhesionCommercant) {
             return view('admin.adhesions.edit', compact('candidature', 'adhesion'));
         } elseif ($candidature instanceof AdhesionBenevole) {
 
-            // Récupérer toutes les compétences disponibles
             $skills = Skill::all();
 
-            /// Vérifier si la chaîne est un JSON valide
             if (is_string($selectedSkills) && $this->isJson($selectedSkills)) {
-                // Décoder la chaîne JSON en tableau
                 $selectedSkills = json_decode($selectedSkills, true);
             } 
 
 
-            // Vérifier que $selectedSkills est bien un tableau
             if (!is_array($selectedSkills)) {
                 $selectedSkills = [];
             };
@@ -461,7 +439,6 @@ class CandidatureController extends Controller
                 'contract_end_date' => 'required|date|after_or_equal:contract_start_date',
             ], $messages);
 
-            // Mise à jour spécifique pour les commerçants
             $candidature->update($validatedData);
 
         } elseif ($candidature instanceof AdhesionBenevole) {
@@ -530,16 +507,12 @@ class CandidatureController extends Controller
             }
 
             $candidature->availability = json_encode($formattedAvailability);
-            // Vérifier si $validatedData['skills'] est déjà un JSON
             if (is_array($validatedData['skills']) || !$this->isJson($validatedData['skills'])) {
-                // Si ce n'est pas un JSON valide ou si c'est un tableau, l'encoder en JSON
                 $candidature->skill_id = json_encode($validatedData['skills']);
             } else {
-                // Sinon, conserver la valeur telle quelle
                 $candidature->skill_id = $validatedData['skills'];
             }
             
-            // Mise à jour spécifique pour les bénévoles
             $candidature->update($validatedData);
             $candidature->status = 'renvoyé';
             $candidature->save();
@@ -554,10 +527,8 @@ class CandidatureController extends Controller
     public function destroy($id)
     {
         try {
-            // Récupére l'adhesion
             $adhesion = Adhesion::findOrFail($id);
 
-            // Supprime les réponses associées dans la table answers
             $adhesion->fusion->answers()->delete();
 
             // Vérifie le type de la candidature et supprime l'enregistrement de la bonne table

@@ -5,6 +5,28 @@
 <div id="main-content" class="flex-1 ml-64 p-10 transition-all">
     <h1 class="text-2xl font-bold text-gray-800 mb-4">Ajouter au Stock</h1>
 
+    @if(session('success'))
+        <div class="bg-green-500 text-white p-4 rounded-lg shadow-md mb-4">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="bg-red-500 text-white p-4 mb-4">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+            <ul class="list-disc pl-5">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <form action="{{ route('admin.stock.store') }}" method="POST">
         @csrf
 
@@ -34,7 +56,7 @@
 
         <div class="mb-6 hidden" id="poids_section">
             <label for="poids" class="block text-sm font-medium text-gray-700">Poids (en kg)</label>
-            <input type="number" id="poids" name="poids" min="0.01" step="0.01"
+            <input type="number" id="poids" name="quantite" min="0.01" step="0.01"
                    class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
         </div>
 
@@ -70,7 +92,7 @@
 
         <div class="mb-6 hidden" id="froid_section">
             <label for="emplacement_froid" class="block text-sm font-medium text-gray-700">Emplacement Froid</label>
-            <select id="emplacement_froid" name="emplacement_froid" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            <select id="emplacement_froid" name="emplacement" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 <option value="">-- Sélectionner un emplacement froid --</option>
                 <option value="FRIGO_A">FRIGO A</option>
                 <option value="FRIGO_B">FRIGO B</option>
@@ -78,6 +100,12 @@
                 <option value="CONGELATEUR_A">CONGÉLATEUR A</option>
                 <option value="CONGELATEUR_B">CONGÉLATEUR B</option>
             </select>
+        </div>
+
+        <div class="mb-6">
+            <label for="date_entree" class="block text-sm font-medium text-gray-700">Date d'entrée</label>
+            <input type="date" id="date_entree" name="date_entree" required
+                   class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
         </div>
 
         <div class="mb-6">
@@ -99,48 +127,69 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const produitFraisCheckbox = document.getElementById('produit_frais');
-        const quantitySection = document.getElementById('quantity_section');
-        const poidsSection = document.getElementById('poids_section');
-        const locationSection = document.getElementById('location_section');
-        const locationAllee = document.getElementById('location_allee');
-        const locationEtagere = document.getElementById('location_etagere');
-        const locationPosition = document.getElementById('location_position');
-        const emplacementFroid = document.getElementById('froid_section');
-        const produitSelect = document.getElementById('produit_id');
+    const produitFraisCheckbox = document.getElementById('produit_frais');
+    const quantitySection = document.getElementById('quantity_section');
+    const poidsSection = document.getElementById('poids_section');
+    const locationSection = document.getElementById('location_section');
+    const locationAllee = document.getElementById('location_allee');
+    const locationEtagere = document.getElementById('location_etagere');
+    const locationPosition = document.getElementById('location_position');
+    const emplacementFroid = document.getElementById('froid_section');
+    const produitSelect = document.getElementById('produit_id');
 
-        function toggleSections() {
-            if (produitFraisCheckbox.checked) {
-                quantitySection.classList.add('hidden');
-                poidsSection.classList.remove('hidden');
-                emplacementFroid.classList.remove('hidden');
-                locationSection.parentElement.classList.add('hidden');
+    function toggleSections() {
+        produitSelect.value = ""; // Réinitialiser la sélection du produit
 
-                produitSelect.querySelectorAll('option').forEach(option => {
-                    if (option.dataset.frais === '0') {
-                        option.hidden = true;
-                    } else {
-                        option.hidden = false;
-                    }
-                });
-            } else {
-                quantitySection.classList.remove('hidden');
-                poidsSection.classList.add('hidden');
-                emplacementFroid.classList.add('hidden');
-                locationSection.parentElement.classList.remove('hidden');
+        if (produitFraisCheckbox.checked) {
+            quantitySection.classList.add('hidden');
+            quantitySection.querySelector('input').removeAttribute('name');
+            poidsSection.querySelector('input').setAttribute('name', 'quantite');
+            poidsSection.querySelector('input').required = true;
+            poidsSection.classList.remove('hidden');
+            emplacementFroid.classList.remove('hidden');
+            locationSection.parentElement.classList.add('hidden');
 
-                produitSelect.querySelectorAll('option').forEach(option => {
-                    if (option.dataset.frais === '1') {
-                        option.hidden = true;
-                    } else {
-                        option.hidden = false;
-                    }
-                });
-            }
+            produitSelect.querySelectorAll('option').forEach(option => {
+                if (option.dataset.frais === '0') {
+                    option.hidden = true;
+                } else {
+                    option.hidden = false;
+                }
+            });
+
+            quantitySection.querySelector('input').required = false;
+            locationSection.required = false;
+            locationAllee.required = false;
+            locationEtagere.required = false;
+            locationPosition.required = false;
+        } else {
+            quantitySection.classList.remove('hidden');
+            quantitySection.querySelector('input').setAttribute('name', 'quantite');
+            poidsSection.querySelector('input').removeAttribute('name');
+            poidsSection.querySelector('input').required = false;
+            poidsSection.classList.add('hidden');
+            emplacementFroid.classList.add('hidden');
+            locationSection.parentElement.classList.remove('hidden');
+
+            produitSelect.querySelectorAll('option').forEach(option => {
+                if (option.dataset.frais === '1') {
+                    option.hidden = true;
+                } else {
+                    option.hidden = false;
+                }
+            });
+
+            quantitySection.querySelector('input').required = true;
+            locationSection.required = true;
+            locationAllee.required = true;
+            locationEtagere.required = true;
+            locationPosition.required = true;
         }
+    }
 
-        produitFraisCheckbox.addEventListener('change', toggleSections);
-        toggleSections();
-    });
+    produitFraisCheckbox.addEventListener('change', toggleSections);
+    toggleSections();
+});
 </script>
+
 @endsection

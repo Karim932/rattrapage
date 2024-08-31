@@ -32,7 +32,7 @@
                     class="ban-button {{ $user->banned ? 'text-green-600 hover:text-green-900' : 'text-red-600 hover:text-red-900' }} ml-4"
                     data-id="{{ $user->id }}"
                     data-action="{{ $user->banned ? 'unban' : 'ban' }}">
-                    {{ $user->banned ? 'Unban' : 'Ban' }}
+                    {{ $user->banned ? 'Débannir' : 'Bannir' }}
                 </button>
                 <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="delete-user-form inline">
                     @csrf
@@ -45,7 +45,6 @@
     </tbody>
 </table>
 <div id="pagination-container">
-    {{-- Pagination links --}}
     {{ $users->links() }}
 </div>
 

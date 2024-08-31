@@ -20,7 +20,7 @@ class AnswerController extends Controller
             'titre' => 'required|string|max:50'
         ]);
 
-        // l'adhésion et la candidature associée via la relation polymorphique
+        
         $adhesion = Adhesion::find($id);
 
         if (!$adhesion) {

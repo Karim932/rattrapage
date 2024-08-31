@@ -90,19 +90,19 @@ canvas {
 }
 
 .card:hover {
-    transform: translateY(-5px); /* Légère élévation au survol */
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15); /* Accentuation de l'ombre au survol */
+    transform: translateY(-5px); 
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15); 
 }
 
 /* Style du contenu des cartes */
 .card-body {
     padding: 15px 20px; /* Ajoute du padding pour espacer le contenu */
-    background-color: #ffffff; /* Fond blanc pour le contenu */
+    background-color: #ffffff; 
     display: flex; /* Flexbox pour centrer le contenu */
     flex-direction: column; /* Aligne les éléments verticalement */
     justify-content: center; /* Centre le contenu verticalement */
     text-align: center; /* Centre le texte */
-    height: 300px; /* Hauteur fixe pour les cartes standards */
+    height: 300px; 
 }
 
 /* Style spécifique pour les cartes pleine largeur */
@@ -159,10 +159,6 @@ canvas {
 
     
 </script>
-
-
-
-
 
 
 <script src="{{ asset('js/dashboard.js') }}"></script>

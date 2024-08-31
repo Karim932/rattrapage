@@ -27,9 +27,9 @@
                     <x-nav-link :href="route('benevole')" :active="request()->routeIs('benevole')">
                         {{ __('message.Bénévoles') }}
                     </x-nav-link>
-                    {{-- <x-nav-link :href="route('contact')" :active="request()->routeIs('contact')">
+                    <x-nav-link :href="route('contact')" :active="request()->routeIs('contact')">
                         {{ __('Contact') }}
-                    </x-nav-link> --}}
+                    </x-nav-link>
                 </div>
             </div>
 

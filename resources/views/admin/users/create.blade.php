@@ -9,6 +9,14 @@
         <form action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
+            <div class="form-group">
+                <label for="cotisation">Cotisation Payée :</label>
+                <select id="cotisation" name="cotisation" class="form-control">
+                    <option value="0" {{ (old('cotisation', $user->cotisation ?? '') == 0) ? 'selected' : '' }}>Non</option>
+                    <option value="1" {{ (old('cotisation', $user->cotisation ?? '') == 1) ? 'selected' : '' }}>Oui</option>
+                </select>
+            </div>            
+
             <div class="mb-4">
                 <label for="firstname" class="block text-sm font-medium text-gray-700">Prénom</label>
                 <input type="text" name="firstname" id="firstname" value="{{ old('firstname') }}" required class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">

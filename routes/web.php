@@ -18,21 +18,24 @@ use App\Http\Controllers\Admin\SkillController;
 use App\Http\Controllers\Admin\CollecteController;
 use App\Http\Controllers\Commercant\CommercantCollecteController;
 use App\Http\Controllers\Benevole\BenevoleCollecteController;
+use App\Http\Controllers\Benevole\BenevoleDistributionController;
 use App\Http\Controllers\CreneauController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PageNavController;
 use App\Http\Controllers\Admin\StockController;
+use App\Http\Controllers\Admin\ProduitController;
+use App\Http\Controllers\Admin\AnnonceController;
+use App\Http\Controllers\Admin\DistributionController;
+use App\Http\Controllers\AnnonceAdherentController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Admin\ServiceBenevoleProposeController;
+use App\Http\Controllers\ContactController;
 
 
 // mail vérifié ou non
 use App\Http\Middleware\EnsureEmailIsVerified;
-
-Route::get('/example', function () {
-    return Auth::check() ? 'Logged in' : 'Not logged in';
-})->middleware('web');
 
 
 // Définit une route pour la localisation qui permet de changer la langue de l'application.
@@ -63,6 +66,15 @@ Route::middleware(SetLocalization::class)->group(function() {
             Route::patch('/profile', 'update')->name('update'); 
             Route::delete('/profile','destroy')->name('destroy'); 
         });
+
+        Route::get('/annonces/adherent', [AnnonceAdherentController::class, 'index'] )->name('annonces.adherent.index');
+        Route::get('annonces/create/adherent', [AnnonceAdherentController::class, 'create'])->name('annonces.adherent.create');
+        Route::post('annonces/save', [AnnonceAdherentController::class, 'store'])->name('annonces.adherent.store');
+        Route::get('annonces/voir/{id}', [AnnonceAdherentController::class, 'show'])->name('annonces.adherent.show');
+        Route::get('/annonces/{annonce}/edit/adherent', [AnnonceAdherentController::class, 'edit'])->name('annonces.adherent.edit');
+        Route::put('/annonces/{annonce}/adherent', [AnnonceAdherentController::class, 'update'])->name('annonces.adherent.update');
+        Route::delete('/annonces/{annonce}/delete', [AnnonceAdherentController::class, 'destroy'])->name('annonces.adherent.destroy');
+
     
         // Avoir un rôle benevole ou commercant front
         Route::controller(AdhesionsController::class)->group(function(){
@@ -78,6 +90,9 @@ Route::middleware(SetLocalization::class)->group(function() {
             Route::get('/adhesions/benevole/dashboard', 'dashboard')->name('dashboard.benevole');
         });
 
+        Route::get('/contact', [ContactController::class, 'showForm'])->name('contact');
+        Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
+
         Route::prefix('creneaux')->name('adherent.')->controller(CreneauController::class)->group(function (){
             Route::get('/','index')->name('index');
             Route::get('filter', 'filter')->name('filter');
@@ -86,6 +101,12 @@ Route::middleware(SetLocalization::class)->group(function() {
         Route::get('services', [InscriptionController::class, 'service'])->name('services');
         Route::get('/mon-historique', [InscriptionController::class, 'historique'])->name('adherent.historique');
         Route::delete('/plannings/{id}/cancel', [InscriptionController::class, 'cancel'])->name('plannings.cancel');
+
+
+        Route::prefix('benevole')->name('propose.benevole.')->group(function () {
+            Route::get('/create/test', [ServiceBenevoleProposeController::class, 'createBenevole'])->name('create');
+            Route::post('/store/propose/test', [ServiceBenevoleProposeController::class, 'storeBenevole'])->name('store');
+        });
 
     });
 
@@ -99,6 +120,14 @@ Route::middleware(SetLocalization::class)->group(function() {
         Route::resource('adhesion', CandidatureController::class);
         Route::resource('admin/services', ServiceController::class);
         Route::resource('skills', SkillController::class);
+        Route::resource('annonces', AnnonceController::class);
+        Route::resource('propose', ServiceBenevoleProposeController::class);
+
+        Route::get('admin/contact', [ContactController::class, 'index'])->name('admin.contact.index');
+        Route::get('admin/contact/{id}', [ContactController::class, 'show'])->name('admin.contact.show');
+        Route::get('admin/contact/{id}/edit', [ContactController::class, 'edit'])->name('admin.contact.edit');
+        Route::put('admin/contact/{id}', [ContactController::class, 'update'])->name('admin.contact.update');
+        Route::delete('admin/contact/{id}', [ContactController::class, 'destroy'])->name('admin.contact.destroy');
 
         // Route pour accéder au tableau de bord de l'administrateur
         Route::get('/admin/dashboard', [DashboardController::class, 'index'])->middleware('can:is-admin')->name('admin.dashboard');
@@ -133,6 +162,9 @@ Route::middleware(SetLocalization::class)->group(function() {
         // Route API pour obtenir les événements du calendrier
         Route::get('/api/plannings', [PlanningController::class, 'getEvents'])->name('api.plannings');
         Route::post('/inscriptions/store', [InscriptionController::class, 'store'])->name('inscriptions.store');
+
+        Route::put('/accept/propose/{id}', [ServiceBenevoleProposeController::class, 'updatePropose'])->name('update.propose');
+
         
         Route::prefix('admin/services')->name('services.')->controller(BenevoleServiceController::class)->group(function (){
             Route::get('add/benevole', 'create')->name('affecte');
@@ -168,6 +200,20 @@ Route::middleware([Authenticate::class, AdminMiddleware::class, CheckIfBanned::c
 
 Route::middleware([Authenticate::class, AdminMiddleware::class, CheckIfBanned::class])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('stock', StockController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+    Route::resource('produits', ProduitController::class)->except(['show']);
+});
+
+Route::middleware([Authenticate::class, AdminMiddleware::class, CheckIfBanned::class])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('distributions', [DistributionController::class, 'index'])->name('distributions.index');
+    Route::get('distributions/create', [DistributionController::class, 'create'])->name('distributions.create');
+    Route::get('distributions/{id}/edit', [DistributionController::class, 'edit'])->name('distributions.edit');
+    Route::put('distributions/{id}/update', [DistributionController::class, 'update'])->name('distributions.update');
+    Route::delete('distributions/{distribution}/destroy', [DistributionController::class, 'destroy'])->name('distributions.destroy');
+    Route::post('distributions/store-step1', [DistributionController::class, 'storeStep1'])->name('distributions.storeStep1');
+    Route::get('distributions/selectStock', [DistributionController::class, 'selectStock'])->name('distributions.selectStock');
+    Route::post('distributions/store-step2', [DistributionController::class, 'storeStep2'])->name('distributions.storeStep2');
+
+
 });
 
 //INTERFACE COMMERCANT
@@ -188,4 +234,34 @@ Route::middleware(['auth'])->prefix('benevole')->name('benevole.')->group(functi
     Route::get('/{id}/add-products', [BenevoleCollecteController::class, 'addProducts'])->name('collectes.addProducts');
     Route::post('/{id}/store-new-products', [BenevoleCollecteController::class, 'storeNewProducts'])->name('collectes.storeNewProducts');
     Route::post('/{id}/store-stock', [BenevoleCollecteController::class, 'storeStock'])->name('collectes.storeStock');
+
+    Route::get('/distributions/{id}', [BenevoleDistributionController::class, 'show'])->name('distributions.show');
+    Route::put('distributions/{id}/status', [BenevoleDistributionController::class, 'updateStatus'])->name('distributions.updateStatus');
+    Route::put('distributions/{id}/confirm', [BenevoleDistributionController::class, 'confirmerDistribution'])->name('distributions.confirm');
+});
+
+
+
+
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+
+
+// Simuler une erreur 405 MethodNotAllowedHttpException
+Route::get('/test-405', function () {
+    throw new MethodNotAllowedHttpException([]);
+});
+
+// Simuler une erreur 403 AuthorizationException
+Route::get('/test-403', function () {
+    abort(403);
+});
+
+Route::get('/test-500', function () {
+    abort(500); // Simuler une erreur 500 Internal Server Error
+});
+
+Route::get('/test-419', function () {
+    abort(419); // Simuler une erreur 419 CSRF token mismatch
 });

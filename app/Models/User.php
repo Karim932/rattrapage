@@ -12,7 +12,7 @@ class User extends Authenticatable
 
     protected $fillable = [
         'firstname', 'lastname', 'email', 'password', 'date_of_birth',
-        'address', 'city', 'country', 'phone_number', 'role', 'profile_picture', 'banned'
+        'address', 'city', 'country', 'phone_number', 'role', 'profile_picture', 'banned', 'cotisation'
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -58,6 +58,11 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Planning::class, 'inscriptions', 'user_id', 'planning_id')
                     ->withTimestamps();
+    }
+
+    public function annonces()
+    {
+        return $this->hasMany(Annonce::class);
     }
 
 }

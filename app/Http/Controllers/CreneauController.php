@@ -9,15 +9,11 @@ use Illuminate\Support\Facades\Auth;
 
 class CreneauController extends Controller
 {
-    // Récupérer tous les créneaux disponibles
-    // $plannings = Planning::with('service')->whereDoesntHave('inscriptions')->get();
 
     public function index(Request $request)
     {
 
-        // Vérifier si l'utilisateur connecté a payé sa cotisation
         if (Auth::user()->cotisation === false) {
-            // Si la cotisation n'est pas payée, retourner une autre vue ou un message
             return redirect()->route('stripe.checkout'); // Assurez-vous que cette vue existe
         }
 
@@ -47,7 +43,6 @@ class CreneauController extends Controller
         if ($request->filled('date')) {
             $query->whereDate('date', $request->date);
         }
-        // Appliquer les filtres d'heure de manière flexible
         if ($request->filled('start_time')) {
             $query->where('start_time', '>=', $request->start_time);
         }

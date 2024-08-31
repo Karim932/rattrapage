@@ -9,6 +9,7 @@ use App\Models\AdhesionBenevole;
 use App\Models\User;
 use App\Models\Produit;
 use App\Models\Stock;
+use App\Models\Distribution;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
@@ -20,11 +21,17 @@ class BenevoleCollecteController extends Controller
 
         // Vérifier l'existence de l'adhésion et son statut
         if ($adhesionBenevole && $adhesionBenevole->status === 'accepté') {
+            // Récupérer les collectes assignées au bénévole
             $collectes = Collecte::where('benevole_id', $adhesionBenevole->id)
                                 ->whereIn('status', ['Attribué', 'En Cours', 'En Attente de Stockage'])
                                 ->get();
-
-            return view('benevole.collectes.index', compact('collectes'));
+    
+            // Récupérer les distributions assignées au bénévole
+            $distributions = Distribution::where('benevole_id', $adhesionBenevole->id)
+                                        ->whereIn('status', ['Planifié', 'En Cours', 'Terminé'])
+                                        ->get();
+    
+            return view('benevole.collectes.index', compact('collectes', 'distributions'));
         } else {
             // Rediriger vers la route 'benevole' si l'utilisateur n'a pas d'adhésion de bénévole ou si elle n'est pas acceptée
             return redirect()->route('benevole')->with('error', 'Vous devez être un bénévole actif pour accéder à cette page.');

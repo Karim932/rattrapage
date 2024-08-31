@@ -15,6 +15,9 @@
             <div>
                 <h2 class="text-xl font-semibold text-gray-800">{{ $user->firstname }} {{ $user->lastname }}</h2>
                 <p class="text-gray-600">{{ $user->email }}</p>
+                <p class="card-text"><strong>Cotisation Payée :</strong> {{ $user->cotisation ? 'Oui' : 'Non' }}</p>
+                  
+                
                 @if($user->banned)
                     <span class="text-red-600 font-semibold">Banni</span>
                 @else
@@ -36,9 +39,10 @@
             </div>
             <div>
                 <h3 class="text-lg font-medium text-gray-700">Rôle et Statut</h3>
-                <p class="mt-2 text-gray-600 flex items-center"><i class="fas fa-user-tag mr-2"></i> <strong>Rôle:</strong>&nbsp; {{ $user->role ? 'Banni' : $user->role }}</p>
+                <p class="mt-2 text-gray-600 flex items-center"><i class="fas fa-user-tag mr-2"></i> <strong>Rôle:</strong>&nbsp; {{ $user->role ? $user->role : 'Banni' }}</p>
                 <p class="mt-2 text-gray-600 flex items-center"><i class="fas fa-user-check mr-2"></i> <strong>Status:</strong>&nbsp; {{ $user->banned ? 'Banni' : 'Actif' }}</p>
             </div>
+            
         </div>
 
         <div class="mt-6 flex justify-between">
