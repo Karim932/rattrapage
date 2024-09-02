@@ -3,9 +3,7 @@
         <div class="container mx-auto py-24 max-w-7xl sm:px-6 lg:px-8">
             <h2 class="text-2xl font-semibold text-gray-800 mb-6">Inscription aux créneaux</h2>
     
-            <!-- Formulaire de filtrage -->
             <form method="GET" action="{{ route('adherent.filter') }}" class="mb-6">
-                <!-- Champ caché pour l'ID du service -->
                 <input type="hidden" name="service_id" value="{{ request('service_id') }}">
 
                 <div class="flex flex-wrap gap-4 mb-4">
@@ -19,7 +17,6 @@
                 </button>
             </form>
 
-            <!-- Notification de succès -->
             @if(session('success'))
                 <div class="bg-green-500 text-white p-4 rounded-lg shadow-md mb-6">
                     {{ session('success') }}
@@ -61,7 +58,6 @@
                                 Inscrit
                             </button>
                         @else
-                            <!-- Formulaire d'inscription -->
                             <form action="{{ route('inscriptions.store') }}" method="POST" class="mt-auto">
                                 @csrf
                                 <input type="hidden" name="planning_id" value="{{ $planning->id }}">

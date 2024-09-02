@@ -7,7 +7,6 @@
     <div class="container mx-auto">
         <h2 class="text-2xl font-semibold text-gray-800 mb-6">Gérer les Bénévoles pour l'Événement</h2>
 
-        <!-- Section pour afficher les bénévoles déjà assignés -->
         <div class="bg-white shadow-md rounded-lg p-6 mb-6">
             <h3 class="text-xl font-medium text-gray-700 mb-4">Bénévoles assignés</h3>
             @if($assignedBenevoles->isEmpty())
@@ -36,7 +35,6 @@
             @endif
         </div>
 
-        <!-- Section pour ajouter un nouveau bénévole -->
         <div class="bg-white shadow-md rounded-lg p-6">
             <h3 class="text-xl font-medium text-gray-700 mb-4">Ajouter un Bénévole</h3>
             <form action="{{ route('plannings.addBenevole', $planning->id) }}" method="POST">

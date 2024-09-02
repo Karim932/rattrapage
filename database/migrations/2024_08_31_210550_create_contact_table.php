@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('contact', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Clé étrangère vers la table users
-            $table->string('statut')->default('ouvert'); // Colonne pour le statut du ticket
-            $table->string('categorie')->nullable(); // Colonne pour la catégorie du ticket
-            $table->text('message'); // Colonne pour le message
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); 
+            $table->string('statut')->default('ouvert'); 
+            $table->string('categorie')->nullable(); 
+            $table->text('message'); 
             $table->timestamps();
         });
     }

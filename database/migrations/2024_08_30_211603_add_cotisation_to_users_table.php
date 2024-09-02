@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('cotisation')->default(false);  // Ajoute la colonne cotisation avec une valeur par défaut false
+            $table->boolean('cotisation')->default(false);  
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('cotisation');  // Assurez-vous de pouvoir revenir en arrière
+            $table->dropColumn('cotisation');  
         });
     }
 };

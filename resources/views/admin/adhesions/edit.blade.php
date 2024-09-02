@@ -9,8 +9,20 @@
             Modifier une candidature
         </h1>
 
+        @if(session('success'))
+            <div class="bg-green-500 text-white p-4 rounded-lg shadow-md mb-6">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+                {{ session('error') }}
+            </div>
+        @endif
+
         @if ($errors->any())
-            <div class="bg-red-500 text-white p-4 mb-4">
+            <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
                 <ul>
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -24,7 +36,6 @@
             @method('PUT')
 
             @if ($candidature instanceof \App\Models\AdhesionBenevole)
-                <!-- Formulaire pour un Bénévole -->
                 <div class="mb-6">
                     <label class="form-label block text-gray-700 text-sm font-bold mb-2">Compétences :</label>
                     <div class="grid grid-cols-2 gap-4">
@@ -110,7 +121,6 @@
                 </div>
 
             @elseif ($candidature instanceof \App\Models\AdhesionCommercant)
-                <!-- Formulaire pour un Commerçant -->
                 <div>
                     <label for="company_name" class="block text-sm font-medium text-gray-700">Nom de l'entreprise</label>
                     <input type="text" name="company_name" id="company_name" required

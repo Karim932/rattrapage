@@ -1,4 +1,3 @@
-{{-- resources/views/skills/index.blade.php --}}
 @extends('layouts.templateAdmin')
 
 @section('title', 'Compétences')
@@ -9,6 +8,27 @@
         <div class="py-8">
             <div>
                 <h2 class="text-2xl py-2 font-semibold leading-tight">Gérer les Compétences</h2>
+                @if(session('success'))
+                    <div class="bg-green-500 text-white p-4 rounded-lg shadow-md mb-6">
+                        {{ session('success') }}
+                    </div>
+                @endif
+            
+                @if(session('error'))
+                    <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+                        {{ session('error') }}
+                    </div>
+                @endif
+            
+                @if ($errors->any())
+                    <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
             </div>
             <div class="my-4 py-4 flex justify-between items-center w-full">
                 <button type="button" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out" onclick="location.href='{{ route('services.index') }}';">
@@ -26,7 +46,6 @@
 
 
 
-            <!-- Modal pour ajouter une compétence -->
             <div id="add-skill-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
                 <div id="main-content" class="flex-1 ml-64 p-10 transition-all">
                     <div class="relative p-5 border w-auto sm:w-96 shadow-lg rounded-md bg-white">
@@ -52,7 +71,6 @@
             </div>
 
 
-            <!-- Tableau des compétences -->
             <div class="align-middle inline-block min-w-full shadow overflow-hidden bg-white shadow-dashboard px-8 pt-3 rounded-bl-lg rounded-br-lg">
                 <table class="min-w-full leading-normal">
                     <thead>

@@ -17,7 +17,6 @@ class SkillController extends Controller
         return view('admin.skills.index', compact('skills'));
     }
 
-    // Méthode store pour créer une compétence
     public function store(Request $request)
     {
         $validatedData = $request->validate([
@@ -29,7 +28,6 @@ class SkillController extends Controller
         return back()->with('success', 'Compétence ajoutée avec succès.');
     }
 
-    // Méthode destroy pour supprimer une compétence
     public function destroy($id)
     {
         $skill = Skill::findOrFail($id);

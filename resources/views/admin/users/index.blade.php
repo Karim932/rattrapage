@@ -6,9 +6,25 @@
 <div id="main-content" class="flex-1 ml-64 p-10 transition-all">
     <h1 class="text-2xl font-bold text-gray-800 mb-4">Gestion des Utilisateurs</h1>
 
+    @if(session('success'))
+        <div class="bg-green-500 text-white p-4 rounded-lg shadow-md mb-6">
+            {{ session('success') }}
+        </div>
+    @endif
+
     @if(session('error'))
-        <div class="alert alert-danger">
+        <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
             {{ session('error') }}
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
     @endif
 
@@ -22,12 +38,10 @@
         <span id="success-text"></span>
     </div>
 
-    <!-- Barre de Recherche -->
     <div class="mb-5">
         <input type="text" id="search-users" placeholder="Rechercher des utilisateurs..." class="px-4 py-2 border rounded-lg w-full focus:outline-none focus:shadow-outline">
     </div>
 
-    <!-- Filtre par Rôle -->
     <div class="mb-5">
         <button data-role="benevole" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
             Bénévoles

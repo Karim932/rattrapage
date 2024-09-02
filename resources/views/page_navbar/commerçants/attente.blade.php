@@ -90,7 +90,6 @@
                     <p class="text-gray-600">Aucun message n'a été reçu pour cette candidature.</p>
                 @endforelse
 
-                <!-- Bouton Modifier conditionnellement affiché -->
                 @if(!session('success') && $candidature->status == 'en cours')
                     <a href="{{ route('change.commercant') }}" class="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" role="button">
                         Modifier ma candidature

@@ -13,12 +13,10 @@ class CollecteController extends Controller
 {
     public function index(Request $request)
     {
-        // Récupérer les filtres
         $status = $request->input('status');
         $commercantId = $request->input('commercant');
         $benevoleId = $request->input('benevole');
 
-        // Construire la requête avec les filtres
         $collectes = Collecte::query();
 
         if ($status) {
@@ -35,7 +33,6 @@ class CollecteController extends Controller
 
         $collectes = $collectes->paginate(10);
 
-        // Passer les données nécessaires à la vue
         return view('admin.collectes.index', [
             'collectes' => $collectes,
             'commercants' => AdhesionCommercant::all(),
@@ -45,7 +42,6 @@ class CollecteController extends Controller
 
     public function create()
     {
-        // Afficher le formulaire de création
         return view('admin.collectes.create_collecte', [
             'commercants' => AdhesionCommercant::all(),
         ]);
@@ -53,14 +49,12 @@ class CollecteController extends Controller
 
     public function store(Request $request)
     {
-        // Valider les données
         $request->validate([
             'commercant_id' => 'required|exists:adhesion_commercants,id',
             'date_collecte' => 'required|date|after_or_equal:today',
             'instructions' => 'nullable|string',
         ]);
 
-        // Créer la collecte
         Collecte::create([
             'commercant_id' => $request->commercant_id,
             'date_collecte' => $request->date_collecte,
@@ -73,8 +67,7 @@ class CollecteController extends Controller
 
     public function show($id)
     {
-        // on recupere la collecte, on set carbon en fr pour qu'il traduit la date de la collecte en j de la semaine
-        // en francais, pour recuperer que les benevoles qui sont dispo le jour de la collecte et accepté
+        
         $collecte = Collecte::findOrFail($id);
         Carbon::setLocale('fr');
 
@@ -93,7 +86,6 @@ class CollecteController extends Controller
 
     public function edit($id)
     {
-        // Afficher le formulaire de modification
         $collecte = Collecte::findOrFail($id);
 
         return view('admin.collectes.edit_collecte', [

@@ -5,17 +5,27 @@
 
 <div id="main-content" class="flex-1 ml-64 p-10 transition-all">
     <h1 class="text-2xl font-bold text-gray-800 mb-4">Liste des Annonces</h1>
+    @if(session('success'))
+        <div class="bg-green-500 text-white p-4 rounded-lg shadow-md mb-6">
+            {{ session('success') }}
+        </div>
+    @endif
+
     @if(session('error'))
-        <div class="bg-red-500 text-white p-4 mb-4">
+        <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
             {{ session('error') }}
         </div>
     @endif
 
-    @if(session('success'))
-        <div id="success-message" class="bg-green-500 text-white p-4 rounded-lg shadow-md">
-            {{ session('success') }}
+    @if ($errors->any())
+        <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
-    @endif
+@endif
 
     <div class="mb-6 flex justify-end">
         <a href="{{ route('annonces.create') }}" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-indigo-800 transition duration-300">

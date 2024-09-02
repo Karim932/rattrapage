@@ -1,13 +1,11 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Ajoute un écouteur d'événements pour le bouton des détails
     document.getElementById('detailsTab').addEventListener('click', function() {
         showDetails();
     });
 
-    // Ajoute un écouteur d'événements pour le bouton des messages
-    // Supposition : L'ID est stocké dans un attribut data-id sur le bouton des messages
+    
     document.getElementById('messagesTab').addEventListener('click', function() {
-        var id = this.getAttribute('data-id');  // Récupère l'ID stocké dans l'attribut data-id
+        var id = this.getAttribute('data-id'); 
         showMessages();
     });
 });

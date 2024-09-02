@@ -14,7 +14,6 @@ class StockController extends Controller
     {
         $query = Stock::query();
     
-        // Filtre par emplacement
         if ($request->has('emplacement') && !empty($request->emplacement)) {
             if ($request->emplacement == 'FROID') {
                 $query->where(function($q) {
@@ -29,14 +28,12 @@ class StockController extends Controller
             }
         }
     
-        // Filtre par date d'expiration proche
         if ($request->has('expiring_soon') && $request->expiring_soon) {
             $query->where(function($q) {
                 $q->where('date_expiration', '<=', now()->addDays(7));
             });
         }
     
-        // Filtre par recherche (nom ou code-barre)
         if ($request->has('search') && !empty($request->search)) {
             $query->whereHas('produit', function($q) use ($request) {
                 $q->where('nom', 'like', '%' . $request->search . '%')
@@ -44,7 +41,6 @@ class StockController extends Controller
             });
         }
     
-        // Filtre par tri
         if ($request->has('sort')) {
             $direction = $request->input('direction', 'asc');
             $query->orderBy($request->sort, $direction);
@@ -57,10 +53,8 @@ class StockController extends Controller
         
     public function create()
     {
-    // Récupérer la liste des produits disponibles
     $produits = Produit::all();
 
-    // Retourner la vue pour créer un nouvel élément de stock
     return view('admin.stock.create', compact('produits'));
     }
 

@@ -8,6 +8,8 @@ use App\Models\Planning;
 use App\Models\User;
 use App\Models\Service;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+
 
 class InscriptionController extends Controller
 {
@@ -23,17 +25,15 @@ class InscriptionController extends Controller
         
         $request->validate([
             'planning_id' => 'required|exists:plannings,id',
-            'user_id' => 'required|exists:users,id', // Vérifiez que l'utilisateur est bien authentifié
+            'user_id' => 'required|exists:users,id', 
         ]);
 
-        // Récupérer les informations du planning souhaité
         $planning = Planning::where('id', $request->planning_id)->first();
         $serviceId = $planning->service_id;
         $planningDate = $planning->date;
         $planningStartTime = $planning->start_time;
         $planningEndTime = $planning->end_time;
 
-        // Vérifiez si l'utilisateur est déjà inscrit à un événement du même service
         $existingServiceInscription = Inscription::where('user_id', $request->user_id)
             ->whereHas('planning', function($query) use ($serviceId) {
                 $query->where('service_id', $serviceId);
@@ -43,7 +43,6 @@ class InscriptionController extends Controller
             return redirect()->back()->with('error', 'Vous êtes déjà inscrit à un événement de ce service.');
         }
 
-        // Vérifiez les chevauchements de date et d'heure avec d'autres inscriptions
         $timeOverlap = Inscription::where('user_id', $request->user_id)
             ->whereHas('planning', function($query) use ($planningDate, $planningStartTime, $planningEndTime) {
                 $query->where('date', $planningDate)
@@ -62,7 +61,6 @@ class InscriptionController extends Controller
             return redirect()->back()->with('error', 'L\'inscription chevauche un autre événement planifié pour la même date et heure.');
         }
 
-        // Créer une nouvelle inscription
         $inscription = new Inscription([
             'planning_id' => $request->planning_id,
             'user_id' => $request->user_id,
@@ -72,22 +70,6 @@ class InscriptionController extends Controller
 
         return redirect()->back()->with('success', 'Vous êtes inscrit au créneau.');
     }
-
-
-    // public function historique()
-    // {
-    //     if (Auth::check()) {
-    //         $user = User::find(Auth::id()); // Récupère l'utilisateur par son ID
-
-    //         // Utilisation correcte de la relation avec ->plannings()
-    //         $plannings = $user->plannings()->orderBy('date', 'desc')->get();
-            
-    //         return view('page_navbar.adherent.historique', compact('plannings'));
-    //     } else {
-    //         // Redirige vers la page de connexion si l'utilisateur n'est pas authentifié
-    //         return redirect()->route('login')->with('error', 'Vous devez être connecté pour accéder à cette page.');
-    //     }
-    // }
 
     public function historique()
     {
@@ -114,20 +96,36 @@ class InscriptionController extends Controller
             return redirect()->back()->with('error', 'L\'événement n\'existe pas.');
         }
 
-        // Calculer le temps restant avant l'événement
         $now = \Carbon\Carbon::now();
-        $eventTime = \Carbon\Carbon::parse($planning->date . ' ' . $planning->start_time);
 
-        // Vérifier si l'événement commence dans moins de 48 heures
-        if ($eventTime->diffInHours($now) < 48) {
-            return redirect()->back()->with('error', 'Vous ne pouvez pas annuler votre participation à l\'événement moins de 48 heures avant son début.');
+        $startTime = $planning->start_time;
+        $date = \Carbon\Carbon::parse($planning->date)->format('Y-m-d');
+        
+        try {
+        
+            if (strlen($startTime) === 5) { 
+                $eventTime = \Carbon\Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $startTime);
+            } elseif (strlen($startTime) === 8) { 
+                $eventTime = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $date . ' ' . $startTime);
+            } else {
+                throw new \Exception("Format d'heure inattendu: $startTime");
+            }
+    
+            $hoursDifference = $now->diffInHours($eventTime, false); 
+        
+            if ($hoursDifference < 48) {
+                return redirect()->back()->with('error', 'Vous ne pouvez pas annuler votre participation à l\'événement moins de 48 heures avant son début.');
+            }
+        
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Erreur lors du calcul du temps pour l\'événement.');
         }
 
-        // Supprimer l'inscription
         $user->plannings()->detach($id);
 
         return redirect()->back()->with('success', 'Vous avez annulé votre participation à l\'événement.');
     }
+
 
 
 }

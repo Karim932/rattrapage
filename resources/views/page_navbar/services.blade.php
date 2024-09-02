@@ -2,19 +2,36 @@
     <div class="py-24 max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white shadow overflow-hidden sm:rounded-lg p-6">
             <div class="mb-4">
-                <!-- Affichage du message d'erreur -->
+        
                 @if(session('error'))
-                    <div role="alert" class="bg-red-500 text-white p-4 rounded-md">
+                    <div class="bg-red-500 text-white p-4 mb-4 rounded-lg shadow-md">
                         {{ session('error') }}
                     </div>
                 @endif
+
+                @if ($errors->any())
+                    <div class="bg-red-500 text-white p-4 mb-4 rounded-lg shadow-md">
+                        <ul class="list-disc list-inside">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                @if(session('success'))
+                    <div class="bg-green-500 text-white p-4 mb-4 rounded-lg shadow-md">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+
                 <header class="text-center">
                     <h1 class="text-3xl font-bold text-gray-900">Inscription aux Services</h1>
                     <p class="text-md text-gray-600 mt-2">Choisissez parmi une gamme variée de services adaptés à vos besoins.</p>
                 </header>
                 <main class="mt-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- Boucle pour afficher les services -->
                         @foreach ($services as $service)
                         @if($service->status === 'disponible')
                             <div class="flex flex-col bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300">

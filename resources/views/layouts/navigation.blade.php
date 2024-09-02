@@ -1,28 +1,25 @@
-<!-- resources/views/components/navbar.blade.php -->
 <nav x-data="{ open: false }" class="bg-white shadow-md fixed w-full z-30 top-0">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex items-center">
-                <!-- Logo -->
                 <div class="flex-shrink-0">
                     <a href="{{ route('accueil') }}" class="text-gray-900 no-underline hover:no-underline font-bold text-2xl lg:text-4xl">
                         NoMoreWaste
                     </a>
                 </div>
 
-                <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
                     <x-nav-link :href="route('accueil')" :active="request()->routeIs('accueil')">
                         {{ __('message.Accueil') }}
                     </x-nav-link>
                     <x-nav-link :href="route('adherent.historique')" :active="request()->routeIs('adherent.historique')">
-                        {{ __('Mon historique') }}
+                        {{ __('message.historique') }}
                     </x-nav-link>
                     <x-nav-link :href="route('services')" :active="request()->routeIs('services')">
                         {{ __('Services') }}
                     </x-nav-link>
                     <x-nav-link :href="route('commercant')" :active="request()->routeIs('commercant')">
-                        {{ __('Commerçant') }}
+                        {{ __('message.commercant') }}
                     </x-nav-link>
                     <x-nav-link :href="route('benevole')" :active="request()->routeIs('benevole')">
                         {{ __('message.Bénévoles') }}
@@ -33,7 +30,6 @@
                 </div>
             </div>
 
-            <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ml-6">
                 @auth
                 <x-dropdown align="right" width="48">
@@ -93,14 +89,12 @@
                 @endguest
             </div>
 
-            <!-- Settings Dropdown -->
             @guest
             <div class="hidden sm:flex sm:items-center sm:ml-6">
                 <x-dropdown align="right" width="12">
                     <x-slot name="trigger">
-                        <!-- Bouton simplifié avec chapeau "^" -->
                         <button class="inline-flex items-center p-2 bg-white border border-gray-300 rounded-full text-gray-600 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition ease-in-out duration-150">
-                            <div class="text-lg font-bold">↓</div> <!-- Chapeau plus stylé et centré -->
+                            <div class="text-lg font-bold">↓</div> 
                         </button>
                     </x-slot>
 
@@ -126,7 +120,6 @@
             @endguest
 
 
-            <!-- Hamburger -->
             <div class="-mr-2 flex items-center sm:hidden">
                 <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -138,7 +131,6 @@
         </div>
     </div>
 
-    <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('accueil')" :active="request()->routeIs('accueil')">
@@ -158,7 +150,6 @@
             </x-responsive-nav-link> --}}
         </div>
 
-        <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">
             @auth
                 <div class="px-4">

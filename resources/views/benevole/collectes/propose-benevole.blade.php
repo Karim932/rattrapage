@@ -8,6 +8,22 @@
         </div>
     @endif
 
+    @if(session('error'))
+        <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <form action="{{ route('propose.benevole.store') }}" method="POST">
         @csrf
 

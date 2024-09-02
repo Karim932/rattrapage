@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('services', function (Blueprint $table) {
-            $table->string('type')->after('name')->nullable(); // Ajoute une colonne 'type' après la colonne 'name'
+            $table->string('type')->after('name')->nullable();
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('services', function (Blueprint $table) {
-            $table->dropColumn('type'); // Supprime la colonne 'type'
+            $table->dropColumn('type'); 
         });
     }
 };

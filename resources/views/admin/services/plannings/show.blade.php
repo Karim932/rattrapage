@@ -7,6 +7,28 @@
     <div class="container mt-5">
         <h2 class="font-bold text-xl mb-4">Détails du Planning</h2>
 
+        @if(session('success'))
+            <div class="bg-green-500 text-white p-4 rounded-lg shadow-md mb-6">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Service</label>
@@ -86,7 +108,6 @@
                         Retour
                     </button>
             
-                    <!-- Edit Button -->
                     <a href="{{ route('plannings.edit', $planning->id) }}" 
                        class="inline-flex items-center justify-center px-6 py-3 rounded-md shadow-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -95,7 +116,6 @@
                         Modifier
                     </a>
             
-                    <!-- Delete Button -->
                     <form action="{{ route('plannings.destroy', $planning->id) }}" method="POST" class="delete-user-form inline">
                         @csrf
                         @method('DELETE')

@@ -17,19 +17,16 @@
         </div>
     @endif
 
-    <!-- Bouton Ajouter un Utilisateur -->
     <div class="mb-6 flex justify-end">
         <a href="{{ route('adhesion.create') }}" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-blue-800 transition duration-300">
             <i class="fas fa-clipboard-list"></i>&nbsp; Faire une demande
         </a>
     </div>
 
-    <!-- Barre de Recherche -->
     <div class="mb-5">
         <input type="text" id="search-users" placeholder="Rechercher des utilisateurs..." class="px-4 py-2 border rounded-lg w-full focus:outline-none focus:shadow-outline">
     </div>
 
-    <!-- Barre de filtrage -->
     <div class="my-6">
         <form action="{{ route('adhesion.index') }}" method="GET" class="flex flex-wrap items-center">
             <div class="mr-4 mb-4">
@@ -60,7 +57,6 @@
         </form>
     </div>
 
-    <!-- Tableau des candidatures -->
     <div class="flex flex-col">
         <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
@@ -177,7 +173,6 @@
                                     @endif
                                 </td>
                                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                    <!-- Boutons d'action ici -->
                                     <div class="flex items-center">
                                         <a href="{{ route('admin.adhesion.show', ['id' => $candidature->id, 'type' => $candidature->candidature_type]) }}">Voir</a>
                                         <a href="{{ route('adhesion.edit', $candidature->id) }}" class="text-indigo-600 hover:text-indigo-900 ml-4">Modifier</a>

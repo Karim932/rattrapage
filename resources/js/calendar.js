@@ -33,7 +33,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return "Il n'y a pas de planning";
         },
         events: function(fetchInfo, successCallback, failureCallback) {
-            // Optionally show a loading indicator
             calendarEl.classList.add('loading');
 
             var city = document.getElementById('city') ? document.getElementById('city').value : '';
@@ -61,7 +60,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     return response.json();
                 })
                 .then(data => {
-                    // Ajouter un délai de 3 secondes avant de retirer la classe de chargement
                     setTimeout(function() {
                         calendarEl.classList.remove('loading');
                     }, 1000);
@@ -72,7 +70,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     calendarEl.classList.remove('loading');
                     console.error('Error fetching events:', error);
                     failureCallback(error);
-                    // Hide loading indicator
                 });
         }
     });

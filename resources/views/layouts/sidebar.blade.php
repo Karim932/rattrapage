@@ -1,4 +1,3 @@
-<!-- Sidebar -->
 <aside id="sidebar" class="fixed top-0 left-0 w-64 h-full bg-white shadow-md z-50">
     <div class="h-16 flex items-center justify-between bg-red-500 text-white font-bold text-xl px-4">
       Admin Panel
@@ -51,7 +50,6 @@
     </nav>
   </aside>
 
-<!-- Toggle Button -->
 <button id="toggle-button" class="fixed top-16 left-64 bg-red-500 text-white p-2 rounded-r focus:outline-none z-50">
     <span id="toggle-icon" class="material-icons">chevron_left</span>
 </button>

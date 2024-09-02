@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('answers', function (Blueprint $table) {
             $table->id();
-            $table->morphs('candidature');  // accepte des id de deux model diff (_id et _type)
+            $table->morphs('candidature');  
             $table->unsignedBigInteger('id_admin');
             $table->string('titre');
             $table->text('message');

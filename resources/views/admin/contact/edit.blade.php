@@ -5,6 +5,28 @@
 <div id="main-content" class="flex-1 ml-64 p-10 transition-all">
     <h1 class="text-2xl font-bold text-gray-800 mb-4">Modifier Ticket</h1>
 
+    @if(session('success'))
+        <div class="bg-green-500 text-white p-4 rounded-lg shadow-md mb-6">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="bg-white p-6 rounded-lg shadow-md">
         <form action="{{ route('admin.contact.update', $ticket->id) }}" method="POST">
             @csrf

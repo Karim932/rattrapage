@@ -82,19 +82,19 @@ function setupCharts() {
         var activeUsersChart = new Chart(ctxActiveUsers, {
             type: 'bar',
             data: {
-                labels: data.userStatusLabels, // Labels dynamiques, Active et Total
+                labels: data.userStatusLabels, 
                 datasets: [
                     {
                         label: 'Nombre d\'utilisateurs actifs',
-                        data: [data.userStatusData[0], 0], // Nombre d'utilisateurs actifs
-                        backgroundColor: 'rgba(54, 162, 235, 0.6)', // Bleu pour les actifs
+                        data: [data.userStatusData[0], 0], 
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)', 
                         borderColor: 'rgba(54, 162, 235, 1)',
                         borderWidth: 1
                     },
                     {
                         label: 'Nombre total d\'utilisateurs',
-                        data: [0, data.userStatusData[1]], // Nombre total d'utilisateurs (actifs + inactifs)
-                        backgroundColor: 'rgba(255, 99, 132, 0.6)', // Rose pour le total
+                        data: [0, data.userStatusData[1]], 
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)', 
                         borderColor: 'rgba(255, 99, 132, 1)',
                         borderWidth: 1
                     }
@@ -112,16 +112,15 @@ function setupCharts() {
         });
 
 
-        // Graphique des statuts des candidatures bénévoles
         var ctxBenevole = document.getElementById('benevoleStatusChart').getContext('2d');
         var benevoleStatusChart = new Chart(ctxBenevole, {
                 type: 'pie',
                 data: {
-                    labels: data.benevoleStatusLabels, // Labels dynamiques basés sur les statuts des bénévoles
+                    labels: data.benevoleStatusLabels, 
                     datasets: [{
-                        data: data.benevoleStatusData, // Données dynamiques basées sur le nombre de candidatures par statut
+                        data: data.benevoleStatusData, 
                         backgroundColor: [
-                            'rgba(255, 205, 86, 0.6)',  // Couleur pour chaque statut
+                            'rgba(255, 205, 86, 0.6)',  
                             'rgba(54, 162, 235, 0.6)',
                             'rgba(75, 192, 192, 0.6)',
                             'rgba(255, 99, 132, 0.6)',
@@ -144,16 +143,15 @@ function setupCharts() {
                 }
             });
  
-            // Graphique des statuts des candidatures commerçants
             var ctxCommercant = document.getElementById('commercantStatusChart').getContext('2d');
             var commercantStatusChart = new Chart(ctxCommercant, {
                 type: 'pie',
                 data: {
-                    labels: data.commercantStatusLabels, // Labels dynamiques basés sur les statuts des commerçants
+                    labels: data.commercantStatusLabels, 
                     datasets: [{
-                        data: data.commercantStatusData, // Données dynamiques basées sur le nombre de candidatures par statut
+                        data: data.commercantStatusData, 
                         backgroundColor: [
-                            'rgba(255, 205, 86, 0.6)',  // Couleur pour chaque statut
+                            'rgba(255, 205, 86, 0.6)', 
                             'rgba(54, 162, 235, 0.6)',
                             'rgba(75, 192, 192, 0.6)',
                             'rgba(255, 99, 132, 0.6)',

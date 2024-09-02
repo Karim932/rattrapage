@@ -33,24 +33,20 @@ class ServiceBenevoleProposeController extends Controller
 
     public function updatePropose(Request $request, $id)
     {
-        // Valider les données envoyées
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'status' => 'required|in:en_attente,accepté,refusé',
         ]);
 
-        // Trouver la proposition de service par son ID
         $proposal = ServiceBenevolePropose::findOrFail($id);
 
-        // Mettre à jour la proposition de service avec les données validées
         $proposal->update([
             'name' => $request->input('name'),
             'description' => $request->input('description'),
             'status' => $request->input('status'),
         ]);
 
-        // Rediriger vers l'index avec un message de succès
         return redirect()->route('propose.index')->with('success', 'Proposition mise à jour avec succès.');
     }
 

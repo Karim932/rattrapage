@@ -3,7 +3,6 @@
         <div class="container mx-auto py-24 max-w-7xl sm:px-6 lg:px-8">
             <h2 class="font-bold text-xl mb-4">Mon Historique</h2>
             
-            <!-- Notification de succès -->
             @if(session('success'))
                 <div class="bg-green-500 text-white p-4 rounded-lg shadow-md mb-6">
                     {{ session('success') }}
@@ -50,18 +49,13 @@
                                 <td class="px-6 py-4 border-b border-gray-200">
                                     @php
                                         try {
-                                            // Combinez la date et l'heure du début de l'événement
                                             $dateTimeString = \Carbon\Carbon::parse($planning->date)->format('Y-m-d') . ' ' . substr($planning->start_time, 0, 5);
-                                            // Créez un objet Carbon avec la date et l'heure combinées
                                             $eventTime = \Carbon\Carbon::createFromFormat('Y-m-d H:i', $dateTimeString);
                                 
-                                            // Vérifiez si l'événement est déjà passé
                                             $isPastEvent = $eventTime->isPast();
                                 
-                                            // Calculer le nombre d'heures restantes avant l'événement
                                             $hoursLeft = \Carbon\Carbon::now()->diffInHours($eventTime, false);
                                         } catch (\Exception $e) {
-                                            // Si une erreur se produit, gérer l'exception ici
                                             $hoursLeft = null;
                                             $isPastEvent = false;
                                         }
@@ -87,7 +81,6 @@
                 </table>
             @endif
 
-            <!-- Section for My Posts -->
             <h2 class="font-bold text-xl mt-8 mb-4">Mes Annonces</h2>
             @if($annonces->isEmpty())
                 <p class="text-gray-700">Aucune annonce postée pour le moment.</p>

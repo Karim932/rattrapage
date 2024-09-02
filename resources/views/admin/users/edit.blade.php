@@ -5,6 +5,28 @@
 <div id="main-content" class="flex-1 ml-64 p-10 transition-all">
     <h1 class="text-2xl font-bold text-gray-800 mb-4">Modifier l'Utilisateur</h1>
 
+    @if(session('success'))
+        <div class="bg-green-500 text-white p-4 rounded-lg shadow-md mb-6">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="max-w-3xl mx-auto bg-white shadow-lg rounded-lg p-6">
         <form action="{{ route('users.update', $user->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
@@ -101,9 +123,6 @@
                 <select name="role" id="role" required class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                     <option value="user" {{ old('role', $user->role) === 'user' ? 'selected' : '' }}>Utilisateur</option>
                     <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Administrateur</option>
-                    <option value="benevole" {{ old('role', $user->role) === 'benevole' ? 'selected' : '' }}>Bénévole</option>
-                    <option value="commercant" {{ old('role', $user->role) === 'commercant' ? 'selected' : '' }}>Commerçant</option>
-                    <option value="banned" {{ old('role', $user->role) === 'banned' ? 'selected' : '' }}>Banni</option>
                 </select>
                 @error('role')
                     <p class="text-red-600 text-sm">{{ $message }}</p>

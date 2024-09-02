@@ -4,12 +4,10 @@
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                     <div class="md:flex">
-                        <!-- Image de l'annonce -->
                         <div class="md:w-1/2">
                             <img src="{{ asset('storage/' . $annonce->image) }}" alt="Image de l'annonce" class="rounded-t-lg md:rounded-l-lg md:rounded-tr-none object-cover w-full h-96">
                         </div>
 
-                        <!-- Détails de l'annonce -->
                         <div class="md:w-1/2 p-6">
                             <h1 class="text-3xl font-bold text-gray-900">{{ $annonce->title }}</h1>
                             <p class="text-lg text-gray-500 mt-2">{{ $annonce->location }}</p>

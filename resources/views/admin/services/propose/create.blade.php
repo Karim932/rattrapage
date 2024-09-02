@@ -9,7 +9,6 @@
             <div class="bg-white shadow-md rounded-lg p-6">
                 <h1 class="text-2xl font-semibold text-gray-700 mb-6">Créer une Proposition de Service</h1>
 
-                <!-- Notification de succès -->
                 @if(session('success'))
                     <div class="bg-green-500 text-white p-4 rounded-lg shadow-md mb-6">
                         {{ session('success') }}

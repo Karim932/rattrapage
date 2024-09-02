@@ -19,7 +19,6 @@ class AdhesionBenevole extends Model
 
     protected $dates = ['availability_begin', 'availability_end'];
 
-     // est traitée comme un tableau
     protected $casts = [
         'availability' => 'array',
         'skill_id' => 'array',

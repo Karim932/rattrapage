@@ -3,9 +3,21 @@
         <div class="bg-white shadow-md rounded-lg p-6">
             <h1 class="text-3xl font-bold mb-6 text-indigo-600">Enregistrement de la Collecte dans le Stock</h1>
 
+            @if(session('success'))
+                <div class="bg-green-500 text-white p-4 rounded-lg shadow-md mb-6">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             @if ($errors->any())
                 <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
-                    <ul class="list-disc pl-5">
+                    <ul>
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
                         @endforeach
@@ -16,7 +28,6 @@
             <form action="{{ route('benevole.collectes.checkProducts', $collecte->id) }}" method="POST">
                 @csrf
                 
-                <!-- Section Produits Standards -->
                 <h2 class="text-2xl font-bold mb-4 text-gray-700">Produits Standards</h2>
                 <div id="products">
                     @if(session('originalProducts') && is_array(session('originalProducts')))
@@ -26,7 +37,6 @@
                                 <input type="number" name="products[{{ $index }}][quantity]" value="{{ $product['quantity'] }}" placeholder="Quantité" class="w-1/4 px-3 py-2 border rounded">
                                 <input type="date" name="products[{{ $index }}][expiration_date]" value="{{ $product['expiration_date'] }}" placeholder="Date d'expiration" class="w-1/4 px-3 py-2 border rounded">
                                 
-                                <!-- Sélecteurs pour l'emplacement standard -->
                                 <select name="products[{{ $index }}][location_section]" class="w-1/8 px-3 py-2 border rounded">
                                     <option value="">Section</option>
                                     <option value="A" {{ $product['location_section'] == 'A' ? 'selected' : '' }}>A</option>
@@ -52,7 +62,6 @@
                                         <option value="{{ $i }}" {{ $product['location_position'] == $i ? 'selected' : '' }}>{{ $i }}</option>
                                     @endfor
                                 </select>
-                                <!-- Bouton de suppression -->
                                 <button type="button" class="remove-product bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">X</button>
                             </div>
                         @endforeach
@@ -61,7 +70,6 @@
 
                 <button type="button" id="add-product" class="mt-4 bg-gray-500 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-gray-600 transition duration-300">+ Ajouter une ligne</button>
                 
-                <!-- Section Produits Frais -->
                 <h2 class="text-2xl font-bold mb-4 mt-8 text-gray-700">Produits Frais</h2>
                 <div id="frais-products">
                     <button type="button" id="add-frais-product" class="bg-gray-500 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-gray-600 transition duration-300">+ Ajouter un produit frais</button>
@@ -75,7 +83,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Ajout d'une nouvelle ligne pour les produits standards
             document.getElementById('add-product').addEventListener('click', function() {
                 let productEntries = document.getElementById('products');
                 let index = productEntries.children.length;
@@ -118,7 +125,6 @@
                 productEntries.insertAdjacentHTML('beforeend', newEntry);
             });
 
-            // Ajout d'une nouvelle ligne pour les produits frais
             document.getElementById('add-frais-product').addEventListener('click', function() {
                 let fraisEntries = document.getElementById('frais-products');
                 let index = fraisEntries.children.length;
@@ -173,14 +179,12 @@
                 fraisEntries.insertAdjacentHTML('beforeend', newFraisEntry);
             });
 
-            // Suppression d'une ligne pour les produits standards
             document.addEventListener('click', function(event) {
                 if (event.target && event.target.classList.contains('remove-product')) {
                     event.target.closest('.product-entry').remove();
                 }
             });
 
-            // Suppression d'une ligne pour les produits frais
             document.addEventListener('click', function(event) {
                 if (event.target && event.target.classList.contains('remove-frais-product')) {
                     event.target.closest('.product-entry').remove();

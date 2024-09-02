@@ -5,24 +5,32 @@
 <div id="main-content" class="flex-1 ml-64 p-10 transition-all">
     <h1 class="text-2xl font-bold text-gray-800 mb-4">Tickets de Contact</h1>
 
-    @if(session('error'))
-        <div class="bg-red-500 text-white p-4 mb-4">
-            {{ session('error') }}
-        </div>
-    @endif
-
     @if(session('success'))
-        <div id="success-message" class="bg-green-500 text-white p-4 rounded-lg shadow-md">
+        <div class="bg-green-500 text-white p-4 rounded-lg shadow-md mb-6">
             {{ session('success') }}
         </div>
     @endif
 
-    <!-- Barre de Recherche -->
+    @if(session('error'))
+        <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="mb-5">
         <input type="text" id="search-tickets" placeholder="Rechercher des tickets..." class="px-4 py-2 border rounded-lg w-full focus:outline-none focus:shadow-outline">
     </div>
 
-    <!-- Tableau des tickets -->
     <div class="flex flex-col">
         <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
@@ -34,7 +42,7 @@
                                 <th scope="col" class="py-3 px-4 text-left font-medium">Prénom</th>
                                 <th scope="col" class="py-3 px-4 text-left font-medium">Numéro de Téléphone</th>
                                 <th scope="col" class="py-3 px-4 text-left font-medium">Message</th>
-                                <th scope="col" class="py-3 px-4 text-left font-medium">Statut</th> <!-- Nouvelle colonne pour le statut -->
+                                <th scope="col" class="py-3 px-4 text-left font-medium">Statut</th> 
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
@@ -46,7 +54,7 @@
                                     <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">{{ $ticket->user->lastname }}</td>
                                     <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">{{ $ticket->user->phone_number }}</td>
                                     <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">{{ $ticket->message }}</td>
-                                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">{{ $ticket->statut }}</td> <!-- Affichage du statut -->
+                                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">{{ $ticket->statut }}</td> 
                                     <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center">
                                         <div class="flex items-center">
                                             <a href="{{ route('admin.contact.show', $ticket->id) }}" class="text-blue-500 hover:text-blue-700">Voir</a>

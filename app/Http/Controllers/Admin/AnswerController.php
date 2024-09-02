@@ -33,13 +33,11 @@ class AnswerController extends Controller
             return back()->withErrors('Candidature introuvable.');
         }
 
-        // Créer nouvelle réponse
         $response = new \App\Models\Answer();
         $response->id_admin = Auth::id();
         $response->message = $request->message;
         $response->titre = $request->titre;
 
-        // Enregistrer la réponse via la relation polymorphe
         $candidature->answers()->save($response);
         $candidature->status = 'en cours';
         $candidature->save();

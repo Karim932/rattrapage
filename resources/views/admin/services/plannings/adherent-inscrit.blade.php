@@ -7,6 +7,27 @@
     <div class="container mx-auto">
         <div class="bg-white shadow-md rounded-lg p-6">
             <h2 class="text-2xl font-semibold text-gray-800 mb-4">Adhérents Inscrits pour {{ $planning->service->name ?? 'Service non spécifié' }}</h2>
+            @if(session('success'))
+                <div class="bg-green-500 text-white p-4 rounded-lg shadow-md mb-6">
+                    {{ session('success') }}
+                </div>
+            @endif
+        
+            @if(session('error'))
+                <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+                    {{ session('error') }}
+                </div>
+            @endif
+        
+            @if ($errors->any())
+                <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             
             @if($planning->users->isEmpty())
                 <p class="text-gray-600">Aucun adhérent inscrit pour ce planning.</p>

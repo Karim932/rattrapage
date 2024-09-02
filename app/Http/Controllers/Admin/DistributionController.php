@@ -208,7 +208,6 @@ public function storeStep1(Request $request)
         }
     
         DB::transaction(function () use ($distribution, $selectedStocks, $request) {
-            // Libérer les quantités réservées des anciens stocks
             foreach ($distribution->stocks as $existingStock) {
                 $stockModel = Stock::find($existingStock->pivot->stock_id);
                 if ($stockModel) {
@@ -217,26 +216,21 @@ public function storeStep1(Request $request)
                 }
             }
     
-            // Mettre à jour les produits sélectionnés et réserver les nouvelles quantités
-            $distribution->stocks()->detach(); // Supprimer les anciens liens
+            $distribution->stocks()->detach();
             foreach ($selectedStocks as $stock) {
                 $stockModel = Stock::findOrFail($stock['stock_id']);
     
-                // Recalculer la quantité disponible après libération des anciennes réservations
                 $disponible = $stockModel->quantite - $stockModel->quantite_reservee;
     
-                // Vérifier la disponibilité de la quantité demandée
                 if ($disponible < $stock['quantite']) {
                     throw ValidationException::withMessages([
                         'stocks' => "La quantité demandée pour l'article {$stockModel->produit->nom} dépasse la quantité disponible."
                     ]);
                 }
     
-                // Réserver uniquement la quantité nécessaire
                 $stockModel->quantite_reservee = $stockModel->quantite_reservee + $stock['quantite'];
                 $stockModel->save();
     
-                // Associer le stock à la distribution
                 $distribution->stocks()->attach($stockModel->id, ['quantite' => $stock['quantite']]);
             }
     
@@ -247,34 +241,23 @@ public function storeStep1(Request $request)
     
         return redirect()->route('admin.distributions.index')->with('success', 'Distribution mise à jour avec succès.');
     }
-    
-        
-        
-        
-
-    
-
-
 
 public function destroy($id)
-{
-    DB::transaction(function () use ($id) {
-        $distribution = Distribution::findOrFail($id);
+    {
+        DB::transaction(function () use ($id) {
+            $distribution = Distribution::findOrFail($id);
 
-        // pareil que update, libere les quantités réservées dans l'stock
-        foreach ($distribution->stocks as $stock) {
-            $stock->quantite_reservee -= $stock->pivot->quantite;
-            $stock->save();
-        }
+            foreach ($distribution->stocks as $stock) {
+                $stock->quantite_reservee -= $stock->pivot->quantite;
+                $stock->save();
+            }
 
-        // supp les enregistrements de la table pivot du coup
-        $distribution->stocks()->detach();
+            $distribution->stocks()->detach();
 
-        // et on supp la distribution pour finir
-        $distribution->delete();
-    });
+            $distribution->delete();
+        });
 
-    return redirect()->route('admin.distributions.index')->with('success', 'Distribution supprimée avec succès.');
-}
+        return redirect()->route('admin.distributions.index')->with('success', 'Distribution supprimée avec succès.');
+    }
 
 }

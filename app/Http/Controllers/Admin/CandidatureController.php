@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Skill;
 use App\Models\User;
 
+
 class CandidatureController extends Controller
 {
     /**
@@ -411,7 +412,6 @@ class CandidatureController extends Controller
                     'required',
                     'string',
                     'size:14',
-                    'unique:adhesion_commercants,siret',
                     'regex:/^\d{14}$/'
                 ],
                 'address' => 'required|string|max:500',
@@ -531,15 +531,12 @@ class CandidatureController extends Controller
 
             $adhesion->fusion->answers()->delete();
 
-            // Vérifie le type de la candidature et supprime l'enregistrement de la bonne table
             if ($adhesion->fusion instanceof AdhesionCommercant) {
-                // Supprime l'enregistrement dans adhesion_commercants
                 $adhesion->fusion->delete();
             } elseif ($adhesion->fusion instanceof AdhesionBenevole) {
                 $adhesion->fusion->delete();
             }
 
-            // Supprime l'enregistrement dans la table adhesions
             $adhesion->delete();
             return redirect()->route('adhesion.index')->with('success', 'Candidature supprimée avec succès.');
 
@@ -588,7 +585,6 @@ class CandidatureController extends Controller
     private function updateStatus($id, $status, $message)
     {
         try {
-            // Récupérer l'adhesion
             $adhesion = Adhesion::with('fusion')->findOrFail($id);
             $class = get_class($adhesion->fusion);
 

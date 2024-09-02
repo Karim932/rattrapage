@@ -38,7 +38,7 @@ class UserController extends Controller
                 'required',
                 'string',
                 'max:255',
-                'regex:/^[a-zA-ZÀ-ÿ\s\-]+$/u' // uniquement les lettres, accents, espaces et tirets
+                'regex:/^[a-zA-ZÀ-ÿ\s\-]+$/u' 
             ],
             'lastname' => [
                 'required',
@@ -52,13 +52,13 @@ class UserController extends Controller
                 'string',
                 'min:8',
                 'confirmed',
-                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', // Au moins une majuscule, une minuscule, un chiffre et un caractère spécial
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', 
             ],
             'date_of_birth' => 'required|date|before:today',
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:255',
             'country' => 'required|string|max:255',
-            'phone_number' => 'required|string|regex:/^\+?[0-9]{7,15}$/', // Numéro de téléphone valide 
+            'phone_number' => 'required|string|regex:/^\+?[0-9]{7,15}$/', 
             'role' => 'required|string|in:admin,user,benevole, commercant',
             'cotisation' => 'required|boolean',
         ], [
@@ -119,7 +119,7 @@ class UserController extends Controller
             'banned' => false
         ]);
 
-        return redirect()->route('users.index')->with('success', 'User created successfully');
+        return redirect()->route('users.index')->with('success', 'L\'utilisateur a bien été créé !');
     }
 
     /**
@@ -147,12 +147,14 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
+        // dd($request->role);
+
         $request->validate([
             'firstname' => [
                 'required',
                 'string',
                 'max:255',
-                'regex:/^[a-zA-ZÀ-ÿ\s\-]+$/u' // uniquement les lettres, accents, espaces et tirets
+                'regex:/^[a-zA-ZÀ-ÿ\s\-]+$/u' 
             ],
             'lastname' => [
                 'required',
@@ -166,14 +168,14 @@ class UserController extends Controller
                 'string',
                 'min:8',
                 'confirmed',
-                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', // Au moins une majuscule, une minuscule, un chiffre et un caractère spécial
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/',
             ],
             'date_of_birth' => 'required|date|before:today',
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:255',
             'country' => 'required|string|max:255',
-            'phone_number' => 'required|string|regex:/^\+?[0-9]{7,15}$/', // Numéro de téléphone valide 
-            'role' => 'required|string|in:admin,user,benevole, commercant',
+            'phone_number' => 'required|string|regex:/^\+?[0-9]{7,15}$/',  
+            'role' => 'required|string|in:admin,user,benevole,commercant',
             'cotisation' => 'required|boolean',
         ], [
             'firstname.required' => 'Le prénom est obligatoire.',
@@ -215,8 +217,9 @@ class UserController extends Controller
         
             'role.required' => 'Le rôle est obligatoire.',
             'role.string' => 'Le rôle doit être une chaîne de caractères.',
-            'role.in' => 'Le rôle doit être l\'un des suivants: admin, user, moderator.',
+            'role.in' => 'Le rôle doit être l\'un des suivants: admin, user, benevole, commercant.',
         ]);    
+        
 
         $user->fill($request->except(['password', 'profile_picture']));
         if ($request->filled('password')) {
@@ -224,7 +227,7 @@ class UserController extends Controller
         }
         $user->save();
         
-        return redirect()->route('users.index')->with('success', 'User updated successfully.');
+        return redirect()->route('users.index')->with('success', 'Votre modification a bien été pris en compte.');
     }
 
     /**
@@ -234,7 +237,7 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
         $user->delete();
-        return redirect()->route('users.index')->with('success', 'User updated successfully.');
+        return redirect()->route('users.index')->with('success', 'L\'utilisateur a bien été supprimé !');
     }
 
 
@@ -245,7 +248,7 @@ class UserController extends Controller
         $user->role = 'banned';
         $user->save();
 
-        return response()->json(['success' => true, 'message' => 'User banned successfully']);
+        return response()->json(['success' => true, 'message' => 'L\'utilisateur a été banni !']);
     }
 
     public function unbanUser($id)
@@ -255,18 +258,16 @@ class UserController extends Controller
         $user->role = 'user';
         $user->save();
 
-        return response()->json(['success' => true, 'message' => 'User unbanned successfully']);
+        return response()->json(['success' => true, 'message' => 'L\'utilisateur a été débanni !']);
     }
 
     public function filterUsers(Request $request)
     {
 
-        // Initialisation des paramètres de tri et de filtre.
         $role = $request->input('role');
         $sortField = $request->input('sort');
         $sortOrder = $request->input('order');
 
-        // Construit la requête avec les filtres et le tri.
         $query = User::query();
 
         if ($role) {
@@ -275,16 +276,13 @@ class UserController extends Controller
 
         $users = $query->orderBy($sortField, $sortOrder)->paginate(10);
 
-        // Rendu conditionnel basé sur le type de la requête.
         if ($request->ajax()) {
-            // Retourne les résultats sous forme de JSON pour les requêtes AJAX.
             return response()->json([
                 'html' => view('admin.users.partialsTable.user-and-role', compact('users'))->render(),
                 'pagination' => $users->links()->toHtml(),
             ]);
         }
 
-        // Pour les requêtes non-AJAX, charge la vue complète.
         return view('admin.users.index', compact('users'));
     }
 

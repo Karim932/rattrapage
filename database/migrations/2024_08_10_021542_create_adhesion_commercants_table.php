@@ -23,8 +23,8 @@ return new class extends Migration
             $table->string('status')->default('en attente');
             $table->boolean('is_active')->default(true);
             $table->text('notes')->nullable();
-            $table->string('product_type')->nullable(); // Type de produits offerts
-            $table->string('opening_hours')->nullable(); // horaire d'ouverture
+            $table->string('product_type')->nullable(); 
+            $table->string('opening_hours')->nullable(); 
             $table->string('participation_frequency')->nullable();
             $table->timestamps();
 

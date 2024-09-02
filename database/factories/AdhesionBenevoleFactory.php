@@ -25,7 +25,6 @@ class AdhesionBenevoleFactory extends Factory
      */
     public function definition()
     {
-        // Disponibilité (availability) en format JSON (matin, midi, soir) pour des jours de la semaine
         $availability = [
             'lundi' => [
                 'matin' => $this->faker->boolean,
@@ -64,12 +63,11 @@ class AdhesionBenevoleFactory extends Factory
             ],
         ];
 
-        // Générer un tableau de skill_ids
-        $skillIds = range(1, 10); // Supposons que vous ayez 10 compétences pour simplifier
-        $randomSkills = Arr::random($skillIds, rand(1, 5)); // Choisir entre 1 et 5 compétences au hasard
+        $skillIds = range(1, 10);
+        $randomSkills = Arr::random($skillIds, rand(1, 5)); 
 
         return [
-            'user_id' => User::factory(), // Crée un utilisateur associé
+            'user_id' => User::factory(),
             'status' => $this->faker->randomElement(['en cours', 'accepte', 'refuse']),
             'old_benevole' => $this->faker->boolean,
             'motivation' => $this->faker->paragraph,
@@ -82,7 +80,7 @@ class AdhesionBenevoleFactory extends Factory
             'availability_end' => $this->faker->dateTimeBetween('+1 week', '+1 month'),
             'availability' => $availability,
             'skill_id' => $randomSkills,
-            'id_service' => $this->faker->randomElement([41, 42, 43, 44, 45, 46]), // Crée un service associé
+            'id_service' => $this->faker->randomElement([41, 42, 43, 44, 45, 46]), 
         ];
     }
 
@@ -93,7 +91,6 @@ class AdhesionBenevoleFactory extends Factory
             \App\Models\Adhesion::create([
                 'candidature_id' => $benevole->id,
                 'candidature_type' => AdhesionBenevole::class,
-                // autres champs comme statut, etc.
             ]);
         });
     }

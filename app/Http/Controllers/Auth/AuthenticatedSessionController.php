@@ -26,11 +26,11 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
-        // Vérifiez si l'utilisateur est banni
-        // if (Auth::user()->banned) {
-        //     Auth::logout();
-        //     return redirect('/')->withErrors(['Your account has been banned.']);
-        // }
+        //Vérifiez si l'utilisateur est banni
+        if (Auth::user()->banned) {
+            Auth::logout();
+            return redirect('/')->withErrors(['Ton compte a été banni.']);
+        }
 
         $request->session()->regenerate();
 

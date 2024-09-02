@@ -64,10 +64,8 @@ class BenevoleServiceController extends Controller
             $adhesion->is_active = true; 
             $adhesion->save();
 
-            // Rediriger avec un message de succès
             return redirect()->route('services.index')->with('success', 'Bénévole assigné avec succès au service.');
         } else {
-            // Si aucune adhésion n'est trouvée, renvoyer une erreur ou un autre comportement
             return redirect()->route('services.index')->with('error', 'Aucune adhésion existante trouvée pour cet utilisateur.');
         }
     }

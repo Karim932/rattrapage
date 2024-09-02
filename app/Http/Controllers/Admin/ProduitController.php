@@ -40,9 +40,9 @@ class ProduitController extends Controller
         'code_barre' => [
             'required',
             'string',
-            'min:10', // Assure un minimum de 10 caractères
-            'regex:/^\d+$/', // Assure que le code-barres ne contient que des chiffres
-            'unique:produits,code_barre', // Assure l'unicité du code-barres
+            'min:10', 
+            'regex:/^\d+$/', 
+            'unique:produits,code_barre', 
         ],
     ]);
 
@@ -60,9 +60,9 @@ class ProduitController extends Controller
             'code_barre' => [
                 'required',
                 'string',
-                'min:10', // Assure un minimum de 10 caractères
-                'regex:/^\d+$/', // Assure que le code-barres ne contient que des chiffres
-                'unique:produits,code_barre,' . $id, // Assure l'unicité du code-barres en excluant l'ID actuel
+                'min:10', 
+                'regex:/^\d+$/', 
+                'unique:produits,code_barre,' . $id, 
             ],
         ]);
 

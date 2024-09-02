@@ -7,15 +7,25 @@
     <div class="container mt-5">
         <h2 class="font-bold text-xl mb-4">Ajouter un Adhérent à {{ $planning->service->name }}</h2>
 
+        @if(session('success'))
+            <div class="bg-green-500 text-white p-4 rounded-lg shadow-md mb-6">
+                {{ session('success') }}
+            </div>
+        @endif
+
         @if(session('error'))
-            <div class="alert alert-danger">
+            <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
                 {{ session('error') }}
             </div>
         @endif
 
-        @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
+        @if ($errors->any())
+            <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
         @endif
 

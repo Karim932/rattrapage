@@ -45,7 +45,6 @@ class AdhesionCommercantFactory extends Factory
             \App\Models\Adhesion::create([
                 'candidature_id' => $benevole->id,
                 'candidature_type' => AdhesionCommercant::class,
-                // autres champs comme statut, etc.
             ]);
         });
     }

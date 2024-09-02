@@ -16,10 +16,8 @@ return new class extends Migration
         $records = DB::table('adhesion_benevoles')->get();
         foreach ($records as $record) {
             if (is_string($record->skill_id) && is_array(json_decode($record->skill_id, true))) {
-                // C'est déjà un tableau JSON, donc OK
                 continue;
             } else {
-                // Convertir en JSON
                 $skillsArray = (array) json_decode($record->skill_id, true) ?: [];
                 DB::table('adhesion_benevoles')
                     ->where('id', $record->id)

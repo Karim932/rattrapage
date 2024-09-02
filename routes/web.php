@@ -32,20 +32,20 @@ use App\Http\Controllers\AnnonceAdherentController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Admin\ServiceBenevoleProposeController;
 use App\Http\Controllers\ContactController;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
 
 // mail vérifié ou non
 use App\Http\Middleware\EnsureEmailIsVerified;
 
 
-// Définit une route pour la localisation qui permet de changer la langue de l'application.
-// Elle utilise un contrôleur invocable `LocalizationController` qui gère la mise à jour de la locale.
+// la localisation qui permet de changer la langue 
+// invocable `LocalizationController` qui gère la mise à jour de la locale
 Route::get('/localization/{locale}', LocalizationController::class)->name('localization');
 
-// Applique le middleware `SetLocalization` à un groupe de routes.
-// Ce middleware est probablement conçu pour ajuster la locale de l'application basée sur la session ou d'autres logiques.
 Route::middleware(SetLocalization::class)->group(function() {
-    // Inclut les routes d'authentification à partir d'un autre fichier.
     require __DIR__.'/auth.php';
 
     Route::get('/accueil', [PageNavController::class, 'accueil'])->name('accueil'); 
@@ -60,7 +60,6 @@ Route::middleware(SetLocalization::class)->group(function() {
             Route::get('/cancel', 'cancel')->name('cancel');
         });
 
-        // Groupe de routes pour la gestion du profil utilisateur avec des actions spécifiques gérées dans `ProfileController`.
         Route::name('profile.')->controller(ProfileController::class)->group(function () {
             Route::get('/profile', 'edit')->name('edit'); 
             Route::patch('/profile', 'update')->name('update'); 
@@ -108,14 +107,16 @@ Route::middleware(SetLocalization::class)->group(function() {
             Route::post('/store/propose/test', [ServiceBenevoleProposeController::class, 'storeBenevole'])->name('store');
         });
 
+        Route::post('/inscriptions/store', [InscriptionController::class, 'store'])->name('inscriptions.store');
+        Route::put('/accept/propose/{id}', [ServiceBenevoleProposeController::class, 'updatePropose'])->name('update.propose');
+
+
     });
 
 
     // POUR LE BACK OFFICE 
-    // Groupe de routes pour les utilisateurs authentifiés, incluant un middleware pour vérifier si l'utilisateur est banni et s'il est admin.
     Route::middleware([Authenticate::class, AdminMiddleware::class, CheckIfBanned::class])->group(function () {
 
-        // Route de ressource pour les utilisateurs, permettant de gérer les opérations CRUD.
         Route::resource('users', UserController::class);
         Route::resource('adhesion', CandidatureController::class);
         Route::resource('admin/services', ServiceController::class);
@@ -129,7 +130,6 @@ Route::middleware(SetLocalization::class)->group(function() {
         Route::put('admin/contact/{id}', [ContactController::class, 'update'])->name('admin.contact.update');
         Route::delete('admin/contact/{id}', [ContactController::class, 'destroy'])->name('admin.contact.destroy');
 
-        // Route pour accéder au tableau de bord de l'administrateur
         Route::get('/admin/dashboard', [DashboardController::class, 'index'])->middleware('can:is-admin')->name('admin.dashboard');
 
         //Gestion des utilisateurs ADMIN
@@ -143,7 +143,6 @@ Route::middleware(SetLocalization::class)->group(function() {
 
         //Gestion des plannings ADMIN
         Route::prefix('plannings')->name('plannings.')->controller(PlanningController::class)->group(function (){
-            // Route pour accéder à la vue du calendrier
             Route::get('/', 'index')->name('index'); 
             Route::get('create', 'create')->name('create');
             Route::post('/', 'store')->name('store');
@@ -161,9 +160,7 @@ Route::middleware(SetLocalization::class)->group(function() {
         });
         // Route API pour obtenir les événements du calendrier
         Route::get('/api/plannings', [PlanningController::class, 'getEvents'])->name('api.plannings');
-        Route::post('/inscriptions/store', [InscriptionController::class, 'store'])->name('inscriptions.store');
 
-        Route::put('/accept/propose/{id}', [ServiceBenevoleProposeController::class, 'updatePropose'])->name('update.propose');
 
         
         Route::prefix('admin/services')->name('services.')->controller(BenevoleServiceController::class)->group(function (){
@@ -241,27 +238,18 @@ Route::middleware(['auth'])->prefix('benevole')->name('benevole.')->group(functi
 });
 
 
-
-
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
-
-
-// Simuler une erreur 405 MethodNotAllowedHttpException
 Route::get('/test-405', function () {
     throw new MethodNotAllowedHttpException([]);
 });
 
-// Simuler une erreur 403 AuthorizationException
 Route::get('/test-403', function () {
     abort(403);
 });
 
 Route::get('/test-500', function () {
-    abort(500); // Simuler une erreur 500 Internal Server Error
+    abort(500); 
 });
 
 Route::get('/test-419', function () {
-    abort(419); // Simuler une erreur 419 CSRF token mismatch
+    abort(419); 
 });

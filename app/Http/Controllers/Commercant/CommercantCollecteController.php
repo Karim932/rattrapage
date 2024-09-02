@@ -14,12 +14,22 @@ class CommercantCollecteController extends Controller
 {
     public function create()
     {
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Vous devez être connecté pour accéder à cette page.');
+        }
+
+        $user = Auth::user();
+
+        if ($user->role !== 'commercant') {
+            return redirect()->back()->with('error', 'Vous n\'êtes pas ou plus un commerçant.');
+        }
+
         return view('commercant.demande_collecte');
     }
 
+
     public function store(Request $request)
     {
-        // on recup l'id commercant avec l'id user car connecté et qu'il soit bien accepté
         $adhesionCommercant = AdhesionCommercant::where('user_id', auth()->user()->id)
             ->where('status', 'accepté')
             ->first();
@@ -30,13 +40,11 @@ class CommercantCollecteController extends Controller
             return redirect()->back()->with('error', 'Vous devez d\'abord compléter votre adhésion pour demander une collecte.');
         }
 
-        // date de demande collecte max 3 jours
         $request->validate([
             'date_collecte' => 'required|date|after_or_equal:today|before_or_equal:' . Carbon::now()->addDays(3)->toDateString(),
             'instructions' => 'nullable|string',
         ]);
 
-        // on check si y'a pas déjà une collecte pour la date demandé
         $existingCollecte = Collecte::where('commercant_id', $adhesionCommercant->id)
             ->whereDate('date_collecte', '=', Carbon::parse($request->date_collecte)->toDateString())
             ->first();
@@ -59,8 +67,17 @@ class CommercantCollecteController extends Controller
 
     public function dashboard()
     {
-        // Récupérer les collectes du commerçant connecté
         $collectes = Collecte::where('commercant_id', Auth::user()->adhesionCommercants->id)->get();
+
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Vous devez être connecté pour accéder à cette page.');
+        }
+
+        $user = Auth::user();
+
+        if ($user->role !== 'commercant') {
+            return redirect()->back()->with('error', 'Vous n\'êtes pas ou plus un commerçant.');
+        }
 
         return view('commercant.dashboard', compact('collectes'));
     }
@@ -71,7 +88,6 @@ class CommercantCollecteController extends Controller
                             ->where('commercant_id', Auth::user()->adhesionCommercants->id)
                             ->firstOrFail();
 
-        // Vérifier que le statut est "En Attente" ou "Attribué"
         if (in_array($collecte->status, ['En Attente', 'Attribué'])) {
             $collecte->status = 'Annulé';
             $collecte->save();

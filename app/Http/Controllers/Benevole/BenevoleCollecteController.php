@@ -19,21 +19,27 @@ class BenevoleCollecteController extends Controller
 {
     $adhesionBenevole = Auth::user()->adhesionsBenevoles;
 
-        // Vérifier l'existence de l'adhésion et son statut
+    if (!Auth::check()) {
+        return redirect()->route('login')->with('error', 'Vous devez être connecté pour accéder à cette page.');
+    }
+
+    $user = Auth::user();
+
+    if ($user->role !== 'benevole') {
+        return redirect()->back()->with('error', 'Vous n\'êtes pas ou plus un benevole.');
+    }
+
         if ($adhesionBenevole && $adhesionBenevole->status === 'accepté') {
-            // Récupérer les collectes assignées au bénévole
             $collectes = Collecte::where('benevole_id', $adhesionBenevole->id)
                                 ->whereIn('status', ['Attribué', 'En Cours', 'En Attente de Stockage'])
                                 ->get();
     
-            // Récupérer les distributions assignées au bénévole
             $distributions = Distribution::where('benevole_id', $adhesionBenevole->id)
                                         ->whereIn('status', ['Planifié', 'En Cours', 'Terminé'])
                                         ->get();
     
             return view('benevole.collectes.index', compact('collectes', 'distributions'));
         } else {
-            // Rediriger vers la route 'benevole' si l'utilisateur n'a pas d'adhésion de bénévole ou si elle n'est pas acceptée
             return redirect()->route('benevole')->with('error', 'Vous devez être un bénévole actif pour accéder à cette page.');
         } 
 }
@@ -85,7 +91,7 @@ public function stock($id)
                         ->firstOrFail();
 
     return view('benevole.collectes.stock', compact('collecte'))
-            ->with('originalProducts', session('originalProducts')); // Transmettre les produits originaux à la vue
+            ->with('originalProducts', session('originalProducts')); 
 }
 
 public function checkProducts(Request $request, $id)
@@ -95,31 +101,26 @@ public function checkProducts(Request $request, $id)
 
     //dd($products);
 
-    // Vérifier si $products est bien un tableau
     if (!is_array($products)) {
         return back()->withErrors(['error' => 'Les données des produits ne sont pas correctement formatées.']);
     }
 
-    // Vérification de chaque produit soumis
     foreach ($products as $index => $product) {
-        // Vérifier si le produit est un tableau
         if (!is_array($product)) {
             return back()->withErrors(['error' => 'Les données du produit ne sont pas correctement formatées.']);
         }
 
         if (!Produit::where('code_barre', $product['barcode'])->exists()) {
-            $missingProducts[] = $product;  // Ajouter les produits manquants à la liste
+            $missingProducts[] = $product;  
         }
     }
 
-    // Si des produits manquent, enregistrer les données originales dans la session et rediriger
     if (!empty($missingProducts)) {
         session(['originalProducts' => $products]);
         return redirect()->route('benevole.collectes.addProducts', $id)
-                         ->with('missingProducts', $missingProducts);       // Tous les produits soumis, y compris ceux manquants
+                         ->with('missingProducts', $missingProducts);      
     }
 
-    // Si tous les produits existent, procéder à l'entrée en stock
     return $this->storeStock($request, $id);
 }
 
@@ -146,10 +147,8 @@ public function checkProducts(Request $request, $id)
         ]);
     }
 
-    // Assurer que 'originalProducts' est bien défini avant la redirection
     $originalProducts = session('originalProducts');
 
-    // Rediriger vers l'entrée en stock avec les produits maintenant ajoutés
     return redirect()->route('benevole.collectes.stock', $id)
                      ->with('originalProducts', $originalProducts);
 }
@@ -160,7 +159,6 @@ public function checkProducts(Request $request, $id)
         return preg_match($pattern, $emplacement);
     }
 
-    // Enregistrer les produits entrés en stock pour une collecte spécifique
     public function storeStock(Request $request, $id)
 {
     $adhesionBenevole = Auth::user()->adhesionsBenevoles;
@@ -179,7 +177,6 @@ public function checkProducts(Request $request, $id)
     
     $stockEntries = [];
 
-    // Traitement des produits standards
     foreach ($products as $product) {
         if (Carbon::parse($product['expiration_date'])->isPast()) {
             return back()->withErrors(['expiration_date' => 'Le produit avec le code-barres ' . $product['barcode'] . ' a une date d\'expiration passée.'])
@@ -188,7 +185,6 @@ public function checkProducts(Request $request, $id)
 
         $emplacement = $product['location_section'] . $product['location_allee'] . $product['location_etagere'] . $product['location_position'];
 
-        // Valider l'emplacement
         if (!$this->isValidLocation($emplacement) && empty($product['froid'])) {
             return back()->withErrors(['location' => 'L\'emplacement ' . $emplacement . ' n\'est pas valide.'])
                          ->with('originalProducts', $products);
@@ -196,7 +192,6 @@ public function checkProducts(Request $request, $id)
 
         $produit = Produit::where('code_barre', $product['barcode'])->first();
 
-        // Vérifier s'il existe déjà un lot avec la même date d'expiration
         $stock = Stock::where('produit_id', $produit->id)
                       ->where('date_expiration', $product['expiration_date'])
                       ->first();
@@ -225,14 +220,12 @@ public function checkProducts(Request $request, $id)
         ];
     }
 
-        // Traitement des produits frais
         foreach ($fraisProducts as $product) {
-            $produit = Produit::where('code_barre', $product['barcode'])->first(); // ID du produit frais sélectionné
+            $produit = Produit::where('code_barre', $product['barcode'])->first(); 
             $poids = $product['poids'];
             $expirationDate = $product['expiration_date'];
             $emplacementFroid = $product['froid'];
 
-            // Ajouter une validation pour la date d'expiration des produits frais
             if (Carbon::parse($expirationDate)->isPast()) {
                 return back()->withErrors(['expiration_date' => 'Le produit frais sélectionné a une date d\'expiration passée.'])
                             ->with('originalProducts', $fraisProducts);
@@ -243,7 +236,6 @@ public function checkProducts(Request $request, $id)
                              ->with('originalProducts', $products);
             }
             
-            // Valider l'emplacement pour les produits frais
             if (empty($emplacementFroid)) {
                 return back()->withErrors(['froid' => 'L\'emplacement froid est requis pour les produits frais.'])
                             ->with('originalProducts', $fraisProducts);

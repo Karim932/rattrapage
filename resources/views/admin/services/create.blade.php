@@ -4,8 +4,20 @@
 
 @section('content')
 <div id="main-content" class="flex-1 ml-64 p-10 transition-all">
+    @if(session('success'))
+        <div class="bg-green-500 text-white p-4 rounded-lg shadow-md mb-6">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+            {{ session('error') }}
+        </div>
+    @endif
+
     @if ($errors->any())
-        <div class="bg-red-500 text-white p-4 mb-4">
+        <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
             <ul>
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -28,7 +40,6 @@
                     <h1 class="text-2xl font-semibold text-gray-700">Ajouter un Nouveau Service</h1>
                 </div>
 
-                <!-- Formulaire de création de service -->
                 <form action="{{ route('services.store') }}" method="POST" class="space-y-6">
                     @csrf
 
@@ -81,7 +92,6 @@
                                     class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">{{ old('condition') }}</textarea>
                         </div>
 
-                        <!-- Formulaire d'ajout de compétences existantes avec checkboxes -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Compétences requises</label>
                             <div class="mt-1">

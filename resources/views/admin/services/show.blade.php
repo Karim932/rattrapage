@@ -71,14 +71,12 @@
                                 <div class="text-sm font-medium text-gray-900">
                                     {{ $adhesion->user->firstname }} {{ $adhesion->user->lastname }}
                                 </div>
-                                <!-- Bouton pour détacher le bénévole (définir service_id à null) -->
                                 <button onclick="event.preventDefault(); document.getElementById('detach-form-{{ $adhesion->id }}').submit();"
                                     class="text-blue-500 hover:text-blue-700">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 </button>
-                                <!-- Formulaire pour détacher le bénévole -->
                                 <form id="detach-form-{{ $adhesion->id }}" action="{{ route('services.benevole.detach', ['adhesion_id' => $adhesion->id]) }}" method="POST" style="display: none;">
                                     @csrf
                                 </form>

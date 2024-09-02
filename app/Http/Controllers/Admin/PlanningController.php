@@ -23,29 +23,23 @@ class PlanningController extends Controller
 
         $query = Planning::with('service');
 
-        // Filtrer par ville si elle est sélectionnée
         if (!empty($city)) {
             $query->where('city', $city);
         }
 
-        // Filtrer par service si un service est sélectionné
         if (!empty($serviceId)) {
             $query->where('service_id', $serviceId);         
         }
 
-        // Trier les plannings par ville puis par date
         $plannings = $query->orderBy('service_id')
                    ->orderBy('city')
                    ->orderBy('date')
                    ->get();
 
-        // Renvoyer les villes distinctes pour le filtre
         $cities = Planning::select('city')->distinct()->orderBy('city')->get();
 
-        // Renvoyer les services distincts pour le filtre
         $services = Service::orderBy('name')->get();
 
-        // Retourner la vue avec les plannings filtrés et triés
         return view('admin.services.plannings.index', compact('plannings', 'cities', 'services', 'city', 'serviceId'));
     }
 
@@ -58,24 +52,19 @@ class PlanningController extends Controller
         return view('admin.services.plannings.create', compact('services'));
     }
 
-    /**
-     * Stocke un nouvel événement de planification dans la base de données.
-     */
     public function store(Request $request)
     {
 
-        // Validation des données du formulaire
         $validatedData = $request->validate([
-            'service_id' => 'required|exists:services,id',  // Assurez-vous que le service_id existe dans la table des services
-            'date' => 'required|date|after_or_equal:now',  // Assurez-vous que la date est bien une date
-            'start_time' => 'required|date_format:H:i',  // Heure de début doit être une heure valide
-            'end_time' => 'required|date_format:H:i|after:start_time',  // Heure de fin doit être après l'heure de début
+            'service_id' => 'required|exists:services,id', 
+            'date' => 'required|date|after_or_equal:now',  
+            'start_time' => 'required|date_format:H:i',  
+            'end_time' => 'required|date_format:H:i|after:start_time',  
             'city' => 'nullable|string',
             'address' => 'nullable|string',
             'max_inscrit' => 'nullable|integer',
             'benevole_id' => 'required|in:none,auto',
             
-            // 'status' => 'required|in:planned,ongoing,completed,cancelled'  // Les statuts valides
         ]);
 
 
@@ -93,7 +82,6 @@ class PlanningController extends Controller
         }
 
 
-        // Création et sauvegarde du nouveau planning
         $planning = new Planning([
             'service_id' => $validatedData['service_id'],
             'date' => $validatedData['date'],
@@ -104,20 +92,16 @@ class PlanningController extends Controller
             'max_inscrit' => $validatedData['max_inscrit'],
             'benevole_id' => null, 
             
-            // 'status' => $validatedData['status'],
         ]);
 
         if ($planning) {
-            // Si l'assignation automatique est choisie
             if ($validatedData['benevole_id'] === 'auto') {
-                // Logique pour assigner automatiquement un bénévole en fonction des disponibilités
                 $benevole = $this->assignAutoBenevole($planning);
                 
                 if ($benevole) {
                     $planning->benevole_id = $benevole->id;
                     $planning->save();
                 } else {
-                    // Si aucun bénévole n'est disponible, retournez avec une erreur
                     return redirect()->back()->withErrors(['error' => 'Aucun bénévole disponible pour ce créneau horaire.'])->withInput();
                 }
             }            
@@ -131,7 +115,6 @@ class PlanningController extends Controller
 
     protected function assignAutoBenevole(Planning $planning)
     {
-        // Définir les créneaux horaires
         $timeSlots = [
             'matin' => ['start' => '07:00', 'end' => '11:00'],
             'midi' => ['start' => '11:00', 'end' => '14:00'],
@@ -141,7 +124,6 @@ class PlanningController extends Controller
         $planningStartTime = Carbon::parse($planning->start_time);
         $planningEndTime = Carbon::parse($planning->end_time);
 
-        // Mapping des jours de la semaine en anglais vers le français
         $daysOfWeekMapping = [
             'monday' => 'lundi',
             'tuesday' => 'mardi',
@@ -153,53 +135,43 @@ class PlanningController extends Controller
         ];
 
         $dayOfWeek = strtolower(Carbon::parse($planning->date)->format('l'));
-        $dayOfWeekFr = $daysOfWeekMapping[$dayOfWeek];  // Convertir en français
+        $dayOfWeekFr = $daysOfWeekMapping[$dayOfWeek];  
 
 
-        // Filtrer les bénévoles disponibles pour le jour et l'heure du planning
         $benevoles = AdhesionBenevole::whereNotNull('availability')
             ->where('id_service', $planning->service_id)
             ->get()
             ->filter(function ($benevole) use ($planning, $planningStartTime, $planningEndTime, $timeSlots, $dayOfWeekFr) {
-                // Vérifier si la disponibilité est déjà un tableau ou s'il faut la décoder
                 if (is_string($benevole->availability)) {
                     $availability = json_decode($benevole->availability, true);
                 } elseif (is_array($benevole->availability)) {
                     $availability = $benevole->availability;
                 } else {
-                    return false; // Cas où la disponibilité n'est ni une chaîne JSON ni un tableau
+                    return false; 
                 }
 
-                // Vérifier si le bénévole est disponible ce jour-là
                 if (!isset($availability[$dayOfWeekFr])) {
                     return false;
                 }
 
-                // Vérifier les créneaux horaires
                 foreach ($availability[$dayOfWeekFr] as $slot => $isAvailable) {
-                    // Adapter pour gérer les deux formats possibles : "1" ou true
                     if (($isAvailable === "1" || $isAvailable === true) && isset($timeSlots[$slot])) {
                         $slotStart = Carbon::createFromTimeString($timeSlots[$slot]['start']);
                         $slotEnd = Carbon::createFromTimeString($timeSlots[$slot]['end']);
 
-                        // Vérifier si le créneau couvre l'heure du planning
                         if ($planningStartTime->lessThanOrEqualTo($slotEnd) && $planningEndTime->greaterThanOrEqualTo($slotStart)) {
-                            // Vérifier si le bénévole est déjà assigné à un autre planning à ce moment-là
                             $conflictingPlanning = Planning::where('benevole_id', $benevole->id)
                             ->where('date', $planning->date)
                             ->where(function ($query) use ($planningStartTime, $planningEndTime) {
-                                // Vérifier si l'heure de début ou de fin est entre celles du nouveau planning
                                 $query->where(function ($subQuery) use ($planningStartTime, $planningEndTime) {
                                     $subQuery->orWhereBetween('start_time', [$planningStartTime, $planningEndTime])
                                         ->orWhereBetween('end_time', [$planningStartTime, $planningEndTime]);
                                 })
                                 ->orWhere(function ($subQuery) use ($planningStartTime, $planningEndTime) {
-                                    // Vérifier si le planning existant englobe entièrement le créneau du nouveau planning
                                     $subQuery->orWhere('start_time', '<=', $planningStartTime)
                                         ->orWhere('end_time', '>=', $planningEndTime);
                                 })
                                 ->orWhere(function ($subQuery) use ($planningStartTime, $planningEndTime) {
-                                    // Nouvel ajout: Vérifier si les heures sont exactement les mêmes
                                     $subQuery->orWhere('start_time', $planningStartTime)
                                         ->orWhere('end_time', $planningEndTime);
                                 });
@@ -209,23 +181,19 @@ class PlanningController extends Controller
 
                             // dd($conflictingPlanning, $planning->date);
 
-                            // Si aucun conflit, ce bénévole est disponible
                             if (!$conflictingPlanning) {
-                                // Debugging: Afficher le bénévole sélectionné
                                 Log::info("Bénévole assigné: " . $benevole->user->firstname . $benevole->user->lastname);
                                 return true;
                             } else {
-                                // Debugging: Afficher les détails du conflit
                                 Log::info("Conflit détecté pour le bénévole: " . $benevole->user->firstname . $benevole->user->lastname);
                             }
                         }
                     }
                 }
 
-                return false; // Bénévole non disponible pour ce créneau horaire
+                return false; 
             });
 
-        // Retourner le premier bénévole disponible ou null si aucun ne correspond
         return $benevoles->first();
     }
 
@@ -234,31 +202,26 @@ class PlanningController extends Controller
         $city = $request->input('city');
         $service = $request->input('service_id');
 
-        // Charger les plannings avec la relation 'service'
         $planningsQuery = Planning::with('service');
 
-        // Filtrer par ville si elle est sélectionnée
         if ($city) {
             $planningsQuery->where('city', $city);
         }
 
-        // Filtrer par service si un service est sélectionné
         if ($service) {
             $planningsQuery->where('service_id', $service);
         }
 
-        // Trier les plannings par ville, par service et par date
         $plannings = $planningsQuery->orderBy('city')
                                     ->orderBy('service_id')
                                     ->orderBy('date')
                                     ->get();
 
-        // Construire la réponse JSON pour les événements
         $events = $plannings->map(function ($planning) {
             return [
-                'title' => $planning->service->name . ' - ' . ($planning->city ?? 'Ville non spécifiée'),  // Ajoutez la ville directement au titre
-                'start' => Carbon::parse($planning->date)->format('Y-m-d') . 'T' . substr($planning->start_time, 0, 5),  // Prendre uniquement la date et l'heure (HH:MM)
-                'end' => Carbon::parse($planning->date)->format('Y-m-d') . 'T' . substr($planning->end_time, 0, 5),  // Prendre uniquement la date et l'heure (HH:MM)
+                'title' => $planning->service->name . ' - ' . ($planning->city ?? 'Ville non spécifiée'),  
+                'start' => Carbon::parse($planning->date)->format('Y-m-d') . 'T' . substr($planning->start_time, 0, 5),  
+                'end' => Carbon::parse($planning->date)->format('Y-m-d') . 'T' . substr($planning->end_time, 0, 5), 
                 'url' => route('plannings.show', $planning->id),
             ];
         });
@@ -269,20 +232,16 @@ class PlanningController extends Controller
 
     public function edit($id)
     {
-        // Récupération du planning spécifique par son ID avec gestion d'erreur si non trouvé
         $planning = Planning::findOrFail($id);
 
-        // Récupération de tous les services pour les lister dans le formulaire de sélection
         $services = Service::all();
 
-        // Passage du planning et des services à la vue
         return view('admin.services.plannings.edit', compact('planning', 'services'));
     }
 
 
     public function update(Request $request, $id)
     {
-        // Validation and logic to update an event
         $planning = Planning::findOrFail($id);
         $planning->update($request->all());
         return redirect()->route('plannings.index')->with('success', 'Le planning a bien été modifié.');
@@ -290,14 +249,12 @@ class PlanningController extends Controller
 
     public function show($id)
     {
-        // Retrieve the specific planning by its ID
         $planning = Planning::with('service')->findOrFail($id);
 
         if (!$planning) {
             return redirect()->route('plannings.index')->with('error', 'planning non trouvée.');
         }
 
-        // Pass the planning data to the view
         return view('admin.services.plannings.show', compact('planning'));
     }
 
@@ -310,13 +267,13 @@ class PlanningController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Le planning a bien été supprimé.',
-                'redirectUrl' => route('plannings.index') // URL vers laquelle rediriger
+                'redirectUrl' => route('plannings.index') 
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Une erreur s\'est produite lors de la suppression : ' . $e->getMessage(),
-                'redirectUrl' => route('plannings.index') // Peut-être rediriger vers la même page avec un message d'erreur
+                'redirectUrl' => route('plannings.index') 
             ]);
         }
     }
@@ -326,10 +283,8 @@ class PlanningController extends Controller
     {
         $planning = Planning::with('benevoles.user')->findOrFail($id);
 
-        // Bénévoles déjà assignés
         $assignedBenevoles = $planning->benevoles;
 
-        // Bénévoles disponibles pour ce service spécifique
         $benevoles = AdhesionBenevole::with('user')
             ->where('id_service', $planning->service_id)
             ->get();
@@ -342,7 +297,6 @@ class PlanningController extends Controller
         $planning = Planning::findOrFail($id);
         $benevole = AdhesionBenevole::findOrFail($request->benevole_id);
 
-        // Assigner le bénévole au planning
         $planning->benevoles()->attach($benevole);
 
         return redirect()->back()->with('success', 'Bénévole ajouté avec succès.');
@@ -360,7 +314,7 @@ class PlanningController extends Controller
     public function showInscrits($id)
     {
         $planning = Planning::findOrFail($id);
-        $inscrits = $planning->users; // Supposant que vous avez une relation 'users' dans le modèle Planning
+        $inscrits = $planning->users; 
 
         return view('admin.services.plannings.adherent-inscrit', compact('planning', 'inscrits'));
     }
@@ -381,7 +335,7 @@ class PlanningController extends Controller
             'user_id' => 'required|exists:users,id',
         ]);
 
-        $planning->users()->attach($request->user_id); // Supposant que vous avez une relation 'users' dans le modèle Planning
+        $planning->users()->attach($request->user_id); 
 
         return redirect()->route('plannings.inscrits', $planning->id)->with('success', 'Adhérent ajouté avec succès.');
     }

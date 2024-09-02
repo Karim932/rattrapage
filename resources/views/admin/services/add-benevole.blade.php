@@ -7,6 +7,27 @@
 <div id="main-content" class="flex-1 ml-64 p-10 transition-all">
     <div class="container mx-auto px-6 py-8">
         <h1 class="text-2xl font-semibold text-gray-800">Assigner un Bénévole à un Service</h1>
+        @if(session('success'))
+            <div class="bg-green-500 text-white p-4 rounded-lg shadow-md mb-6">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <div class="mt-8 max-w-2xl">
             <div class="bg-white shadow-lg rounded-lg overflow-hidden">
                 <form action="{{ route('services.save') }}" method="POST" class="p-6 sm:p-8">
@@ -23,7 +44,6 @@
                     <div class="mb-6 relative">
                         <label for="skills" class="block text-sm font-medium text-gray-700">Compétences pour le service</label>
                         <select id="skills" name="skills[]" multiple class="block w-full pl-4 pr-12 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 sm:text-sm">
-                            <!-- Les options seront ajoutées ici par jQuery -->
                         </select>
                     </div>
                                                

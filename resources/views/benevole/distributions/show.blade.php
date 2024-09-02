@@ -3,6 +3,28 @@
         <div class="bg-white shadow-md rounded-lg p-6">
             <h1 class="text-3xl font-bold mb-6 text-indigo-600">Détails de la Distribution</h1>
 
+            @if(session('success'))
+                <div class="bg-green-500 text-white p-4 rounded-lg shadow-md mb-6">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <div class="mb-4">
                 <h2 class="text-xl font-semibold text-gray-700">Informations sur la Distribution</h2>
                 <hr class="my-2">

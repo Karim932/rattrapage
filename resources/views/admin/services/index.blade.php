@@ -27,7 +27,6 @@
                 </div>
                 
 
-                <!-- Notification de succès -->
                 @if(session('success'))
                     <div class="bg-green-500 text-white p-4 rounded-lg shadow-md mb-6">
                         {{ session('success') }}
@@ -100,7 +99,6 @@
                                             <div class="text-sm text-gray-500">{{ \Carbon\Carbon::parse($service->created_at)->format('d/m/Y') }}</div>
                                         </td>
                                         <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                            <!-- Boutons d'action ici -->
                                             <div class="flex items-center">
                                                 <a href="{{ route('services.show', $service->id) }}">Voir</a>
                                                 <a href="{{ route('services.edit', $service->id) }}" class="text-indigo-600 hover:text-indigo-900 ml-4">Modifier</a>
@@ -115,7 +113,6 @@
                                 @endforeach
                             </tbody>
                         </table>
-                        <!-- Pagination -->
                         <div id="pagination-container" class="mt-4">
                             {{ $services->links() }}
                         </div>

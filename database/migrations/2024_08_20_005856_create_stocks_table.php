@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('stocks', function (Blueprint $table) {
         $table->id();
-        $table->foreignId('produit_id')->constrained('produits');  // Référence à la table `produits`
+        $table->foreignId('produit_id')->constrained('produits');  
         $table->integer('quantite');
         $table->string('emplacement');
         $table->dateTime('date_entree');

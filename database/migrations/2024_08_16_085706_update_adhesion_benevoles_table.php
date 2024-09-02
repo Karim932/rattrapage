@@ -10,7 +10,7 @@ class UpdateAdhesionBenevolesTable extends Migration
     {
         Schema::table('adhesion_benevoles', function (Blueprint $table) {
             $table->dropColumn('hour_month');
-            $table->json('availability')->nullable(); // Ajoute une colonne JSON pour stocker la disponibilité
+            $table->json('availability')->nullable();
             $table->json('skill_id')->nullable();
         });
     }

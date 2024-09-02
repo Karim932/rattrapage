@@ -14,7 +14,7 @@ class CreneauController extends Controller
     {
 
         if (Auth::user()->cotisation === false) {
-            return redirect()->route('stripe.checkout'); // Assurez-vous que cette vue existe
+            return redirect()->route('stripe.checkout'); 
         }
 
         $plannings = Planning::with(['service', 'inscriptions'])

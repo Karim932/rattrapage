@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('adhesion_benevoles', function (Blueprint $table) {
-            $table->string('type')->default('Bénévole')->after('id'); // Ajoute le champ après l'id
+            $table->string('type')->default('Bénévole')->after('id'); 
         });
 
         Schema::table('adhesion_commercants', function (Blueprint $table) {
-            $table->string('type')->default('Commerçant')->after('id'); // Ajoute le champ après l'id
+            $table->string('type')->default('Commerçant')->after('id'); 
         });
     }
 

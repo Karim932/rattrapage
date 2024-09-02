@@ -1,4 +1,3 @@
-{{-- Vue pour ajouter une nouvelle annonce --}}
 @extends('layouts.templateAdmin')
 
 @section('title', 'Ajouter une annonce')
@@ -10,8 +9,20 @@
             Ajouter une nouvelle annonce
         </h1>
 
+        @if(session('success'))
+            <div class="bg-green-500 text-white p-4 rounded-lg shadow-md mb-6">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
+                {{ session('error') }}
+            </div>
+        @endif
+
         @if ($errors->any())
-            <div class="bg-red-500 text-white p-4 mb-4">
+            <div class="bg-red-500 text-white p-4 rounded-lg shadow-md mb-6">
                 <ul>
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>

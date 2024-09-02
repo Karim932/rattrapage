@@ -1,4 +1,3 @@
-{{-- resources/views/services/edit.blade.php --}}
 @extends('layouts.templateAdmin')
 
 @section('title', 'Administrateur | Modifier Service')
@@ -22,7 +21,6 @@
                     <h1 class="text-2xl font-semibold text-gray-700">Modifier le Service</h1>
                 </div>
 
-                <!-- Formulaire de modification de service -->
                 <form action="{{ route('services.update', $service->id) }}" method="POST" class="space-y-6">
                     @csrf
                     @method('PUT')
@@ -75,7 +73,6 @@
                                   class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">{{ old('condition', $service->condition) }}</textarea>
                     </div>
 
-                    <!-- Interface pour ajouter et supprimer des nouvelles compétences dynamiquement -->
                     <div>
                         <label for="new_skills" class="block text-sm font-medium text-gray-700">Ajouter de nouvelles compétences</label>
                         <div id="new_skills_container">
